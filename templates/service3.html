@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voyages en Groupe – MarocTour</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+    /* ============================================================
+       SERVICE 3 — "Desert Caravan"
+       Theme: Moroccan Flag Green / Caravan / Community / Zellige
+    ============================================================ */
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #F0F5F0; }
+
+    :root {
+        --s3-green:  #006233;
+        --s3-dark:   #004020;
+        --s3-mid:    #3A9A5C;
+        --s3-light:  #6BBF88;
+        --s3-gold:   #D4933A;
+        --s3-navy:   #1A2744;
+        --zellige: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='rgba(0,98,51,0.1)' stroke-width='0.8'%3E%3Cpolygon points='40,4 46,22 64,16 54,31 72,40 54,49 64,64 46,58 40,76 34,58 16,64 26,49 8,40 26,31 16,16 34,22'/%3E%3Cpolygon points='40,22 52,40 40,58 28,40'/%3E%3Crect x='26' y='26' width='28' height='28' transform='rotate(45 40 40)'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    /* ── UNIFIED SERVICE NAVBAR ── */
+    .svc-nav {
+        position: sticky; top: 0; z-index: 900;
+        background: var(--s3-dark);
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 32px; height: 64px;
+        box-shadow: 0 2px 20px rgba(0,0,0,.4);
+        border-bottom: 1px solid rgba(0,98,51,.3);
+    }
+    .svc-nav::after {
+        content: '';
+        position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, var(--s3-green), var(--s3-gold), var(--s3-green), var(--s3-gold), var(--s3-green));
+    }
+    .svc-nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .svc-nav-logo svg { width: 32px; height: 32px; }
+    .svc-nav-logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .svc-nav-logo-maroc { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: #fff; }
+    .svc-nav-logo-tour  { font-size: .55rem; letter-spacing: 5px; color: #D4933A; font-weight: 600; text-transform: uppercase; }
+    .svc-nav-left { display: flex; align-items: center; gap: 20px; }
+    .svc-nav-back {
+        display: flex; align-items: center; gap: 8px;
+        color: rgba(255,255,255,.65); text-decoration: none;
+        font-size: .82rem; font-weight: 500;
+        padding: 7px 14px; border-radius: 8px;
+        border: 1px solid rgba(255,255,255,.15); transition: all .2s;
+    }
+    .svc-nav-back:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .svc-nav-back i { font-size: .75rem; }
+    .svc-nav-logout {
+        display: flex; align-items: center; gap: 8px;
+        background: rgba(193,39,45,.15); border: 1px solid rgba(193,39,45,.3);
+        color: #e8606a; padding: 7px 14px; border-radius: 8px;
+        font-size: .82rem; font-weight: 600; cursor: pointer;
+        font-family: 'Plus Jakarta Sans', sans-serif; transition: all .2s;
+    }
+    .svc-nav-logout:hover { background: rgba(193,39,45,.28); color: #ff7a83; }
+
+    /* ── SERVICE HERO BANNER — Desert Caravan ── */
+    .svc-hero {
+        padding: 60px 32px 52px; text-align: center;
+        position: relative; overflow: hidden;
+    }
+    .svc-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image: var(--zellige);
+        background-size: 80px 80px;
+        opacity: .55;
+    }
+    /* Caravan wave bottom */
+    .svc-hero::after {
+        content: '';
+        position: absolute; bottom: -1px; left: 0; right: 0; height: 60px;
+        background: linear-gradient(0deg, #F0F5F0 0%, transparent 100%);
+    }
+    .svc-hero-s3 {
+        background: linear-gradient(150deg, #002814 0%, #004020 20%, #006233 55%, #3A9A5C 85%, #6BBF88 100%);
+    }
+    .svc-hero-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+    .svc-hero-ornament {
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        margin-bottom: 18px;
+    }
+    .svc-hero-ornament-line { width: 40px; height: 1px; background: linear-gradient(90deg, transparent, rgba(212,147,58,.8)); }
+    .svc-hero-ornament-line.r { background: linear-gradient(90deg, rgba(212,147,58,.8), transparent); }
+    .svc-hero-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,.1); backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 100px; padding: 6px 18px;
+        font-size: .78rem; color: #ffd88a; font-weight: 600;
+        letter-spacing: .5px; text-transform: uppercase; margin-bottom: 18px;
+    }
+    .svc-hero h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: 700; color: #fff; margin-bottom: 14px; line-height: 1.2;
+        text-shadow: 0 2px 16px rgba(0,0,0,.4);
+    }
+    .svc-hero p { font-size: 1rem; color: rgba(255,255,255,.78); line-height: 1.65; max-width: 480px; margin: 0 auto; }
+
+    /* ── TYPE & NIVEAU BADGES ── */
+    .type-badge {
+        display: inline-flex; align-items: center; gap: 5px;
+        font-size: 11px; font-weight: 700; padding: 3px 10px;
+        border-radius: 20px; letter-spacing: .3px;
+    }
+    .type-nature   { background: rgba(0,98,51,.12);  color: #006233; }
+    .type-ville    { background: rgba(26,39,68,.12);  color: #1A2744; }
+    .type-aventure { background: rgba(193,39,45,.1);  color: #C1272D; }
+    .type-culture  { background: rgba(147,51,234,.1); color: #7c3aed; }
+    .type-plage    { background: rgba(14,165,233,.1); color: #0284c7; }
+    .type-montagne { background: rgba(92,80,63,.12);  color: #5c4f3f; }
+    .type-mixte    { background: rgba(212,147,58,.12); color: #b87a1e; }
+
+    .niveau-badge {
+        display: inline-flex; align-items: center; gap: 4px;
+        font-size: 11px; font-weight: 600; padding: 2px 8px;
+        border-radius: 6px;
+    }
+    .niv-debutant     { background: #dcfce7; color: #15803d; }
+    .niv-intermediaire{ background: #fef9c3; color: #a16207; }
+    .niv-avance       { background: #fee2e2; color: #b91c1c; }
+    .niv-tous         { background: #f1f5f9; color: #475569; }
+
+    /* ── SCORE RING ── */
+    .score-ring {
+        width: 52px; height: 52px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        flex-direction: column; font-weight: 800; font-size: 14px;
+        position: relative; flex-shrink: 0;
+    }
+    .score-ring svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+    .score-ring .score-num { position: relative; z-index: 1; line-height: 1; }
+    .score-ring .score-pct { font-size: 9px; font-weight: 600; opacity: .7; }
+    .score-high   { color: #006233; }
+    .score-mid    { color: #a16207; }
+    .score-low    { color: #6b7280; }
+
+    /* ── MATCH FORM ── */
+    .match-hero {
+        background: linear-gradient(135deg, #004020, #006233, #3A9A5C);
+        border-radius: 20px; padding: 32px; margin-bottom: 28px;
+        position: relative; overflow: hidden;
+    }
+    .match-hero::before {
+        content: ''; position: absolute; inset: 0;
+        background-image: var(--zellige); background-size: 80px;
+        opacity: .2;
+    }
+    .match-hero-inner { position: relative; z-index: 1; }
+    .match-hero h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #fff; margin-bottom: 6px; }
+    .match-hero p  { color: rgba(255,255,255,.75); font-size: .9rem; margin-bottom: 24px; }
+
+    .pref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .pref-option {
+        background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
+        border-radius: 12px; padding: 14px 10px; text-align: center;
+        cursor: pointer; transition: all .2s; color: #fff; user-select: none;
+    }
+    .pref-option:hover { background: rgba(255,255,255,.15); border-color: rgba(255,255,255,.4); }
+    .pref-option.selected { background: rgba(212,147,58,.25); border-color: #D4933A; }
+    .pref-option .pref-icon { font-size: 1.6rem; display: block; margin-bottom: 6px; }
+    .pref-option .pref-label { font-size: 12px; font-weight: 600; }
+
+    .pref-label-title {
+        font-size: 12px; font-weight: 700; color: rgba(255,255,255,.8);
+        text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px;
+    }
+
+    .interets-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .interet-chip {
+        padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+        border: 1.5px solid rgba(255,255,255,.2); color: rgba(255,255,255,.8);
+        cursor: pointer; transition: all .2s; background: rgba(255,255,255,.06);
+    }
+    .interet-chip.selected { background: rgba(212,147,58,.3); border-color: #D4933A; color: #fff; }
+
+    .match-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .match-input-group label { display: block; font-size: 11px; font-weight: 700; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 6px; }
+    .match-input-group input {
+        width: 100%; padding: 10px 14px; border-radius: 9px;
+        border: 1.5px solid rgba(255,255,255,.2); background: rgba(255,255,255,.1);
+        color: #fff; font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .match-input-group input::placeholder { color: rgba(255,255,255,.45); }
+    .match-input-group input:focus { outline: none; border-color: #D4933A; }
+
+    .btn-match {
+        width: 100%; padding: 14px; background: linear-gradient(135deg, #D4933A, #b87a1e);
+        color: #fff; border: none; border-radius: 12px; font-size: 15px;
+        font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif;
+        cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+        transition: all .2s; letter-spacing: .3px;
+    }
+    .btn-match:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(212,147,58,.4); }
+    .btn-match:disabled { opacity: .6; transform: none; cursor: not-allowed; }
+
+    /* ── MATCH RESULTS ── */
+    .match-result-header {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 20px; padding-bottom: 16px;
+        border-bottom: 2px solid #e5f0e8;
+    }
+    .match-result-header h3 { font-family: 'Playfair Display', serif; color: var(--s3-dark); font-size: 1.3rem; }
+    .match-count { background: var(--s3-green); color: #fff; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 700; }
+
+    .group-card-rich {
+        background: #fff; border-radius: 16px; padding: 20px;
+        box-shadow: 0 2px 20px rgba(0,0,0,.07); border: 1px solid #e5f0e8;
+        transition: all .22s; position: relative; overflow: hidden;
+    }
+    .group-card-rich:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0,0,0,.12); }
+    .group-card-rich::before {
+        content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        background: linear-gradient(90deg, var(--s3-green), var(--s3-gold));
+    }
+    .card-rich-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
+    .card-rich-title { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--s3-dark); margin-bottom: 6px; }
+    .card-rich-badges { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+    .card-rich-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+    .card-meta-item { font-size: 12px; color: #666; display: flex; align-items: center; gap: 5px; }
+    .card-meta-item i { color: var(--s3-green); width: 13px; }
+    .card-rich-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+    .card-tag { font-size: 11px; background: #f0f7f2; color: var(--s3-green); padding: 2px 9px; border-radius: 20px; font-weight: 600; }
+    .card-rich-progress { margin-bottom: 14px; }
+    .card-progress-bar { background: #e5f0e8; border-radius: 6px; height: 6px; overflow: hidden; }
+    .card-progress-fill { height: 100%; background: linear-gradient(90deg, var(--s3-green), var(--s3-mid)); border-radius: 6px; transition: width .4s; }
+    .card-progress-label { display: flex; justify-content: space-between; font-size: 11px; color: #888; margin-bottom: 4px; }
+
+    .match-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+    .match-reason { font-size: 11px; background: #f0fdf4; color: #15803d; padding: 3px 10px; border-radius: 20px; border: 1px solid #bbf7d0; font-weight: 600; }
+
+    @media (max-width: 600px) {
+        .pref-grid { grid-template-columns: repeat(3, 1fr); }
+        .match-inputs { grid-template-columns: 1fr; }
+    }
+    </style>
+</head>
+<body class="service-page service3-page">
+
+    <!-- NAVBAR -->
+    <nav class="svc-nav">
+        <div class="svc-nav-left">
+            <a href="/user" class="svc-nav-back"><i class="fas fa-arrow-left"></i> Retour</a>
+            <a href="/" class="svc-nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs><linearGradient id="ng3" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#C1272D"/><stop offset="100%" stop-color="#D4933A"/></linearGradient></defs>
+                    <polygon points="16,3 18.3,10.8 25.3,7.1 21.7,14 28.5,16 21.7,18 25.3,24.9 18.3,21.2 16,29 13.7,21.2 6.7,24.9 10.3,18 3.5,16 10.3,14 6.7,7.1 13.7,10.8" fill="url(#ng3)"/>
+                    <polygon points="16,12 20,16 16,20 12,16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
+                </svg>
+                <div class="svc-nav-logo-text">
+                    <span class="svc-nav-logo-maroc">Maroc</span>
+                    <span class="svc-nav-logo-tour">Tour</span>
+                </div>
+            </a>
+        </div>
+        <button class="svc-nav-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+    </nav>
+
+    <!-- HERO BANNER -->
+    <div class="svc-hero svc-hero-s3">
+        <div class="svc-hero-inner">
+            <div class="svc-hero-ornament">
+                <div class="svc-hero-ornament-line"></div>
+                <svg width="14" height="14" viewBox="0 0 40 40" fill="none">
+                    <polygon points="20,3 22.5,13.5 32.5,8 27,18 38,20 27,22 32.5,32 22.5,26.5 20,37 17.5,26.5 7.5,32 13,22 2,20 13,18 7.5,8 17.5,13.5" fill="#D4933A"/>
+                </svg>
+                <div class="svc-hero-ornament-line r"></div>
+            </div>
+            <div class="svc-hero-badge"><i class="fas fa-users"></i> Communauté · Voyages en groupe</div>
+            <h1>Voyagez Ensemble</h1>
+            <p>Créez ou rejoignez des groupes de voyage, trouvez des compagnons compatibles grâce à l'IA et partagez des aventures inoubliables</p>
+        </div>
+    </div>
+
+    <!-- MAIN -->
+    <main class="service-main">
+        <div class="container">
+
+            <div class="tabs-container">
+
+                <!-- TABS NAV -->
+                <div class="tabs">
+                    <button class="tab active" onclick="showTab('match', this)">
+                        <i class="fas fa-magic"></i> Trouver Mon Groupe
+                    </button>
+                    <button class="tab" onclick="showTab('browse', this)">
+                        <i class="fas fa-search"></i> Tous les Groupes
+                    </button>
+                    <button class="tab" onclick="showTab('create', this)">
+                        <i class="fas fa-plus-circle"></i> Créer un Groupe
+                    </button>
+                    <button class="tab" onclick="showTab('my-groups', this)">
+                        <i class="fas fa-heart"></i> Mes Groupes
+                    </button>
+                    <button class="tab" onclick="showTab('buddy', this)">
+                        <i class="fas fa-magic"></i> Trouve Ton Compagnon IA
+                    </button>
+                </div>
+
+                <!-- ──────── TAB MATCH (NOUVEAU) ──────── -->
+                <div class="tab-content active" id="match-tab">
+                    <div class="match-hero">
+                        <div class="match-hero-inner">
+                            <h3>🎯 Trouve le Groupe Fait Pour Toi</h3>
+                            <p>Remplis ton profil de voyageur — notre algorithme calcule la compatibilité avec chaque groupe et te propose les meilleurs matchs.</p>
+
+                            <!-- Type d'activité -->
+                            <div class="pref-label-title"><i class="fas fa-compass"></i> &nbsp;Quel type de voyage tu préfères ?</div>
+                            <div class="pref-grid" id="pref-type-grid">
+                                <div class="pref-option" data-val="Nature" onclick="selectPref('type',this)"><span class="pref-icon">🌿</span><span class="pref-label">Nature</span></div>
+                                <div class="pref-option" data-val="Ville" onclick="selectPref('type',this)"><span class="pref-icon">🏙️</span><span class="pref-label">Ville</span></div>
+                                <div class="pref-option" data-val="Aventure" onclick="selectPref('type',this)"><span class="pref-icon">🧗</span><span class="pref-label">Aventure</span></div>
+                                <div class="pref-option" data-val="Culture" onclick="selectPref('type',this)"><span class="pref-icon">🎭</span><span class="pref-label">Culture</span></div>
+                                <div class="pref-option" data-val="Plage" onclick="selectPref('type',this)"><span class="pref-icon">🏖️</span><span class="pref-label">Plage</span></div>
+                                <div class="pref-option" data-val="Montagne" onclick="selectPref('type',this)"><span class="pref-icon">⛰️</span><span class="pref-label">Montagne</span></div>
+                            </div>
+
+                            <!-- Niveau physique -->
+                            <div class="pref-label-title"><i class="fas fa-dumbbell"></i> &nbsp;Ton niveau physique ?</div>
+                            <div class="pref-grid" id="pref-niveau-grid" style="grid-template-columns: repeat(3,1fr);">
+                                <div class="pref-option" data-val="Débutant" onclick="selectPref('niveau',this)"><span class="pref-icon">🟢</span><span class="pref-label">Débutant</span></div>
+                                <div class="pref-option" data-val="Intermédiaire" onclick="selectPref('niveau',this)"><span class="pref-icon">🟡</span><span class="pref-label">Intermédiaire</span></div>
+                                <div class="pref-option" data-val="Avancé" onclick="selectPref('niveau',this)"><span class="pref-icon">🔴</span><span class="pref-label">Avancé</span></div>
+                            </div>
+
+                            <!-- Intérêts -->
+                            <div class="pref-label-title"><i class="fas fa-tags"></i> &nbsp;Tes centres d'intérêt (plusieurs choix)</div>
+                            <div class="interets-grid">
+                                <div class="interet-chip" data-val="Randonnée" onclick="toggleInteret(this)">🥾 Randonnée</div>
+                                <div class="interet-chip" data-val="Photo" onclick="toggleInteret(this)">📸 Photo</div>
+                                <div class="interet-chip" data-val="Gastronomie" onclick="toggleInteret(this)">🍽️ Gastronomie</div>
+                                <div class="interet-chip" data-val="Histoire" onclick="toggleInteret(this)">🏛️ Histoire</div>
+                                <div class="interet-chip" data-val="Surf" onclick="toggleInteret(this)">🏄 Surf</div>
+                                <div class="interet-chip" data-val="Camping" onclick="toggleInteret(this)">⛺ Camping</div>
+                                <div class="interet-chip" data-val="Musique" onclick="toggleInteret(this)">🎵 Musique</div>
+                                <div class="interet-chip" data-val="Méditation" onclick="toggleInteret(this)">🧘 Méditation</div>
+                                <div class="interet-chip" data-val="Escalade" onclick="toggleInteret(this)">🧗 Escalade</div>
+                                <div class="interet-chip" data-val="Artisanat" onclick="toggleInteret(this)">🪵 Artisanat</div>
+                                <div class="interet-chip" data-val="Désert" onclick="toggleInteret(this)">🐪 Désert</div>
+                                <div class="interet-chip" data-val="Plongée" onclick="toggleInteret(this)">🤿 Plongée</div>
+                            </div>
+
+                            <!-- Âge & Budget -->
+                            <div class="match-inputs">
+                                <div class="match-input-group">
+                                    <label><i class="fas fa-user"></i> Ton âge</label>
+                                    <input type="number" id="m-age" placeholder="25" min="16" max="80">
+                                </div>
+                                <div class="match-input-group">
+                                    <label><i class="fas fa-coins"></i> Budget max / pers (MAD)</label>
+                                    <input type="number" id="m-budget" placeholder="2000" min="0" step="100">
+                                </div>
+                            </div>
+
+                            <button class="btn-match" id="btn-match" onclick="findMatchGroups()">
+                                <i class="fas fa-magic" id="match-icon"></i>
+                                <span id="match-text">Trouver mes groupes compatibles</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Résultats matching -->
+                    <div id="match-results" style="display:none; margin-top:28px;">
+                        <div class="match-result-header">
+                            <h3>🎯 Groupes Compatibles</h3>
+                            <span class="match-count" id="match-count">0 groupe</span>
+                        </div>
+                        <div class="groups-grid" id="match-groups-list"></div>
+                    </div>
+                </div>
+
+                <!-- ──────── TAB CRÉER ──────── -->
+                <div class="tab-content" id="create-tab">
+                    <div class="form-section">
+                        <h3><i class="fas fa-users-cog"></i> Créer un Nouveau Groupe</h3>
+                        <form id="create-group-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label><i class="fas fa-tag"></i> Nom du groupe</label>
+                                    <input type="text" id="group-name" required placeholder="Ex: Aventure au Sahara">
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-map-pin"></i> Destination</label>
+                                    <select id="group-dest" required>
+                                        <option value="">— Choisir une destination —</option>
+                                        <optgroup label="🏙️ Villes impériales &amp; côtières">
+                                            <option>Marrakech</option>
+                                            <option>Fès</option>
+                                            <option>Casablanca</option>
+                                            <option>Rabat</option>
+                                            <option>Meknès</option>
+                                            <option>Tanger</option>
+                                            <option>Agadir</option>
+                                            <option>Tétouan</option>
+                                            <option>Chefchaouen</option>
+                                            <option>Essaouira</option>
+                                            <option>El Jadida</option>
+                                            <option>Safi</option>
+                                            <option>Oujda</option>
+                                            <option>Nador</option>
+                                            <option>Laâyoune</option>
+                                            <option>Dakhla</option>
+                                            <option>Ifrane</option>
+                                            <option>Béni Mellal</option>
+                                            <option>Moulay Idriss</option>
+                                        </optgroup>
+                                        <optgroup label="🌿 Sites naturels &amp; déserts">
+                                            <option>Dunes de Merzouga (Sahara)</option>
+                                            <option>Vallée d'Imlil</option>
+                                            <option>Gorges du Todra</option>
+                                            <option>Gorges du Dadès</option>
+                                            <option>Parc national de Toubkal</option>
+                                            <option>Oukaïmeden</option>
+                                            <option>Vallée du Draa</option>
+                                            <option>Cascades d'Ouzoud</option>
+                                            <option>Plage de Legzira</option>
+                                            <option>Cap Spartel</option>
+                                            <option>Grottes d'Hercule</option>
+                                            <option>Vallée du Ziz</option>
+                                            <option>Forêt de Cèdres d'Azrou</option>
+                                            <option>Cirque de Jaffar</option>
+                                            <option>Îles Purpuraires</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-calendar"></i> Date de départ</label>
+                                    <input type="date" id="group-date" required>
+                                </div>
+                                <script>
+                                    document.getElementById('group-date').min = new Date().toISOString().split('T')[0];
+                                </script>
+                                <div class="form-group">
+                                    <label><i class="fas fa-users"></i> Places disponibles</label>
+                                    <input type="number" id="group-max" min="2" max="50" value="10" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fas fa-info-circle"></i> Description</label>
+                                <textarea id="group-desc" rows="3" required placeholder="Décrivez votre projet de voyage..."></textarea>
+                            </div>
+
+                            <!-- Champs enrichis -->
+                            <div style="background:#f0f7f2;border-radius:12px;padding:18px;margin-bottom:16px;">
+                                <div style="font-size:12px;font-weight:700;color:var(--s3-green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;">
+                                    <i class="fas fa-sliders-h"></i> &nbsp;Caractéristiques du groupe
+                                </div>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label><i class="fas fa-compass"></i> Type d'activité</label>
+                                        <select id="group-type">
+                                            <option value="Mixte">🌐 Mixte</option>
+                                            <option value="Nature">🌿 Nature</option>
+                                            <option value="Ville">🏙️ Ville</option>
+                                            <option value="Aventure">🧗 Aventure</option>
+                                            <option value="Culture">🎭 Culture</option>
+                                            <option value="Plage">🏖️ Plage</option>
+                                            <option value="Montagne">⛰️ Montagne</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label><i class="fas fa-dumbbell"></i> Niveau requis</label>
+                                        <select id="group-niveau">
+                                            <option value="Tous niveaux">✅ Tous niveaux</option>
+                                            <option value="Débutant">🟢 Débutant</option>
+                                            <option value="Intermédiaire">🟡 Intermédiaire</option>
+                                            <option value="Avancé">🔴 Avancé</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label><i class="fas fa-users"></i> Tranche d'âge</label>
+                                        <div style="display:flex;gap:8px;align-items:center;">
+                                            <input type="number" id="group-age-min" placeholder="18" min="10" max="99" value="18" style="flex:1;">
+                                            <span style="color:#888;font-size:13px;">–</span>
+                                            <input type="number" id="group-age-max" placeholder="55" min="10" max="99" value="55" style="flex:1;">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label><i class="fas fa-coins"></i> Budget estimé / pers (MAD)</label>
+                                        <input type="number" id="group-budget" placeholder="1500" min="0" step="100">
+                                    </div>
+                                    <div class="form-group">
+                                        <label><i class="fas fa-language"></i> Langue du groupe</label>
+                                        <select id="group-langue">
+                                            <option value="Arabe/Français">🇲🇦 Arabe/Français</option>
+                                            <option value="Français">🇫🇷 Français</option>
+                                            <option value="Arabe">🇸🇦 Arabe</option>
+                                            <option value="Anglais">🇬🇧 Anglais</option>
+                                            <option value="Multilingue">🌍 Multilingue</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label><i class="fas fa-tags"></i> Intérêts du groupe (clique pour sélectionner)</label>
+                                    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:6px;" id="create-interets">
+                                        <span class="interet-chip" style="color:var(--s3-green);border-color:rgba(0,98,51,.3);background:#f0f7f2;" data-val="Randonnée" onclick="toggleCreateInteret(this)">🥾 Randonnée</span>
+                                        <span class="interet-chip" style="color:var(--s3-green);border-color:rgba(0,98,51,.3);background:#f0f7f2;" data-val="Photo" onclick="toggleCreateInteret(this)">📸 Photo</span>
+                                        <span class="interet-chip" style="color:var(--s3-green);border-color:rgba(0,98,51,.3);background:#f0f7f2;" data-val="Gastronomie" onclick="toggleCreateInteret(this)">🍽️ Gastronomie</span>
+                                        <span class="interet-chip" style="color:var(--s3-green);border-color:rgba(0,98,51,.3);background:#f0f7f2;" data-val="Histoire" onclick="toggleCreateInteret(this)">🏛️ Histoire</span>
+                                        <span class="interet-chip" style="color:var(--s3-green);border-color:rgba(0,98,51,.3);background:#f0f7f2;" data-val="Surf" onclick="toggleCreateInteret(this)">🏄 Surf</span>
+                                        <span class="interet-chip" style="color:var(--s3-green);border-color:rgba(0,98,51,.3);background:#f0f7f2;" data-val="Camping" onclick="toggleCreateInteret(this)">⛺ Camping</span>
+                                        <span class="interet-chip" style="color:var(--s3-green);border-color:rgba(0,98,51,.3);background:#f0f7f2;" data-val="Escalade" onclick="toggleCreateInteret(this)">🧗 Escalade</span>
+                                        <span class="interet-chip" style="color:var(--s3-green);border-color:rgba(0,98,51,.3);background:#f0f7f2;" data-val="Désert" onclick="toggleCreateInteret(this)">🐪 Désert</span>
+                                        <span class="interet-chip" style="color:var(--s3-green);border-color:rgba(0,98,51,.3);background:#f0f7f2;" data-val="Musique" onclick="toggleCreateInteret(this)">🎵 Musique</span>
+                                        <span class="interet-chip" style="color:var(--s3-green);border-color:rgba(0,98,51,.3);background:#f0f7f2;" data-val="Méditation" onclick="toggleCreateInteret(this)">🧘 Méditation</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, #006233 0%, #3A9A5C 100%);">
+                                <i class="fas fa-rocket"></i> Créer le Groupe
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ──────── TAB BROWSE ──────── -->
+                <div class="tab-content" id="browse-tab">
+                    <div class="groups-grid" id="groups-list"></div>
+                </div>
+
+                <!-- ──────── TAB MES GROUPES ──────── -->
+                <div class="tab-content" id="my-groups-tab">
+                    <div id="my-groups-list">
+                        <div class="empty-state">
+                            <div class="es-icon">🔭</div>
+                            <p>Vous n'avez pas encore de groupe</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ──────── TAB BUDDY MATCHING ──────── -->
+                <div class="tab-content" id="buddy-tab">
+
+                    <!-- intro -->
+                    <div class="buddy-top">
+                        <div class="buddy-top-icon">
+                            <i class="fas fa-magic"></i>
+                        </div>
+                        <div class="buddy-top-text">
+                            <h3>Trouve Ton Compagnon de Voyage Idéal</h3>
+                            <p>Notre IA analyse ton profil, prédit ta destination idéale et te connecte avec des voyageurs compatibles.</p>
+                            <span class="ml-pill"><i class="fas fa-brain"></i> Alimenté par Decision Tree ML</span>
+                        </div>
+                    </div>
+
+                    <!-- form -->
+                    <div class="buddy-form-grid">
+                        <div class="buddy-form-group">
+                            <label><i class="fas fa-user"></i>Ton Prénom</label>
+                            <input type="text" id="bName" placeholder="ex: Youssef"/>
+                        </div>
+                        <div class="buddy-form-group">
+                            <label><i class="fas fa-birthday-cake"></i>Âge</label>
+                            <input type="number" id="bAge" placeholder="25" min="16" max="80"/>
+                        </div>
+                        <div class="buddy-form-group">
+                            <label><i class="fas fa-venus-mars"></i>Sexe</label>
+                            <select id="bSexe">
+                                <option value="">— Choisir —</option>
+                                <option value="Homme">Homme</option>
+                                <option value="Femme">Femme</option>
+                            </select>
+                        </div>
+                        <div class="buddy-form-group">
+                            <label><i class="fas fa-coins"></i>Budget (MAD)</label>
+                            <input type="number" id="bBudget" placeholder="3000" min="500" step="100"/>
+                        </div>
+                        <div class="buddy-form-group">
+                            <label><i class="fas fa-ring"></i>Statut</label>
+                            <select id="bMarie">
+                                <option value="">— Choisir —</option>
+                                <option value="Non">Célibataire</option>
+                                <option value="Oui">Marié(e)</option>
+                            </select>
+                        </div>
+                        <div class="buddy-form-group">
+                            <label><i class="fas fa-globe"></i>Région d'origine</label>
+                            <select id="bRegion">
+                                <option value="">— Votre pays —</option>
+                                <optgroup label="🌍 Maghreb &amp; Nord Afrique">
+                                    <option value="Maroc">🇲🇦 Maroc</option>
+                                    <option value="Maroc">🇩🇿 Algérie</option>
+                                    <option value="Tunisie">🇹🇳 Tunisie</option>
+                                    <option value="Égypte">🇪🇬 Égypte</option>
+                                    <option value="Égypte">🇱🇾 Libye</option>
+                                    <option value="Maroc">🇲🇷 Mauritanie</option>
+                                    <option value="Maroc">🇸🇩 Soudan</option>
+                                </optgroup>
+                                <optgroup label="🌍 Afrique Sub-saharienne">
+                                    <option value="Égypte">🇳🇬 Nigéria</option>
+                                    <option value="Égypte">🇰🇪 Kenya</option>
+                                    <option value="Égypte">🇪🇹 Éthiopie</option>
+                                    <option value="France">🇸🇳 Sénégal</option>
+                                    <option value="France">🇨🇮 Côte d'Ivoire</option>
+                                    <option value="France">🇨🇲 Cameroun</option>
+                                    <option value="France">🇲🇱 Mali</option>
+                                    <option value="France">🇧🇫 Burkina Faso</option>
+                                    <option value="France">🇬🇦 Gabon</option>
+                                    <option value="France">🇲🇬 Madagascar</option>
+                                    <option value="France">🇲🇺 Maurice</option>
+                                    <option value="Portugal">🇦🇴 Angola</option>
+                                    <option value="Portugal">🇲🇿 Mozambique</option>
+                                    <option value="Australie">🇿🇦 Afrique du Sud</option>
+                                    <option value="Égypte">🇬🇭 Ghana</option>
+                                    <option value="Égypte">🇹🇿 Tanzanie</option>
+                                </optgroup>
+                                <optgroup label="🌍 Moyen-Orient">
+                                    <option value="Égypte">🇸🇦 Arabie Saoudite</option>
+                                    <option value="Égypte">🇦🇪 Émirats Arabes Unis</option>
+                                    <option value="Égypte">🇶🇦 Qatar</option>
+                                    <option value="Égypte">🇰🇼 Koweït</option>
+                                    <option value="Égypte">🇧🇭 Bahreïn</option>
+                                    <option value="Égypte">🇴🇲 Oman</option>
+                                    <option value="Égypte">🇯🇴 Jordanie</option>
+                                    <option value="Égypte">🇱🇧 Liban</option>
+                                    <option value="Égypte">🇸🇾 Syrie</option>
+                                    <option value="Égypte">🇮🇶 Irak</option>
+                                    <option value="Égypte">🇮🇱 Israël</option>
+                                    <option value="Égypte">🇵🇸 Palestine</option>
+                                    <option value="Inde">🇮🇷 Iran</option>
+                                    <option value="Égypte">🇾🇪 Yémen</option>
+                                </optgroup>
+                                <optgroup label="🌍 Europe occidentale">
+                                    <option value="France">🇫🇷 France</option>
+                                    <option value="Espagne">🇪🇸 Espagne</option>
+                                    <option value="Portugal">🇵🇹 Portugal</option>
+                                    <option value="Italie">🇮🇹 Italie</option>
+                                    <option value="Allemagne">🇩🇪 Allemagne</option>
+                                    <option value="Royaume-Uni">🇬🇧 Royaume-Uni</option>
+                                    <option value="Belgique">🇧🇪 Belgique</option>
+                                    <option value="Pays-Bas">🇳🇱 Pays-Bas</option>
+                                    <option value="Suisse">🇨🇭 Suisse</option>
+                                    <option value="Allemagne">🇦🇹 Autriche</option>
+                                    <option value="France">🇱🇺 Luxembourg</option>
+                                    <option value="Royaume-Uni">🇮🇪 Irlande</option>
+                                    <option value="France">🇲🇨 Monaco</option>
+                                </optgroup>
+                                <optgroup label="🌍 Europe du Nord &amp; Est">
+                                    <option value="Allemagne">🇸🇪 Suède</option>
+                                    <option value="Allemagne">🇳🇴 Norvège</option>
+                                    <option value="Allemagne">🇩🇰 Danemark</option>
+                                    <option value="Allemagne">🇫🇮 Finlande</option>
+                                    <option value="Allemagne">🇵🇱 Pologne</option>
+                                    <option value="Allemagne">🇨🇿 Rép. Tchèque</option>
+                                    <option value="Allemagne">🇭🇺 Hongrie</option>
+                                    <option value="Italie">🇷🇴 Roumanie</option>
+                                    <option value="Italie">🇬🇷 Grèce</option>
+                                    <option value="Italie">🇭🇷 Croatie</option>
+                                    <option value="Allemagne">🇷🇺 Russie</option>
+                                    <option value="Allemagne">🇺🇦 Ukraine</option>
+                                    <option value="Allemagne">🇹🇷 Turquie</option>
+                                </optgroup>
+                                <optgroup label="🌏 Asie">
+                                    <option value="Chine">🇨🇳 Chine</option>
+                                    <option value="Japon">🇯🇵 Japon</option>
+                                    <option value="Japon">🇰🇷 Corée du Sud</option>
+                                    <option value="Chine">🇭🇰 Hong Kong</option>
+                                    <option value="Chine">🇹🇼 Taïwan</option>
+                                    <option value="Inde">🇮🇳 Inde</option>
+                                    <option value="Inde">🇵🇰 Pakistan</option>
+                                    <option value="Inde">🇧🇩 Bangladesh</option>
+                                    <option value="Inde">🇱🇰 Sri Lanka</option>
+                                    <option value="Inde">🇳🇵 Népal</option>
+                                    <option value="Chine">🇲🇾 Malaisie</option>
+                                    <option value="Chine">🇸🇬 Singapour</option>
+                                    <option value="Chine">🇹🇭 Thaïlande</option>
+                                    <option value="Chine">🇻🇳 Vietnam</option>
+                                    <option value="Chine">🇵🇭 Philippines</option>
+                                    <option value="Inde">🇮🇩 Indonésie</option>
+                                    <option value="Inde">🇰🇿 Kazakhstan</option>
+                                    <option value="Inde">🇺🇿 Ouzbékistan</option>
+                                    <option value="Italie">🇦🇿 Azerbaïdjan</option>
+                                    <option value="Italie">🇬🇪 Géorgie</option>
+                                    <option value="Italie">🇦🇲 Arménie</option>
+                                </optgroup>
+                                <optgroup label="🌎 Amériques">
+                                    <option value="USA">🇺🇸 États-Unis</option>
+                                    <option value="Canada">🇨🇦 Canada</option>
+                                    <option value="Brésil">🇧🇷 Brésil</option>
+                                    <option value="Espagne">🇲🇽 Mexique</option>
+                                    <option value="Espagne">🇦🇷 Argentine</option>
+                                    <option value="Espagne">🇨🇱 Chili</option>
+                                    <option value="Espagne">🇨🇴 Colombie</option>
+                                    <option value="Espagne">🇵🇪 Pérou</option>
+                                    <option value="Espagne">🇻🇪 Venezuela</option>
+                                    <option value="Espagne">🇨🇺 Cuba</option>
+                                    <option value="France">🇭🇹 Haïti</option>
+                                    <option value="USA">🇯🇲 Jamaïque</option>
+                                    <option value="Espagne">🇨🇷 Costa Rica</option>
+                                    <option value="Espagne">🇺🇾 Uruguay</option>
+                                </optgroup>
+                                <optgroup label="🌏 Océanie">
+                                    <option value="Australie">🇦🇺 Australie</option>
+                                    <option value="Australie">🇳🇿 Nouvelle-Zélande</option>
+                                    <option value="Australie">🇫🇯 Fidji</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button class="btn-find-buddies" id="btnFind" onclick="findBuddies()">
+                        <div class="spin" id="bSpinner"></div>
+                        <i class="fas fa-search-location" id="bIcon"></i>
+                        <span id="bText">Analyser mon Profil &amp; Trouver</span>
+                    </button>
+
+                    <!-- RESULT -->
+                    <div id="buddyResult">
+
+                        <!-- prediction -->
+                        <div class="pred-card">
+                            <div class="pred-emoji" id="predIcon">🏙️</div>
+                            <div>
+                                <div class="pred-lbl">🤖 Notre IA recommande pour toi :</div>
+                                <div class="pred-type" id="predType">—</div>
+                                <span class="acc-badge">
+                                    <i class="fas fa-chart-bar"></i>
+                                    Précision ML : <strong id="predAcc">—</strong>%
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- buddies list -->
+                        <div class="buddies-top">
+                            <h4>👥 Voyageurs avec la même destination</h4>
+                            <span class="count-pill" id="buddiesTotal">0 profil</span>
+                        </div>
+                        <div class="buddies-grid" id="buddiesGrid"></div>
+
+                        <!-- Groupes existants pour la destination prédite -->
+                        <div id="buddyGroupsSection" style="display:none;margin-top:1.5rem;">
+                            <div class="buddies-top">
+                                <h4>🏕️ Groupes disponibles pour ta destination</h4>
+                                <span class="count-pill" id="buddyGroupsCount">0 groupe</span>
+                            </div>
+                            <div class="groups-grid" id="buddyGroupsList"></div>
+                        </div>
+
+                        <!-- CTA -->
+                        <div class="buddy-cta">
+                            <div style="font-size:2rem">🚀</div>
+                            <div class="buddy-cta-txt">
+                                <h4>Prêt à voyager ensemble ?</h4>
+                                <p>Rejoins un groupe existant ou laisse l'IA t'en créer un automatiquement !</p>
+                            </div>
+                            <div style="display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center">
+                                <button class="btn-group-cta" onclick="goCreate()" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+                                    <i class="fas fa-users-cog"></i> Créer Manuellement
+                                </button>
+                                <button class="btn-group-cta" id="btnAutoGroup" onclick="autoGroupBuddies()">
+                                    <i class="fas fa-bolt"></i> Rejoindre / Créer Auto
+                                </button>
+                            </div>
+                        </div>
+
+                    </div><!-- /buddyResult -->
+
+                </div><!-- /buddy-tab -->
+
+            </div><!-- /tabs-container -->
+        </div>
+    </main>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastMsg">—</span>
+    </div>
+
+    <script>
+    /* ────────────────────── UTILS ────────────────────── */
+    function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+    let _tt;
+    function showToast(msg, type='success'){
+        const t = document.getElementById('toast');
+        const icons = {success:'fa-check-circle',error:'fa-times-circle',info:'fa-info-circle'};
+        document.getElementById('toastIcon').className = 'fas '+(icons[type]||icons.success);
+        document.getElementById('toastMsg').textContent = msg;
+        t.className = 'toast '+type+' show';
+        clearTimeout(_tt);
+        _tt = setTimeout(()=>t.classList.remove('show'), 3200);
+    }
+
+    /* ────────────────────── TABS ────────────────────── */
+    function showTab(tab, btn) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(tab + '-tab').classList.add('active');
+        if (tab === 'browse')    loadGroups();
+        if (tab === 'my-groups') loadMyGroups();
+    }
+
+    /* ────────────────────── MATCH FORM ──────────────── */
+    let prefType = '', prefNiveau = '', prefInterets = [];
+
+    function selectPref(kind, el) {
+        const grid = el.parentElement;
+        grid.querySelectorAll('.pref-option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        if (kind === 'type')   prefType   = el.dataset.val;
+        if (kind === 'niveau') prefNiveau = el.dataset.val;
+    }
+
+    function toggleInteret(el) {
+        const val = el.dataset.val;
+        el.classList.toggle('selected');
+        if (el.classList.contains('selected')) {
+            if (!prefInterets.includes(val)) prefInterets.push(val);
+        } else {
+            prefInterets = prefInterets.filter(v => v !== val);
+        }
+    }
+
+    async function findMatchGroups() {
+        const age    = parseInt(document.getElementById('m-age').value) || 25;
+        const budget = parseInt(document.getElementById('m-budget').value) || 0;
+        const btn = document.getElementById('btn-match');
+        btn.disabled = true;
+        document.getElementById('match-icon').className = 'fas fa-spinner fa-spin';
+        document.getElementById('match-text').textContent = 'Analyse en cours…';
+        try {
+            const res  = await fetch('/api/groups/match', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    age, budget,
+                    type_activite: prefType,
+                    niveau: prefNiveau,
+                    interets: prefInterets
+                })
+            });
+            const data = await res.json();
+            renderMatchResults(data.groups || []);
+        } catch(e) { showToast('Erreur serveur', 'error'); }
+        finally {
+            btn.disabled = false;
+            document.getElementById('match-icon').className = 'fas fa-magic';
+            document.getElementById('match-text').textContent = 'Trouver mes groupes compatibles';
+        }
+    }
+
+    function renderMatchResults(groups) {
+        const container = document.getElementById('match-results');
+        const list      = document.getElementById('match-groups-list');
+        const countEl   = document.getElementById('match-count');
+        container.style.display = 'block';
+        container.scrollIntoView({behavior:'smooth', block:'start'});
+
+        const avail = groups.filter(g => g.current < g.max);
+        countEl.textContent = avail.length + ' groupe' + (avail.length > 1 ? 's' : '');
+
+        if (!avail.length) {
+            list.innerHTML = '<div class="empty-state"><div class="es-icon">🔭</div><p>Aucun groupe disponible pour ce profil pour l\'instant.</p></div>';
+            return;
+        }
+        list.innerHTML = avail.map(g => buildGroupCard(g, true)).join('');
+    }
+
+    /* ────────────────────── GROUP CARD BUILDER ─────── */
+    const TYPE_ICONS = {Nature:'🌿',Ville:'🏙️',Aventure:'🧗',Culture:'🎭',Plage:'🏖️',Montagne:'⛰️',Mixte:'🌐'};
+    const TYPE_CSS   = {Nature:'type-nature',Ville:'type-ville',Aventure:'type-aventure',Culture:'type-culture',Plage:'type-plage',Montagne:'type-montagne',Mixte:'type-mixte'};
+    const NIV_CSS    = {Débutant:'niv-debutant',Intermédiaire:'niv-intermediaire',Avancé:'niv-avance','Tous niveaux':'niv-tous'};
+    const NIV_ICONS  = {Débutant:'🟢',Intermédiaire:'🟡',Avancé:'🔴','Tous niveaux':'✅'};
+
+    function scoreRingHtml(score) {
+        if (score === undefined) return '';
+        const r = 22, c = 2 * Math.PI * r;
+        const fill = c - (score / 100) * c;
+        const color = score >= 70 ? '#006233' : score >= 40 ? '#a16207' : '#9ca3af';
+        const cls   = score >= 70 ? 'score-high' : score >= 40 ? 'score-mid' : 'score-low';
+        return `<div class="score-ring ${cls}" title="Compatibilité ${score}%">
+            <svg width="52" height="52" viewBox="0 0 52 52">
+                <circle cx="26" cy="26" r="${r}" fill="none" stroke="#e5f0e8" stroke-width="4"/>
+                <circle cx="26" cy="26" r="${r}" fill="none" stroke="${color}" stroke-width="4"
+                    stroke-dasharray="${c}" stroke-dashoffset="${fill}" stroke-linecap="round"/>
+            </svg>
+            <span class="score-num">${score}%</span>
+        </div>`;
+    }
+
+    function buildGroupCard(g, showScore=false) {
+        const pct  = Math.round((g.current / g.max) * 100);
+        const full = g.current >= g.max;
+        const interets = Array.isArray(g.interets) ? g.interets : [];
+        const typeIcon = TYPE_ICONS[g.type_activite] || '🌐';
+        const typeCss  = TYPE_CSS[g.type_activite]  || 'type-mixte';
+        const nivCss   = NIV_CSS[g.niveau]          || 'niv-tous';
+        const nivIcon  = NIV_ICONS[g.niveau]        || '✅';
+        const budget   = g.budget_par_personne ? `<span class="card-meta-item"><i class="fas fa-coins"></i> ~${parseInt(g.budget_par_personne).toLocaleString('fr-FR')} MAD/pers</span>` : '';
+        const ageRange = `${g.age_min||18}–${g.age_max||99} ans`;
+        const lang     = g.langue || 'Arabe/Français';
+        const reasons  = (g.match_reasons||[]).map(r => `<span class="match-reason">✓ ${esc(r)}</span>`).join('');
+        const tagsHtml = interets.slice(0,5).map(t => `<span class="card-tag">${esc(t)}</span>`).join('');
+
+        return `<div class="group-card-rich">
+            <div class="card-rich-header">
+                <div style="flex:1">
+                    <div class="card-rich-title">${esc(g.name)}</div>
+                    <div class="card-rich-badges">
+                        <span class="type-badge ${typeCss}">${typeIcon} ${esc(g.type_activite||'Mixte')}</span>
+                        <span class="niveau-badge ${nivCss}">${nivIcon} ${esc(g.niveau||'Tous niveaux')}</span>
+                        ${full ? '<span class="badge full" style="font-size:11px;padding:2px 9px;">Complet</span>' : `<span class="badge" style="font-size:11px;padding:2px 9px;">${g.max-g.current} places</span>`}
+                    </div>
+                </div>
+                ${showScore && g.score !== undefined ? scoreRingHtml(g.score) : ''}
+                <button id="gbtn-${g.id}" onclick="toggleSaveGroup(${g.id},'${esc(g.name)}','${esc(g.dest)}',this)"
+                    title="Sauvegarder" style="width:32px;height:32px;border-radius:8px;border:2px solid #e0e0e0;background:#fff;color:#ccc;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-left:8px;flex-shrink:0;">
+                    <i class="fas fa-bookmark"></i>
+                </button>
+            </div>
+            ${showScore && reasons ? `<div class="match-reasons">${reasons}</div>` : ''}
+            <div class="card-rich-meta">
+                <span class="card-meta-item"><i class="fas fa-map-marker-alt"></i> ${esc(g.dest)}</span>
+                <span class="card-meta-item"><i class="fas fa-calendar"></i> ${esc(g.date)}</span>
+                <span class="card-meta-item"><i class="fas fa-users"></i> ${g.age_min||18}–${g.age_max||99} ans</span>
+                <span class="card-meta-item"><i class="fas fa-language"></i> ${esc(lang)}</span>
+                ${budget}
+                <span class="card-meta-item"><i class="fas fa-user-friends"></i> ${g.current}/${g.max} membres</span>
+            </div>
+            ${tagsHtml ? `<div class="card-rich-tags">${tagsHtml}</div>` : ''}
+            ${g.desc ? `<p style="font-size:12px;color:#666;line-height:1.5;margin-bottom:12px;">${esc(g.desc).slice(0,120)}${g.desc.length>120?'…':''}</p>` : ''}
+            <div class="card-rich-progress">
+                <div class="card-progress-label"><span>Remplissage</span><span>${pct}%</span></div>
+                <div class="card-progress-bar"><div class="card-progress-fill" style="width:${pct}%"></div></div>
+            </div>
+            <button class="btn-join" onclick="joinGroup(${g.id})" ${full?'disabled':''}>
+                <i class="fas fa-user-plus"></i> ${full ? 'Groupe Complet' : 'Rejoindre'}
+            </button>
+        </div>`;
+    }
+
+    /* ────────────────────── CREATE GROUP ────────────── */
+    let createInterets = [];
+    function toggleCreateInteret(el) {
+        const val = el.dataset.val;
+        el.classList.toggle('selected');
+        if (el.classList.contains('selected')) {
+            el.style.background = 'rgba(0,98,51,.25)'; el.style.borderColor = 'var(--s3-green)'; el.style.color = 'var(--s3-dark)';
+            if (!createInterets.includes(val)) createInterets.push(val);
+        } else {
+            el.style.background = '#f0f7f2'; el.style.borderColor = 'rgba(0,98,51,.3)'; el.style.color = 'var(--s3-green)';
+            createInterets = createInterets.filter(v => v !== val);
+        }
+    }
+
+    document.getElementById('create-group-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const data = {
+            name:               document.getElementById('group-name').value,
+            dest:               document.getElementById('group-dest').value,
+            date:               document.getElementById('group-date').value,
+            max:                parseInt(document.getElementById('group-max').value),
+            desc:               document.getElementById('group-desc').value,
+            type_activite:      document.getElementById('group-type').value,
+            niveau:             document.getElementById('group-niveau').value,
+            age_min:            parseInt(document.getElementById('group-age-min').value) || 18,
+            age_max:            parseInt(document.getElementById('group-age-max').value) || 99,
+            budget_par_personne:parseInt(document.getElementById('group-budget').value) || 0,
+            langue:             document.getElementById('group-langue').value,
+            interets:           createInterets
+        };
+        try {
+            const res = await fetch('/api/groups', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify(data)
+            });
+            const result = await res.json();
+            if (result.success) {
+                showToast('🎉 Groupe créé avec succès !');
+                this.reset(); createInterets = [];
+                document.querySelectorAll('#create-interets .interet-chip').forEach(c => {
+                    c.style.background='#f0f7f2'; c.style.borderColor='rgba(0,98,51,.3)'; c.style.color='var(--s3-green)';
+                });
+                const myGroupsBtn = document.querySelectorAll('.tab')[3];
+                showTab('my-groups', myGroupsBtn);
+            } else { showToast(result.message||'Erreur','error'); }
+        } catch(err) { showToast('Erreur serveur','error'); }
+    });
+
+    /* ────────────────────── LOAD GROUPS ─────────────── */
+    async function loadGroups() {
+        const list = document.getElementById('groups-list');
+        list.innerHTML = '<div class="empty-state"><div class="es-icon" style="font-size:2rem">⏳</div><p>Chargement…</p></div>';
+        try {
+            const res  = await fetch('/api/groups');
+            const data = await res.json();
+            if (!data.groups.length) {
+                list.innerHTML = '<div class="empty-state"><div class="es-icon">🌍</div><p>Aucun groupe disponible pour l\'instant</p></div>';
+                return;
+            }
+            list.innerHTML = data.groups.map(g => buildGroupCard(g, false)).join('');
+            await loadSavedGroups(); // marque les groupes déjà sauvegardés
+        } catch(err) { list.innerHTML='<p style="color:#e74c3c;text-align:center">Erreur de chargement</p>'; }
+    }
+
+    async function joinGroup(id) {
+        try {
+            const res  = await fetch(`/api/groups/${id}/join`,{method:'POST'});
+            const data = await res.json();
+            if (data.success) { showToast('✅ '+data.message); loadGroups(); loadMyGroups(); }
+            else showToast('⚠️ '+data.message,'error');
+        } catch(err) { showToast('Erreur serveur','error'); }
+    }
+
+    /* ────────────────────── MY GROUPS ───────────────── */
+    async function loadMyGroups() {
+        const list = document.getElementById('my-groups-list');
+        try {
+            const res  = await fetch('/api/my-groups');
+            const data = await res.json();
+            if (!data.groups.length) {
+                list.innerHTML = '<div class="empty-state"><div class="es-icon">🔭</div><p>Vous n\'avez pas encore de groupe</p></div>';
+                return;
+            }
+            list.innerHTML = data.groups.map(g => `
+                <div class="my-group-card">
+                    <div class="group-header">
+                        <h4>${esc(g.name)}</h4>
+                        <span class="badge">${g.current}/${g.max}</span>
+                    </div>
+                    <div class="group-body">
+                        <p><i class="fas fa-map-marker-alt"></i> ${esc(g.dest)}</p>
+                        <p><i class="fas fa-calendar"></i> ${esc(g.date)}</p>
+                        <p>${esc(g.desc)}</p>
+                    </div>
+                </div>`).join('');
+        } catch(err) { console.error(err); }
+    }
+
+    /* ────────────────────── BUDDY MATCHING ──────────── */
+    const VILLE_DESTS  = ['Marrakech','Fès','Casablanca','Rabat','Meknès','Tanger','Agadir','Tétouan','Chefchaouen','Essaouira','El Jadida','Safi','Oujda','Nador','Laâyoune','Dakhla','Ifrane','Béni Mellal','Moulay Idriss'];
+    const NATURE_DESTS = ["Dunes de Merzouga (Sahara)","Vallée d'Imlil","Gorges du Todra","Gorges du Dadès","Parc national de Toubkal","Oukaïmeden","Vallée du Draa","Cascades d'Ouzoud","Plage de Legzira","Cap Spartel","Grottes d'Hercule","Vallée du Ziz","Forêt de Cèdres d'Azrou","Cirque de Jaffar","Îles Purpuraires"];
+    let buddyPredicted = null;
+
+    async function findBuddies(){
+        const name   = document.getElementById('bName').value.trim();
+        const age    = document.getElementById('bAge').value;
+        const sexe   = document.getElementById('bSexe').value;
+        const budget = document.getElementById('bBudget').value;
+        const marie  = document.getElementById('bMarie').value;
+        const region = document.getElementById('bRegion').value;
+
+        if(!name||!age||!sexe||!budget||!marie||!region){
+            showToast('⚠️ Veuillez remplir tous les champs','error'); return;
+        }
+
+        const btn = document.getElementById('btnFind');
+        document.getElementById('bSpinner').style.display = 'block';
+        document.getElementById('bIcon').style.display    = 'none';
+        document.getElementById('bText').textContent      = 'Analyse en cours…';
+        btn.disabled = true;
+
+        try{
+            const r = await fetch('/api/find-buddies',{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({name, age:+age, sexe, budget:+budget, marie, region})
+            });
+            const d = await r.json();
+            if(!d.success) throw new Error(d.message);
+            renderBuddies(d);
+            document.getElementById('buddyResult').style.display = 'block';
+            document.getElementById('buddyResult').scrollIntoView({behavior:'smooth', block:'start'});
+            showToast('✅ Destination prédite : '+d.predicted_dest);
+        }catch(err){
+            showToast('❌ '+err.message,'error');
+        }finally{
+            document.getElementById('bSpinner').style.display = 'none';
+            document.getElementById('bIcon').style.display    = 'inline';
+            document.getElementById('bText').textContent      = 'Analyser mon Profil & Trouver';
+            btn.disabled = false;
+        }
+    }
+
+    function renderBuddies(data){
+        buddyPredicted = data; // save for goCreate / autoGroupBuddies
+        const icons = {'Ville':'🏙️','Nature':'🌿'};
+        document.getElementById('predIcon').textContent = icons[data.predicted_dest]||'🗺️';
+        document.getElementById('predType').textContent = data.predicted_dest;
+        document.getElementById('predAcc').textContent  = data.ml_accuracy||'—';
+        loadBuddyGroups(data.predicted_dest);
+
+        const cnt = data.buddies.length;
+        document.getElementById('buddiesTotal').textContent = cnt===0 ? 'Sois le premier !' : cnt+' profil'+(cnt>1?'s':'');
+
+        const grid = document.getElementById('buddiesGrid');
+        grid.innerHTML = '';
+        if(!cnt){
+            grid.innerHTML = `<div class="no-buddies" style="grid-column:1/-1">
+                <div class="nbi">🔭</div>
+                <p>Aucun compagnon trouvé pour l'instant.<br>Tu es le premier avec cette destination !</p></div>`;
+            return;
+        }
+        data.buddies.forEach(b=>{
+            const initials = b.user_name.slice(0,2).toUpperCase();
+            const el = document.createElement('div');
+            el.className = 'buddy-card';
+            el.innerHTML = `
+                <div class="buddy-avatar">${initials}</div>
+                <div class="buddy-name">${esc(b.user_name)}</div>
+                <div class="buddy-chips">
+                    <span class="chip"><i class="fas fa-birthday-cake"></i>${b.age} ans</span>
+                    <span class="chip"><i class="fas fa-venus-mars"></i>${esc(b.sexe)}</span>
+                    <span class="chip"><i class="fas fa-globe"></i>${esc(b.region)}</span>
+                    <span class="chip">${b.marie==='Oui'?'<i class="fas fa-ring"></i>Marié(e)':'<i class="fas fa-heart"></i>Célibataire'}</span>
+                </div>
+                <div class="buddy-budget">💰 ${parseInt(b.budget).toLocaleString('fr-FR')} MAD</div>
+                <button class="btn-invite" onclick="autoGroupBuddies()">
+                    <i class="fas fa-user-plus"></i> Voyager ensemble
+                </button>`;
+            grid.appendChild(el);
+        });
+    }
+
+    /* Charge les groupes existants pour la destination prédite */
+    async function loadBuddyGroups(predictedType){
+        const section = document.getElementById('buddyGroupsSection');
+        const list    = document.getElementById('buddyGroupsList');
+        const countEl = document.getElementById('buddyGroupsCount');
+        try {
+            const res  = await fetch('/api/groups');
+            const data = await res.json();
+            const typeDests = predictedType === 'Ville' ? VILLE_DESTS : NATURE_DESTS;
+            const matched   = data.groups.filter(g => typeDests.includes(g.dest) && g.current < g.max);
+            if(!matched.length){ section.style.display='none'; return; }
+            section.style.display = 'block';
+            countEl.textContent   = matched.length + ' groupe' + (matched.length>1?'s':'');
+            list.innerHTML = matched.map(g => {
+                const pct = Math.round((g.current/g.max)*100);
+                return `
+                <div class="group-card">
+                    <div class="group-header">
+                        <h4>${esc(g.name)}</h4>
+                        <span class="badge">${g.max-g.current} places</span>
+                    </div>
+                    <div class="group-body">
+                        <p><i class="fas fa-map-marker-alt"></i> ${esc(g.dest)}</p>
+                        <p><i class="fas fa-calendar"></i> ${esc(g.date)}</p>
+                        <p><i class="fas fa-users"></i> ${g.current}/${g.max} participants</p>
+                    </div>
+                    <div class="progress-wrap">
+                        <div class="progress-label"><span>Remplissage</span><span>${pct}%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+                    </div>
+                    <button class="btn-join" onclick="joinAndGo(${g.id})">
+                        <i class="fas fa-user-plus"></i> Rejoindre ce groupe
+                    </button>
+                </div>`;
+            }).join('');
+        } catch(e){ section.style.display='none'; }
+    }
+
+    /* Rejoindre un groupe et aller dans "Mes Groupes" */
+    async function joinAndGo(id){
+        try {
+            const res  = await fetch(`/api/groups/${id}/join`,{method:'POST'});
+            const data = await res.json();
+            if(data.success || data.message){
+                showToast('✅ ' + (data.message||'Groupe rejoint !'));
+                const myGroupsBtn = document.querySelectorAll('.tab')[2];
+                showTab('my-groups', myGroupsBtn);
+            } else {
+                showToast('⚠️ '+data.message,'error');
+            }
+        } catch(e){ showToast('Erreur serveur','error'); }
+    }
+
+    /* Préremplit le formulaire de création et bascule dessus */
+    function goCreate(){
+        if(buddyPredicted){
+            const type     = buddyPredicted.predicted_dest;
+            const typeDests = type === 'Ville' ? VILLE_DESTS : NATURE_DESTS;
+            const destSel  = document.getElementById('group-dest');
+            for(let opt of destSel.options){
+                if(typeDests.includes(opt.value)){ destSel.value = opt.value; break; }
+            }
+            const nom = document.getElementById('bName').value.trim();
+            if(nom) document.getElementById('group-name').value = `Groupe ${nom} — ${type}`;
+        }
+        const createBtn = document.querySelector('.tab');
+        showTab('create', createBtn);
+        showToast('📍 Formulaire pré-rempli avec ta destination !','info');
+    }
+
+    /* Rejoint un groupe existant ou en crée un automatiquement */
+    async function autoGroupBuddies(){
+        if(!buddyPredicted){ showToast('⚠️ Lance d\'abord l\'analyse de profil !','error'); return; }
+        const btn = document.getElementById('btnAutoGroup');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Recherche…';
+        const type      = buddyPredicted.predicted_dest;
+        const typeDests = type === 'Ville' ? VILLE_DESTS : NATURE_DESTS;
+        try {
+            // 1) Chercher un groupe disponible
+            const res  = await fetch('/api/groups');
+            const data = await res.json();
+            const match = data.groups.find(g => typeDests.includes(g.dest) && g.current < g.max);
+            if(match){
+                const r2 = await fetch(`/api/groups/${match.id}/join`,{method:'POST'});
+                const d2 = await r2.json();
+                showToast('✅ Rejoint : ' + match.name + ' !');
+            } else {
+                // 2) Créer automatiquement un groupe
+                const nom    = document.getElementById('bName').value.trim() || 'Voyageur';
+                const dest   = typeDests[Math.floor(Math.random()*typeDests.length)];
+                const depart = new Date(); depart.setDate(depart.getDate()+30);
+                const body   = {
+                    name : `Groupe ${nom} — ${type}`,
+                    dest : dest,
+                    date : depart.toISOString().split('T')[0],
+                    max  : 10,
+                    desc : `Groupe créé par l'IA pour voyageurs ${type.toLowerCase()} avec profil similaire.`
+                };
+                const r2 = await fetch('/api/groups',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+                const d2 = await r2.json();
+                if(d2.success) showToast('🎉 Groupe créé automatiquement : ' + body.name);
+                else showToast('⚠️ '+d2.message,'error');
+            }
+            // 3) Aller dans "Mes Groupes"
+            const myGroupsBtn = document.querySelectorAll('.tab')[2];
+            showTab('my-groups', myGroupsBtn);
+        } catch(e){
+            showToast('Erreur serveur','error');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-bolt"></i> Rejoindre / Créer Auto';
+        }
+    }
+
+    /* ────────────── SAUVEGARDE GROUPES ─────────────── */
+    let savedGroupIds = {};   // { group_id: saved_id }
+
+    async function loadSavedGroups() {
+        try {
+            const res  = await fetch('/api/saved-groups');
+            const data = await res.json();
+            if (data.success) {
+                savedGroupIds = data.ids || {};
+                // Mettre à jour les boutons déjà affichés
+                Object.keys(savedGroupIds).forEach(gid => {
+                    const btn = document.getElementById(`gbtn-${gid}`);
+                    if (btn) markGroupSaved(btn, true);
+                });
+            }
+        } catch(e) {}
+    }
+
+    function markGroupSaved(btn, saved) {
+        if (saved) {
+            btn.style.background  = 'linear-gradient(135deg,#D4933A,#b87a1e)';
+            btn.style.borderColor = '#D4933A';
+            btn.style.color       = '#fff';
+            btn.title             = 'Retirer des favoris';
+        } else {
+            btn.style.background  = '#fff';
+            btn.style.borderColor = '#e0e0e0';
+            btn.style.color       = '#ccc';
+            btn.title             = 'Sauvegarder ce groupe';
+        }
+    }
+
+    async function toggleSaveGroup(groupId, groupName, destination, btn) {
+        try {
+            if (savedGroupIds[groupId]) {
+                // → Unsave
+                await fetch('/api/saved-groups/' + savedGroupIds[groupId], { method: 'DELETE' });
+                delete savedGroupIds[groupId];
+                markGroupSaved(btn, false);
+                showToast('Groupe retiré des favoris', 'info');
+            } else {
+                // → Save
+                const res  = await fetch('/api/saved-groups', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ group_id: groupId, group_name: groupName, destination: destination })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await loadSavedGroups();
+                    markGroupSaved(btn, true);
+                    showToast('★ Groupe sauvegardé!');
+                } else {
+                    showToast(data.message || 'Connectez-vous d\'abord', 'error');
+                }
+            }
+        } catch(e) {
+            showToast('Erreur lors de la sauvegarde', 'error');
+        }
+    }
+
+    // Recharger les états sauvegardés après chaque loadGroups
+    const _origLoadGroups = loadGroups;
+    loadGroups = async function() {
+        await _origLoadGroups();
+        await loadSavedGroups();
+    };
+
+    window.addEventListener('load', async function() {
+        await loadSavedGroups();
+        try {
+            const res = await fetch('/api/current-user');
+            const data = await res.json();
+            const btn = document.querySelector('.svc-nav-logout');
+            if (!data.logged_in) {
+                if (btn) {
+                    btn.textContent = 'Se connecter';
+                    btn.onclick = () => window.location.href = '/auth';
+                    btn.style.background = 'rgba(212,147,58,.15)';
+                    btn.style.borderColor = 'rgba(212,147,58,.3)';
+                    btn.style.color = '#D4933A';
+                }
+            } else {
+                if (btn) btn.innerHTML = `<i class="fas fa-sign-out-alt"></i> ${data.user.name.split(' ')[0]}`;
+            }
+        } catch(e) {}
+    });
+
+    /* ────────────────────── LOGOUT ──────────────────── */
+    async function logout() {
+        if(confirm('Déconnexion?')) {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/';
+        }
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" fill="none">
+  <defs>
+    <linearGradient id="starGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C1272D"/>
+      <stop offset="100%" stop-color="#D4933A"/>
+    </linearGradient>
+  </defs>
+  <!-- 8-pointed Islamic star -->
+  <g transform="translate(25,25)">
+    <polygon points="0,-15 2.3,-5.7 10.6,-10.6 5.7,-2.3 15,0 5.7,2.3 10.6,10.6 2.3,5.7 0,15 -2.3,5.7 -10.6,10.6 -5.7,2.3 -15,0 -5.7,-2.3 -10.6,-10.6 -2.3,-5.7"
+          fill="url(#starGrad)"/>
+    <polygon points="0,-8 5.7,0 0,8 -5.7,0" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+  </g>
+  <!-- MarocTour text -->
+  <text x="52" y="22" font-family="Georgia,Times New Roman,serif" font-weight="700" font-size="18" fill="#C1272D" letter-spacing="-0.5">Maroc</text>
+  <text x="52" y="40" font-family="Georgia,Times New Roman,serif" font-weight="400" font-size="13" fill="#D4933A" letter-spacing="5">TOUR</text>
+  <!-- decorative line -->
+  <line x1="52" y1="25" x2="130" y2="25" stroke="#D4933A" stroke-width="0.5" opacity="0.5"/>
+</svg>

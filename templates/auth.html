@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion – MarocTour</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --red:    #C1272D;
+            --gold:   #D4933A;
+            --gold-l: #F4A800;
+            --dark:   #0F0A05;
+            --navy:   #1A2744;
+            --terra:  #C4622D;
+            --sand:   #F5EFE0;
+            --text:   #1a1a1a;
+            --muted:  #6b7280;
+            --border: rgba(0,0,0,.10);
+            --radius: 14px;
+            --zellige: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='rgba(212,147,58,0.13)' stroke-width='0.8'%3E%3Cpolygon points='40,4 46,22 64,16 54,31 72,40 54,49 64,64 46,58 40,76 34,58 16,64 26,49 8,40 26,31 16,16 34,22'/%3E%3Cpolygon points='40,22 52,40 40,58 28,40'/%3E%3Crect x='26' y='26' width='28' height='28' transform='rotate(45 40 40)'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: var(--sand);
+            color: var(--text);
+        }
+
+        /* ── LEFT PANEL — "Bab (Door) of Morocco" ─── */
+        .auth-left {
+            flex: 0 0 45%;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px 56px;
+            background:
+                linear-gradient(160deg, rgba(10,4,2,.9) 0%, rgba(140,30,20,.7) 45%, rgba(196,98,45,.5) 80%, rgba(212,147,58,.4) 100%),
+                url('https://images.unsplash.com/photo-1548013146-72479768bada?w=900&q=80') center/cover no-repeat;
+        }
+
+        /* Zellige pattern overlay */
+        .auth-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: var(--zellige);
+            background-size: 80px 80px;
+            opacity: .65;
+            z-index: 0;
+        }
+
+        /* Ornate arch at top of left panel */
+        .auth-left::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 220px;
+            background: radial-gradient(ellipse 70% 100% at 50% 0%, rgba(212,147,58,.18) 0%, transparent 70%);
+            z-index: 0;
+            border-bottom: 1px solid rgba(212,147,58,.15);
+        }
+
+        /* Arch SVG decoration */
+        .al-arch-svg {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            z-index: 1;
+            opacity: .25;
+        }
+
+        /* Left border strip — door frame */
+        .auth-left-frame {
+            position: absolute;
+            top: 0; left: 0;
+            width: 6px; height: 100%;
+            background: linear-gradient(180deg, var(--gold), var(--terra), var(--red), var(--gold));
+        }
+        .auth-left-frame-r {
+            position: absolute;
+            top: 0; right: 0;
+            width: 6px; height: 100%;
+            background: linear-gradient(180deg, var(--gold), var(--terra), var(--red), var(--gold));
+        }
+
+        /* Inner content above overlays */
+        .auth-left > *:not(.al-arch-svg):not(.auth-left-frame):not(.auth-left-frame-r) {
+            position: relative;
+            z-index: 2;
+        }
+
+        .al-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            text-decoration: none;
+        }
+        .al-logo svg { width: 48px; height: 48px; filter: drop-shadow(0 4px 12px rgba(212,147,58,.4)); }
+        .al-logo-text { display: flex; flex-direction: column; line-height: 1; }
+        .al-logo-maroc {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: #fff;
+            letter-spacing: -.3px;
+            text-shadow: 0 2px 8px rgba(0,0,0,.4);
+        }
+        .al-logo-tour {
+            font-size: .65rem;
+            letter-spacing: 6px;
+            color: var(--gold);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .al-middle {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Arabic-style ornamental separator */
+        .al-ornament {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .al-ornament-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(212,147,58,.7));
+        }
+        .al-ornament-line.r {
+            background: linear-gradient(90deg, rgba(212,147,58,.7), transparent);
+        }
+
+        .al-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(212,147,58,.15);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(212,147,58,.35);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: .78rem;
+            color: var(--gold);
+            font-weight: 600;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            width: fit-content;
+        }
+        .al-tag i { font-size: .7rem; }
+
+        .al-headline {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 3vw, 2.8rem);
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.22;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 16px rgba(0,0,0,.5);
+        }
+        .al-headline em { color: var(--gold); font-style: normal; }
+
+        .al-sub {
+            font-size: .95rem;
+            color: rgba(255,255,255,.72);
+            line-height: 1.75;
+            max-width: 360px;
+            margin-bottom: 36px;
+        }
+
+        .al-features { display: flex; flex-direction: column; gap: 14px; }
+        .al-feature {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: rgba(255,255,255,.88);
+            font-size: .88rem;
+            background: rgba(255,255,255,.06);
+            border: 1px solid rgba(255,255,255,.1);
+            border-radius: 12px;
+            padding: 10px 14px;
+            backdrop-filter: blur(4px);
+            transition: background .25s;
+        }
+        .al-feature:hover { background: rgba(255,255,255,.1); }
+        .al-feature-icon {
+            width: 38px; height: 38px;
+            border-radius: 10px;
+            background: rgba(212,147,58,.22);
+            border: 1px solid rgba(212,147,58,.35);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--gold);
+            font-size: .85rem;
+            flex-shrink: 0;
+        }
+
+        .al-footer {
+            font-size: .78rem;
+            color: rgba(255,255,255,.4);
+        }
+        .al-footer a { color: rgba(255,255,255,.6); text-decoration: none; transition: color .2s; }
+        .al-footer a:hover { color: var(--gold); }
+
+        /* ── RIGHT PANEL ─── */
+        .auth-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 40px;
+            overflow-y: auto;
+            background: var(--sand);
+            position: relative;
+        }
+
+        /* Subtle zellige on right panel */
+        .auth-right::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='rgba(193,39,45,0.05)' stroke-width='0.8'%3E%3Cpolygon points='40,4 46,22 64,16 54,31 72,40 54,49 64,64 46,58 40,76 34,58 16,64 26,49 8,40 26,31 16,16 34,22'/%3E%3C/g%3E%3C/svg%3E");
+            background-size: 80px 80px;
+        }
+
+        .auth-form-wrap {
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .ar-top { margin-bottom: 36px; }
+
+        .ar-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: .82rem;
+            color: var(--muted);
+            text-decoration: none;
+            margin-bottom: 32px;
+            transition: color .2s;
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+        }
+        .ar-back:hover { color: var(--red); border-color: rgba(193,39,45,.2); }
+        .ar-back i { font-size: .75rem; }
+
+        .ar-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 8px;
+        }
+        .ar-sub {
+            font-size: .9rem;
+            color: var(--muted);
+        }
+        .ar-sub a {
+            color: var(--red);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .ar-sub a:hover { text-decoration: underline; }
+
+        /* Form */
+        .aform { margin-top: 32px; }
+
+        .aform-group { margin-bottom: 20px; }
+
+        .aform-label {
+            display: block;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 8px;
+            letter-spacing: .2px;
+        }
+
+        .aform-input-wrap { position: relative; }
+        .aform-input-wrap i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            font-size: .85rem;
+            pointer-events: none;
+            transition: color .2s;
+        }
+        .aform-input-wrap:focus-within i { color: var(--gold); }
+
+        .aform-input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: .9rem;
+            color: var(--dark);
+            background: #fff;
+            outline: none;
+            transition: border-color .25s, box-shadow .25s;
+        }
+        .aform-input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 4px rgba(212,147,58,.12);
+        }
+        .aform-input::placeholder { color: #bbb; }
+
+        .aform-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            font-size: .82rem;
+        }
+        .remember-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: var(--muted);
+            font-weight: 500;
+        }
+        .remember-label input[type=checkbox] {
+            accent-color: var(--red);
+            width: 15px; height: 15px;
+        }
+        .forgot-link {
+            color: var(--red);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .forgot-link:hover { text-decoration: underline; }
+
+        .btn-submit-auth {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--red), #8B1D22);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: .95rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: .3px;
+            transition: all .2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(193,39,45,.3);
+        }
+        .btn-submit-auth:hover:not(:disabled) {
+            opacity: .92;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(193,39,45,.4);
+        }
+        .btn-submit-auth:disabled { opacity: .6; cursor: not-allowed; }
+
+        .aform-divider {
+            text-align: center;
+            position: relative;
+            margin: 24px 0;
+            font-size: .8rem;
+            color: var(--muted);
+        }
+        .aform-divider::before, .aform-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 42%;
+            height: 1px;
+            background: var(--border);
+        }
+        .aform-divider::before { left: 0; }
+        .aform-divider::after  { right: 0; }
+
+        .aform-terms {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: .82rem;
+            color: var(--muted);
+            margin-bottom: 22px;
+        }
+        .aform-terms input[type=checkbox] {
+            accent-color: var(--red);
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        .aform-terms a { color: var(--red); font-weight: 600; text-decoration: none; }
+        .aform-terms a:hover { text-decoration: underline; }
+
+        /* Panels */
+        .auth-panel { display: none; }
+        .auth-panel.active { display: block; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+            padding: 14px 20px; border-radius: 12px;
+            font-weight: 600; font-size: .88rem; color: #fff;
+            box-shadow: 0 8px 32px rgba(0,0,0,.18);
+            display: flex; align-items: center; gap: 10px;
+            transform: translateY(80px); opacity: 0;
+            transition: all .35s cubic-bezier(.175,.885,.32,1.275);
+            max-width: 340px;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+        .toast.error   { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+        .toast.info    { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .auth-left { display: none; }
+            .auth-right { padding: 32px 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ── LEFT PANEL ── -->
+    <div class="auth-left">
+        <!-- Door frame borders -->
+        <div class="auth-left-frame"></div>
+        <div class="auth-left-frame-r"></div>
+
+        <!-- Arch SVG at top -->
+        <svg class="al-arch-svg" viewBox="0 0 450 220" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,220 L0,140 Q50,120 80,100 Q120,70 160,50 Q200,25 225,5 C230,1 232,0 225,0 L225,0 C218,0 220,1 225,5 Q250,25 290,50 Q330,70 370,100 Q400,120 450,140 L450,220 Z" fill="rgba(212,147,58,0.1)" stroke="rgba(212,147,58,0.2)" stroke-width="1"/>
+            <path d="M30,220 L30,155 Q80,130 120,110 Q165,85 195,65 Q215,52 225,40 Q235,52 255,65 Q285,85 330,110 Q370,130 420,155 L420,220" fill="none" stroke="rgba(212,147,58,0.12)" stroke-width="1"/>
+            <!-- Decorative arch rosette -->
+            <circle cx="225" cy="10" r="8" fill="none" stroke="rgba(212,147,58,0.3)" stroke-width="1"/>
+            <circle cx="225" cy="10" r="4" fill="rgba(212,147,58,0.25)"/>
+        </svg>
+
+        <a href="/" class="al-logo">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="ag" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#C1272D"/>
+                        <stop offset="100%" stop-color="#D4933A"/>
+                    </linearGradient>
+                </defs>
+                <polygon points="24,6 27,17 36,11 30,21 42,24 30,27 36,37 27,31 24,42 21,31 12,37 18,27 6,24 18,21 12,11 21,17"
+                         fill="url(#ag)"/>
+                <polygon points="24,18 30,24 24,30 18,24" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>
+            </svg>
+            <div class="al-logo-text">
+                <span class="al-logo-maroc">Maroc</span>
+                <span class="al-logo-tour">Tour</span>
+            </div>
+        </a>
+
+        <div class="al-middle">
+            <div class="al-ornament">
+                <div class="al-ornament-line"></div>
+                <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
+                    <polygon points="20,3 22.5,13.5 32.5,8 27,18 38,20 27,22 32.5,32 22.5,26.5 20,37 17.5,26.5 7.5,32 13,22 2,20 13,18 7.5,8 17.5,13.5" fill="#D4933A"/>
+                </svg>
+                <div class="al-ornament-line r"></div>
+            </div>
+            <div class="al-tag"><i class="fas fa-star"></i> Voyages sur mesure</div>
+            <h1 class="al-headline">Explorez le Maroc<br>comme jamais<br><em>auparavant</em></h1>
+            <p class="al-sub">Recommandations IA personnalisées, plans de voyage détaillés et groupes de voyageurs — tout ce qu'il vous faut pour une aventure inoubliable.</p>
+            <div class="al-features">
+                <div class="al-feature">
+                    <div class="al-feature-icon"><i class="fas fa-brain"></i></div>
+                    <span>Intelligence artificielle pour recommander vos destinations idéales</span>
+                </div>
+                <div class="al-feature">
+                    <div class="al-feature-icon"><i class="fas fa-route"></i></div>
+                    <span>Plans de voyage jour par jour avec activités et budgets</span>
+                </div>
+                <div class="al-feature">
+                    <div class="al-feature-icon"><i class="fas fa-users"></i></div>
+                    <span>Groupes de voyage pour partager l'aventure ensemble</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="al-footer">
+            © 2026 MarocTour — <a href="#">Confidentialité</a> · <a href="#">CGU</a>
+        </div>
+    </div>
+
+    <!-- ── RIGHT PANEL ── -->
+    <div class="auth-right">
+        <div class="auth-form-wrap">
+
+            <a href="/" class="ar-back"><i class="fas fa-arrow-left"></i> Retour à l'accueil</a>
+
+            <!-- LOGIN -->
+            <div class="auth-panel active" id="panel-login">
+                <div class="ar-top">
+                    <h2 class="ar-title">Bon retour !</h2>
+                    <p class="ar-sub">Pas encore de compte ? <a href="#" id="go-register">Inscrivez-vous</a></p>
+                </div>
+                <form class="aform" id="login-form">
+                    <div class="aform-group">
+                        <label class="aform-label">Email</label>
+                        <div class="aform-input-wrap">
+                            <i class="fas fa-envelope"></i>
+                            <input class="aform-input" type="email" id="login-email" placeholder="votre.email@example.com" required>
+                        </div>
+                    </div>
+                    <div class="aform-group">
+                        <label class="aform-label">Mot de passe</label>
+                        <div class="aform-input-wrap">
+                            <i class="fas fa-lock"></i>
+                            <input class="aform-input" type="password" id="login-password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <div class="aform-row">
+                        <label class="remember-label">
+                            <input type="checkbox" id="remember">
+                            Se souvenir de moi
+                        </label>
+                        <a href="#" class="forgot-link" id="go-forgot">Mot de passe oublié ?</a>
+                    </div>
+                    <button type="submit" class="btn-submit-auth" id="login-btn">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </button>
+                </form>
+            </div>
+
+            <!-- REGISTER -->
+            <div class="auth-panel" id="panel-register">
+                <div class="ar-top">
+                    <h2 class="ar-title">Créez votre compte</h2>
+                    <p class="ar-sub">Déjà inscrit ? <a href="#" id="go-login">Connectez-vous</a></p>
+                </div>
+                <form class="aform" id="register-form">
+                    <div class="aform-group">
+                        <label class="aform-label">Nom complet</label>
+                        <div class="aform-input-wrap">
+                            <i class="fas fa-user"></i>
+                            <input class="aform-input" type="text" id="register-name" placeholder="Ahmed Benali" required>
+                        </div>
+                    </div>
+                    <div class="aform-group">
+                        <label class="aform-label">Email</label>
+                        <div class="aform-input-wrap">
+                            <i class="fas fa-envelope"></i>
+                            <input class="aform-input" type="email" id="register-email" placeholder="votre.email@example.com" required>
+                        </div>
+                    </div>
+                    <div class="aform-group">
+                        <label class="aform-label">Mot de passe</label>
+                        <div class="aform-input-wrap">
+                            <i class="fas fa-lock"></i>
+                            <input class="aform-input" type="password" id="register-password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <div class="aform-group">
+                        <label class="aform-label">Confirmer le mot de passe</label>
+                        <div class="aform-input-wrap">
+                            <i class="fas fa-lock"></i>
+                            <input class="aform-input" type="password" id="register-confirm" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <label class="aform-terms">
+                        <input type="checkbox" id="terms" required>
+                        <span>J'accepte les <a href="#">conditions d'utilisation</a> et la <a href="#">politique de confidentialité</a></span>
+                    </label>
+                    <button type="submit" class="btn-submit-auth" id="register-btn">
+                        <i class="fas fa-user-plus"></i> Créer mon compte
+                    </button>
+                    <div class="aform-divider">OU</div>
+                    <p style="text-align:center;font-size:.82rem;color:var(--muted);">
+                        Déjà inscrit ? <a href="#" id="go-login2" style="color:var(--red);font-weight:600;text-decoration:none;">Connectez-vous</a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- FORGOT PASSWORD -->
+            <div class="auth-panel" id="panel-forgot">
+                <div class="ar-top">
+                    <h2 class="ar-title">Récupérer l'accès</h2>
+                    <p class="ar-sub">Entrez votre email pour réinitialiser votre mot de passe</p>
+                </div>
+                <form class="aform" id="forgot-form">
+                    <div class="aform-group">
+                        <label class="aform-label">Email</label>
+                        <div class="aform-input-wrap">
+                            <i class="fas fa-envelope"></i>
+                            <input class="aform-input" type="email" id="forgot-email" placeholder="votre.email@example.com" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit-auth">
+                        <i class="fas fa-paper-plane"></i> Envoyer le lien
+                    </button>
+                    <div class="aform-divider">OU</div>
+                    <p style="text-align:center;font-size:.82rem;">
+                        <a href="#" id="go-back-login" style="color:var(--red);font-weight:600;text-decoration:none;">← Retour à la connexion</a>
+                    </p>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle" id="toast-icon"></i>
+        <span id="toast-msg"></span>
+    </div>
+
+    <script>
+        // Panel switching
+        const panels = {
+            login:    document.getElementById('panel-login'),
+            register: document.getElementById('panel-register'),
+            forgot:   document.getElementById('panel-forgot'),
+        };
+        function showPanel(name) {
+            Object.values(panels).forEach(p => p.classList.remove('active'));
+            panels[name].classList.add('active');
+        }
+
+        document.getElementById('go-register').addEventListener('click', e => { e.preventDefault(); showPanel('register'); });
+        document.getElementById('go-login').addEventListener('click',    e => { e.preventDefault(); showPanel('login'); });
+        document.getElementById('go-login2').addEventListener('click',   e => { e.preventDefault(); showPanel('login'); });
+        document.getElementById('go-forgot').addEventListener('click',   e => { e.preventDefault(); showPanel('forgot'); });
+        document.getElementById('go-back-login').addEventListener('click', e => { e.preventDefault(); showPanel('login'); });
+
+        // Toast
+        let _tt;
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+            document.getElementById('toast-icon').className = 'fas ' + (icons[type] || icons.success);
+            document.getElementById('toast-msg').textContent = msg;
+            t.className = 'toast ' + type + ' show';
+            clearTimeout(_tt);
+            _tt = setTimeout(() => t.classList.remove('show'), 3500);
+        }
+
+        // Login
+        document.getElementById('login-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            const email    = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connexion...';
+            try {
+                const res  = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Bienvenue ! Redirection...', 'success');
+                    setTimeout(() => window.location.href = '/user', 900);
+                } else {
+                    showToast(data.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
+                }
+            } catch (err) {
+                showToast('Erreur de connexion au serveur', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
+            }
+        });
+
+        // Register
+        document.getElementById('register-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const btn     = document.getElementById('register-btn');
+            const name    = document.getElementById('register-name').value.trim();
+            const email   = document.getElementById('register-email').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirm  = document.getElementById('register-confirm').value;
+            const terms    = document.getElementById('terms').checked;
+            if (password !== confirm) { showToast('Les mots de passe ne correspondent pas', 'error'); return; }
+            if (!terms) { showToast("Veuillez accepter les conditions d'utilisation", 'info'); return; }
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création...';
+            try {
+                const res  = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, email, password }) });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Compte créé ! Connectez-vous.', 'success');
+                    setTimeout(() => {
+                        showPanel('login');
+                        document.getElementById('register-form').reset();
+                    }, 1500);
+                } else {
+                    showToast(data.message, 'error');
+                }
+            } catch (err) {
+                showToast('Erreur de connexion au serveur', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Créer mon compte';
+            }
+        });
+
+        // Forgot password
+        document.getElementById('forgot-form').addEventListener('submit', async e => {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value.trim();
+            try {
+                const res  = await fetch('/api/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+                const data = await res.json();
+                if (data.success) showToast(data.message, 'success');
+                else showToast(data.message, 'error');
+            } catch (err) { showToast('Erreur de connexion au serveur', 'error'); }
+        });
+    </script>
+</body>
+</html>

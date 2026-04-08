@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificateur de Voyage – MarocTour</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+    /* ============================================================
+       SERVICE 2 — "Blue City Routes"
+       Theme: Chefchaouen Blue / Indigo / Path & Route / Zellige
+    ============================================================ */
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #EEF2F8; }
+
+    :root {
+        --s2-blue:   #1A2744;
+        --s2-mid:    #2D4A8A;
+        --s2-light:  #4A6FA8;
+        --s2-sky:    #7BB3E8;
+        --s2-gold:   #D4933A;
+        --s2-chefch: #4A90D9;
+        --zellige: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='rgba(74,144,217,0.12)' stroke-width='0.8'%3E%3Cpolygon points='40,4 46,22 64,16 54,31 72,40 54,49 64,64 46,58 40,76 34,58 16,64 26,49 8,40 26,31 16,16 34,22'/%3E%3Cpolygon points='40,22 52,40 40,58 28,40'/%3E%3Crect x='26' y='26' width='28' height='28' transform='rotate(45 40 40)'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    /* ── UNIFIED SERVICE NAVBAR ── */
+    .svc-nav {
+        position: sticky; top: 0; z-index: 900;
+        background: var(--s2-blue);
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 32px; height: 64px;
+        box-shadow: 0 2px 20px rgba(0,0,0,.4);
+        border-bottom: 1px solid rgba(74,144,217,.2);
+    }
+    .svc-nav::after {
+        content: '';
+        position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, var(--s2-blue), var(--s2-chefch), var(--s2-gold), var(--s2-chefch), var(--s2-blue));
+    }
+    .svc-nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .svc-nav-logo svg { width: 32px; height: 32px; }
+    .svc-nav-logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .svc-nav-logo-maroc { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: #fff; }
+    .svc-nav-logo-tour  { font-size: .55rem; letter-spacing: 5px; color: #D4933A; font-weight: 600; text-transform: uppercase; }
+    .svc-nav-left { display: flex; align-items: center; gap: 20px; }
+    .svc-nav-back {
+        display: flex; align-items: center; gap: 8px;
+        color: rgba(255,255,255,.65); text-decoration: none;
+        font-size: .82rem; font-weight: 500;
+        padding: 7px 14px; border-radius: 8px;
+        border: 1px solid rgba(255,255,255,.15); transition: all .2s;
+    }
+    .svc-nav-back:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .svc-nav-back i { font-size: .75rem; }
+    .svc-nav-logout {
+        display: flex; align-items: center; gap: 8px;
+        background: rgba(193,39,45,.15); border: 1px solid rgba(193,39,45,.3);
+        color: #e8606a; padding: 7px 14px; border-radius: 8px;
+        font-size: .82rem; font-weight: 600; cursor: pointer;
+        font-family: 'Plus Jakarta Sans', sans-serif; transition: all .2s;
+    }
+    .svc-nav-logout:hover { background: rgba(193,39,45,.28); color: #ff7a83; }
+
+    /* ── SERVICE HERO BANNER — Blue City ── */
+    .svc-hero {
+        padding: 60px 32px 52px; text-align: center;
+        position: relative; overflow: hidden;
+    }
+    .svc-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image: var(--zellige);
+        background-size: 80px 80px;
+        opacity: .6;
+    }
+    /* Path/route wave at bottom */
+    .svc-hero::after {
+        content: '';
+        position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+        background: linear-gradient(0deg, rgba(238,242,248,.5) 0%, transparent 100%);
+    }
+    .svc-hero-s2 {
+        background: linear-gradient(150deg, #0C1628 0%, #1A2744 25%, #2D4A8A 60%, #4A6FA8 85%, #7BB3E8 100%);
+    }
+    .svc-hero-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+    .svc-hero-ornament {
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        margin-bottom: 18px;
+    }
+    .svc-hero-ornament-line { width: 40px; height: 1px; background: linear-gradient(90deg, transparent, rgba(123,179,232,.7)); }
+    .svc-hero-ornament-line.r { background: linear-gradient(90deg, rgba(123,179,232,.7), transparent); }
+    .svc-hero-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,.1); backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 100px; padding: 6px 18px;
+        font-size: .78rem; color: #ffd88a; font-weight: 600;
+        letter-spacing: .5px; text-transform: uppercase; margin-bottom: 18px;
+    }
+    .svc-hero h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: 700; color: #fff; margin-bottom: 14px; line-height: 1.2;
+        text-shadow: 0 2px 16px rgba(0,0,0,.4);
+    }
+    .svc-hero p { font-size: 1rem; color: rgba(255,255,255,.78); line-height: 1.65; max-width: 480px; margin: 0 auto; }
+    </style>
+</head>
+<body class="service-page service2-page">
+
+    <!-- NAVBAR -->
+    <nav class="svc-nav">
+        <div class="svc-nav-left">
+            <a href="/user" class="svc-nav-back"><i class="fas fa-arrow-left"></i> Retour</a>
+            <a href="/" class="svc-nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs><linearGradient id="ng2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#C1272D"/><stop offset="100%" stop-color="#D4933A"/></linearGradient></defs>
+                    <polygon points="16,3 18.3,10.8 25.3,7.1 21.7,14 28.5,16 21.7,18 25.3,24.9 18.3,21.2 16,29 13.7,21.2 6.7,24.9 10.3,18 3.5,16 10.3,14 6.7,7.1 13.7,10.8" fill="url(#ng2)"/>
+                    <polygon points="16,12 20,16 16,20 12,16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
+                </svg>
+                <div class="svc-nav-logo-text">
+                    <span class="svc-nav-logo-maroc">Maroc</span>
+                    <span class="svc-nav-logo-tour">Tour</span>
+                </div>
+            </a>
+        </div>
+        <button class="svc-nav-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+    </nav>
+
+    <!-- HERO BANNER -->
+    <div class="svc-hero svc-hero-s2">
+        <div class="svc-hero-inner">
+            <div class="svc-hero-ornament">
+                <div class="svc-hero-ornament-line"></div>
+                <svg width="14" height="14" viewBox="0 0 40 40" fill="none">
+                    <polygon points="20,3 22.5,13.5 32.5,8 27,18 38,20 27,22 32.5,32 22.5,26.5 20,37 17.5,26.5 7.5,32 13,22 2,20 13,18 7.5,8 17.5,13.5" fill="#7BB3E8"/>
+                </svg>
+                <div class="svc-hero-ornament-line r"></div>
+            </div>
+            <div class="svc-hero-badge"><i class="fas fa-map-marked-alt"></i> Planification · Itinéraire sur mesure</div>
+            <h1>Planificateur de Voyage</h1>
+            <p>Créez un itinéraire personnalisé jour par jour avec activités, hôtels, restaurants et budget détaillé</p>
+        </div>
+    </div>
+
+    <main class="service-main">
+        <div class="container">
+
+            <div class="form-section">
+                <h3><i class="fas fa-clipboard-list"></i> Informations du Voyage</h3>
+                <form id="planner-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-map-pin"></i> Destination</label>
+                            <select id="destination" required>
+                                <option value="">— Choisissez une destination —</option>
+                                <optgroup label="🏙️ Villes impériales &amp; côtières">
+                                    <option value="Marrakech">🏙️ Marrakech — La Ville Rouge</option>
+                                    <option value="Fès">🕌 Fès — La Ville Spirituelle</option>
+                                    <option value="Casablanca">🌆 Casablanca — La Métropole</option>
+                                    <option value="Rabat">🏛️ Rabat — La Capitale</option>
+                                    <option value="Meknès">🏰 Meknès — Ville Impériale</option>
+                                    <option value="Tanger">⚓ Tanger — Porte de l'Afrique</option>
+                                    <option value="Agadir">🌊 Agadir — Perle du Souss</option>
+                                    <option value="Tétouan">🕌 Tétouan — Perle du Nord</option>
+                                    <option value="Chefchaouen">💙 Chefchaouen — La Ville Bleue</option>
+                                    <option value="Essaouira">🌬️ Essaouira — Cité des Alizés</option>
+                                    <option value="El Jadida">🏯 El Jadida — Cité Portugaise</option>
+                                    <option value="Safi">🎨 Safi — Cité de la Céramique</option>
+                                    <option value="Oujda">🌿 Oujda — Porte de l'Orient</option>
+                                    <option value="Nador">🌊 Nador — La Méditerranéenne</option>
+                                    <option value="Laâyoune">🏜️ Laâyoune — Capitale du Sahara</option>
+                                    <option value="Dakhla">🏄 Dakhla — Paradis du Windsurf</option>
+                                    <option value="Ifrane">❄️ Ifrane — La Petite Suisse</option>
+                                    <option value="Béni Mellal">🌲 Béni Mellal — Porte de l'Atlas</option>
+                                    <option value="Moulay Idriss">⭐ Moulay Idriss — Ville Sainte</option>
+                                </optgroup>
+                                <optgroup label="🌿 Sites naturels &amp; déserts">
+                                    <option value="Merzouga">🏜️ Désert de Merzouga — Sahara</option>
+                                    <option value="Imlil">🏔️ Vallée d'Imlil — Haut Atlas</option>
+                                    <option value="Todra">🌄 Gorges du Todra — Canyons</option>
+                                    <option value="Dades">🦅 Gorges du Dadès — Rose des Sables</option>
+                                    <option value="Toubkal">⛰️ Parc de Toubkal — 4167m</option>
+                                    <option value="Oukaïmeden">⛷️ Oukaïmeden — Station de Ski</option>
+                                    <option value="Draa">🌴 Vallée du Draa — Palmeraies</option>
+                                    <option value="Ouzoud">💦 Cascades d'Ouzoud</option>
+                                    <option value="Legzira">🌊 Plage de Legzira — Arches Rouges</option>
+                                    <option value="Spartel">🌍 Cap Spartel — Atlantique &amp; Méditerranée</option>
+                                    <option value="Hercule">🗿 Grottes d'Hercule</option>
+                                    <option value="Ziz">🌵 Vallée du Ziz — Oasis</option>
+                                    <option value="Azrou">🌲 Forêt de Cèdres d'Azrou</option>
+                                    <option value="Cirque">🏔️ Cirque de Jaffar — Haute Altitude</option>
+                                    <option value="IlesP">🐟 Îles Purpuraires — Réserve Marine</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-calendar"></i> Durée (jours)</label>
+                            <input type="number" id="duree" min="1" max="30" value="3" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-users"></i> Nombre de voyageurs</label>
+                            <input type="number" id="voyageurs" min="1" max="20" value="2" required>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-wallet"></i> Budget total (MAD)</label>
+                            <input type="number" id="budget-total" min="1000" step="500" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-list"></i> Centres d'intérêt (optionnel)</label>
+                        <textarea id="interets" rows="3" placeholder="Culture, Nature, Gastronomie, Aventure..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit btn-submit-s2" id="btn-generate">
+                        <i class="fas fa-magic"></i> Générer mon Plan
+                    </button>
+                </form>
+            </div>
+
+            <!-- Loading indicator -->
+            <div id="plan-loading" class="hidden" style="text-align:center; padding:48px;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size:36px; color:var(--s2-chefch); margin-bottom:16px; display:block;"></i>
+                <p style="color:var(--s2-mid); font-weight:500;">Génération de votre plan personnalisé...</p>
+            </div>
+
+            <div class="results-section hidden" id="plan-result">
+                <div class="result-header" style="background: linear-gradient(135deg, #1A2744 0%, #2D4A8A 100%);">
+                    <h3>Votre Plan de Voyage</h3>
+                    <p id="plan-subtitle"></p>
+                </div>
+                <div style="display:flex; justify-content:flex-end; padding:16px 24px 0; gap:12px;">
+                    <button id="btn-save-plan" onclick="savePlan()" style="
+                        display:flex; align-items:center; gap:8px;
+                        padding:10px 20px; background:linear-gradient(135deg,#D4933A,#b87a1e);
+                        color:#fff; border:none; border-radius:9px; font-size:13px;
+                        font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; font-weight:600; transition:.2s;"
+                        onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                        <i class="fas fa-bookmark"></i> Sauvegarder ce plan
+                    </button>
+                    <button onclick="printPlan()" style="
+                        display:flex; align-items:center; gap:8px;
+                        padding:10px 20px; background:rgba(26,39,68,.08); color:var(--s2-blue);
+                        border:1px solid rgba(26,39,68,.2); border-radius:9px; font-size:13px;
+                        font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:.2s;">
+                        <i class="fas fa-print"></i> Imprimer
+                    </button>
+                </div>
+                <div id="plan-content"></div>
+            </div>
+
+            <!-- Mes plans sauvegardés -->
+            <div id="saved-plans-section" class="hidden" style="margin-top:40px;">
+                <div style="display:flex; align-items:center; gap:14px; margin-bottom:20px;">
+                    <div style="width:44px;height:44px;background:linear-gradient(135deg,var(--s2-mid),var(--s2-blue));border-radius:12px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-history" style="color:#fff; font-size:18px;"></i>
+                    </div>
+                    <div>
+                        <h3 style="font-family:'Playfair Display',serif; font-size:18px; color:var(--s2-blue);">Mes plans sauvegardés</h3>
+                        <p style="font-size:13px; color:#888;">Retrouvez vos itinéraires précédents</p>
+                    </div>
+                </div>
+                <div id="saved-plans-list" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px;"></div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let lastPlanData = null;
+
+        document.getElementById('planner-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const dest = document.getElementById('destination').value;
+            if (!dest) { showToast('Choisissez une destination', 'error'); return; }
+            const budget = parseInt(document.getElementById('budget-total').value);
+            if (!budget || budget < 1000) { showToast('Budget minimum 1000 MAD', 'error'); return; }
+
+            const btn = document.getElementById('btn-generate');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Génération...';
+            document.getElementById('plan-result').classList.add('hidden');
+            document.getElementById('plan-loading').classList.remove('hidden');
+
+            try {
+                const res = await fetch('/api/plan', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        destination: dest,
+                        duree: parseInt(document.getElementById('duree').value),
+                        voyageurs: parseInt(document.getElementById('voyageurs').value),
+                        budget: budget,
+                        interets: document.getElementById('interets').value
+                    })
+                });
+                const data = await res.json();
+                document.getElementById('plan-loading').classList.add('hidden');
+
+                if (data.success) {
+                    lastPlanData = data;
+                    displayPlan(data);
+                    showToast('Plan généré avec succès!');
+                } else {
+                    showToast(data.message || 'Erreur', 'error');
+                }
+            } catch (err) {
+                document.getElementById('plan-loading').classList.add('hidden');
+                showToast('Erreur serveur', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-magic"></i> Générer mon Plan';
+            }
+        });
+
+        async function savePlan() {
+            if (!lastPlanData) return;
+            const dest = document.getElementById('destination').value;
+            const btn = document.getElementById('btn-save-plan');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Sauvegarde...';
+            try {
+                const res = await fetch('/api/plan', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        destination: dest,
+                        duree: parseInt(document.getElementById('duree').value),
+                        voyageurs: parseInt(document.getElementById('voyageurs').value),
+                        budget: parseInt(document.getElementById('budget-total').value),
+                        save: true
+                    })
+                });
+                const data = await res.json();
+                if (data.success && data.plan_id) {
+                    showToast('Plan sauvegardé!');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Sauvegardé';
+                    btn.style.background = 'linear-gradient(135deg,#27ae60,#1e8449)';
+                    loadSavedPlans();
+                } else if (data.success && !data.plan_id) {
+                    showToast('Connectez-vous pour sauvegarder', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-bookmark"></i> Sauvegarder';
+                } else {
+                    showToast(data.message || 'Erreur lors de la sauvegarde', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-bookmark"></i> Sauvegarder';
+                }
+            } catch(e) {
+                showToast('Erreur réseau', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-bookmark"></i> Sauvegarder';
+            }
+        }
+
+        function printPlan() { window.print(); }
+
+        async function loadSavedPlans() {
+            try {
+                const res = await fetch('/api/my-plans');
+                const data = await res.json();
+                if (!data.success || !data.plans?.length) return;
+                const section = document.getElementById('saved-plans-section');
+                const list = document.getElementById('saved-plans-list');
+                section.classList.remove('hidden');
+                list.innerHTML = data.plans.map(p => `
+                    <div style="background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.06);border:1px solid rgba(26,39,68,.1);transition:.2s;"
+                        onmouseover="this.style.borderColor='#4A6FA8';this.style.transform='translateY(-2px)'"
+                        onmouseout="this.style.borderColor='rgba(26,39,68,.1)';this.style.transform='none'">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                            <strong style="font-size:14px;color:var(--s2-blue);">${p.destination}</strong>
+                            <button onclick="event.stopPropagation();deletePlan(${p.id},this)" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:12px;padding:2px 6px;" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div style="font-size:12px;color:#888;display:flex;flex-direction:column;gap:4px;margin-bottom:14px;">
+                            <span><i class="fas fa-calendar" style="color:var(--s2-chefch);margin-right:5px;"></i>${p.duree} jour${p.duree>1?'s':''} · ${p.voyageurs} voyageur${p.voyageurs>1?'s':''}</span>
+                            <span><i class="fas fa-wallet" style="color:var(--s2-gold);margin-right:5px;"></i>${p.budget_utilisateur.toLocaleString('fr-FR')} MAD</span>
+                            <span><i class="fas fa-clock" style="color:#bbb;margin-right:5px;"></i>${new Date(p.created_at).toLocaleDateString('fr-FR')}</span>
+                        </div>
+                        <button onclick="viewPlan(${p.id})" style="
+                            width:100%; padding:9px; border:none; border-radius:8px;
+                            background:linear-gradient(135deg,#1A2744,#2D4A8A);
+                            color:#fff; font-size:12px; font-family:'Plus Jakarta Sans',sans-serif;
+                            font-weight:600; cursor:pointer; display:flex; align-items:center;
+                            justify-content:center; gap:7px; transition:.2s;"
+                            onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                            <i class="fas fa-eye"></i> Voir les détails
+                        </button>
+                    </div>`).join('');
+            } catch(e) {}
+        }
+
+        async function deletePlan(id, btn) {
+            if (!confirm('Supprimer ce plan?')) return;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            await fetch(`/api/my-plans/${id}`, {method:'DELETE'});
+            loadSavedPlans();
+            showToast('Plan supprimé');
+        }
+
+        window.addEventListener('load', async function() {
+            await loadSavedPlans();
+            try {
+                const res = await fetch('/api/current-user');
+                const data = await res.json();
+                const btn = document.querySelector('.svc-nav-logout');
+                if (!data.logged_in) {
+                    if (btn) {
+                        btn.textContent = 'Se connecter';
+                        btn.onclick = () => window.location.href = '/auth';
+                        btn.style.background = 'rgba(212,147,58,.15)';
+                        btn.style.borderColor = 'rgba(212,147,58,.3)';
+                        btn.style.color = '#D4933A';
+                    }
+                } else {
+                    if (btn) btn.innerHTML = `<i class="fas fa-sign-out-alt"></i> ${data.user.name.split(' ')[0]}`;
+                }
+            } catch(e) {}
+        });
+
+        function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+        const TAG_COLORS = {
+            'Culture':'#9b59b6','Patrimoine':'#e67e22','Gastronomie':'#e74c3c',
+            'Nature':'#27ae60','Shopping':'#3498db','Bien-être':'#1abc9c',
+            'Art':'#e91e63','Sport':'#f39c12'
+        };
+
+        function displayPlan(data) {
+            const bb   = data.budget_breakdown;
+            const bMax = Math.max(bb.hebergement, bb.repas, bb.activites, bb.transport);
+
+            // ── HEADER ──────────────────────────────────────────────
+            document.getElementById('plan-subtitle').innerHTML =
+                `${data.emoji} <strong>${esc(data.destination)}</strong> &nbsp;•&nbsp;
+                 ${data.duree} jour${data.duree>1?'s':''} &nbsp;•&nbsp;
+                 ${data.voyageurs} voyageur${data.voyageurs>1?'s':''} &nbsp;•&nbsp;
+                 <em>${esc(data.slogan)}</em>`;
+
+            // ── BUDGET CARD + HOTEL + TRANSPORT ─────────────────────
+            let bHtml = `
+            <div class="plan-summary-grid">
+                <div class="plan-info-card">
+                    <div class="pic-title"><i class="fas fa-hotel"></i> Hébergement conseillé</div>
+                    <div class="pic-hotel-name">${esc(data.hotel.nom)}</div>
+                    <div class="pic-stars">${'★'.repeat(data.hotel.etoiles)}${'☆'.repeat(5-data.hotel.etoiles)}</div>
+                    <div class="pic-detail"><i class="fas fa-map-marker-alt"></i> ${esc(data.hotel.quartier)}</div>
+                    <div class="pic-detail"><i class="fas fa-moon"></i> ${data.hotel.prix_nuit} MAD / nuit</div>
+                </div>
+                <div class="plan-info-card">
+                    <div class="pic-title"><i class="fas fa-wallet"></i> Budget estimé total</div>
+                    <div class="pic-total">${bb.total_estime.toLocaleString('fr-FR')} MAD</div>
+                    <div class="pic-detail">Pour ${data.voyageurs} voyageur${data.voyageurs>1?'s':''} — ${data.duree} jour${data.duree>1?'s':''}</div>
+                    <div class="pic-detail"><strong>${bb.par_personne.toLocaleString('fr-FR')} MAD</strong> / personne</div>
+                    <div class="budget-compare ${bb.total_estime > data.budget_utilisateur ? 'over-budget' : 'in-budget'}">
+                        <i class="fas ${bb.total_estime > data.budget_utilisateur ? 'fa-exclamation-triangle' : 'fa-check-circle'}"></i>
+                        ${bb.total_estime > data.budget_utilisateur
+                            ? `Dépassement : +${(bb.total_estime - data.budget_utilisateur).toLocaleString('fr-FR')} MAD`
+                            : `Dans votre budget ✓`}
+                    </div>
+                </div>
+                <div class="plan-info-card budget-bars-card">
+                    <div class="pic-title"><i class="fas fa-chart-bar"></i> Répartition du budget</div>
+                    ${[
+                        {label:'Hébergement', val:bb.hebergement, icon:'fa-hotel',     color:'#667eea'},
+                        {label:'Repas',       val:bb.repas,       icon:'fa-utensils',  color:'#f5576c'},
+                        {label:'Activités',   val:bb.activites,   icon:'fa-camera',    color:'#f093fb'},
+                        {label:'Transport',   val:bb.transport,   icon:'fa-car',       color:'#4facfe'},
+                    ].map(item=>`
+                        <div class="bbar-row">
+                            <i class="fas ${item.icon}" style="color:${item.color}"></i>
+                            <span class="bbar-label">${item.label}</span>
+                            <div class="bbar-track"><div class="bbar-fill" style="width:${Math.round(item.val/bMax*100)}%;background:${item.color}"></div></div>
+                            <span class="bbar-val">${item.val.toLocaleString('fr-FR')}</span>
+                        </div>`).join('')}
+                </div>
+                <div class="plan-info-card">
+                    <div class="pic-title"><i class="fas fa-route"></i> Comment y arriver</div>
+                    <div class="pic-transport">${esc(data.transport_arrivee)}</div>
+                </div>
+            </div>`;
+
+            // ── JOURS ────────────────────────────────────────────────
+            data.plan.forEach(jour => {
+                const dayColors = ['#667eea','#f5576c','#f093fb','#4facfe','#43e97b','#fa709a','#ffecd2'];
+                const col = dayColors[(jour.jour-1) % dayColors.length];
+                bHtml += `
+                <div class="plan-day-v2">
+                    <div class="pdv2-header" style="border-left:5px solid ${col}">
+                        <div class="pdv2-num" style="background:${col}">Jour ${jour.jour}</div>
+                        <h4 class="pdv2-titre">${esc(jour.titre)}</h4>
+                    </div>
+                    <div class="pdv2-timeline">
+                        ${jour.activites.map((act,i)=>{
+                            const tagColor = TAG_COLORS[act.tag] || '#888';
+                            const cout = act.cout === 0 ? '<span class="act-free">Gratuit</span>'
+                                : `<span class="act-cost">~${act.cout} MAD</span>`;
+                            return `
+                            <div class="pdv2-item">
+                                <div class="pdv2-time">${esc(act.heure)}</div>
+                                <div class="pdv2-dot" style="border-color:${col}"></div>
+                                <div class="pdv2-content">
+                                    <div class="pdv2-act-header">
+                                        <i class="fas ${esc(act.icon)}" style="color:${col}"></i>
+                                        <strong>${esc(act.titre)}</strong>
+                                        <span class="act-tag" style="background:${tagColor}">${esc(act.tag)}</span>
+                                        ${cout}
+                                    </div>
+                                    <p class="pdv2-desc">${esc(act.description)}</p>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            });
+
+            // ── CONSEILS ─────────────────────────────────────────────
+            if(data.conseils && data.conseils.length){
+                bHtml += `
+                <div class="plan-conseils">
+                    <h4><i class="fas fa-lightbulb"></i> Conseils pratiques</h4>
+                    <div class="conseils-grid">
+                        ${data.conseils.map(c=>`
+                            <div class="conseil-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span>${esc(c)}</span>
+                            </div>`).join('')}
+                    </div>
+                </div>`;
+            }
+
+            document.getElementById('plan-content').innerHTML = bHtml;
+            document.getElementById('plan-result').classList.remove('hidden');
+            const saveBtn = document.getElementById('btn-save-plan');
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Sauvegarder ce plan';
+            saveBtn.style.background = 'linear-gradient(135deg,#D4933A,#b87a1e)';
+            document.getElementById('plan-result').scrollIntoView({behavior:'smooth'});
+        }
+
+        async function logout() {
+            if(confirm('Déconnexion?')) {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/';
+            }
+        }
+        let _tt2;
+        function showToast(msg,type='success'){
+            const t=document.getElementById('s2toast');
+            t.style.background=type==='error'?'linear-gradient(135deg,#e74c3c,#c0392b)':'linear-gradient(135deg,#2ecc71,#27ae60)';
+            document.getElementById('s2toast-icon').className='fas '+(type==='error'?'fa-times-circle':'fa-check-circle');
+            document.getElementById('s2toast-msg').textContent=msg;
+            t.className='s2-toast show';
+            clearTimeout(_tt2);
+            _tt2=setTimeout(()=>t.classList.remove('show'),3500);
+        }
+    </script>
+    <div class="s2-toast" id="s2toast"><i class="fas fa-check-circle" id="s2toast-icon"></i><span id="s2toast-msg"></span></div>
+
+    <!-- ========== MODAL DÉTAILS PLAN ========== -->
+    <div id="plan-modal-overlay" style="
+        display:none; position:fixed; inset:0; z-index:2000;
+        background:rgba(10,15,30,.75); backdrop-filter:blur(4px);
+        align-items:center; justify-content:center; padding:20px;">
+        <div id="plan-modal" style="
+            background:#EEF2F8; border-radius:20px; width:100%; max-width:860px;
+            max-height:90vh; overflow:hidden; display:flex; flex-direction:column;
+            box-shadow:0 30px 80px rgba(0,0,0,.4);">
+
+            <!-- Modal header -->
+            <div id="modal-header" style="
+                padding:24px 32px; background:linear-gradient(135deg,#1A2744,#2D4A8A);
+                display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+                <div>
+                    <div id="modal-title" style="font-family:'Playfair Display',serif; font-size:20px; color:#fff; font-weight:700;"></div>
+                    <div id="modal-subtitle" style="font-size:13px; color:rgba(255,255,255,.65); margin-top:4px;"></div>
+                </div>
+                <button onclick="closeModal()" style="
+                    width:36px; height:36px; border-radius:50%; background:rgba(255,255,255,.15);
+                    border:none; color:#fff; font-size:16px; cursor:pointer; transition:.2s;
+                    display:flex; align-items:center; justify-content:center;"
+                    onmouseover="this.style.background='rgba(255,255,255,.28)'"
+                    onmouseout="this.style.background='rgba(255,255,255,.15)'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Modal body scrollable -->
+            <div id="modal-body" style="overflow-y:auto; flex:1; padding:28px 32px;"></div>
+
+            <!-- Modal footer -->
+            <div style="padding:16px 32px; background:#fff; border-top:1px solid rgba(26,39,68,.1);
+                display:flex; justify-content:flex-end; gap:12px; flex-shrink:0;">
+                <button id="modal-delete-btn" style="
+                    padding:10px 20px; background:rgba(231,76,60,.1); color:#e74c3c;
+                    border:1px solid rgba(231,76,60,.3); border-radius:9px; font-size:13px;
+                    font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer; transition:.2s;"
+                    onmouseover="this.style.background='rgba(231,76,60,.2)'"
+                    onmouseout="this.style.background='rgba(231,76,60,.1)'">
+                    <i class="fas fa-trash"></i> Supprimer ce plan
+                </button>
+                <button onclick="closeModal()" style="
+                    padding:10px 24px; background:linear-gradient(135deg,#1A2744,#2D4A8A);
+                    color:#fff; border:none; border-radius:9px; font-size:13px;
+                    font-family:'Plus Jakarta Sans',sans-serif; cursor:pointer;">
+                    <i class="fas fa-check"></i> Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ── MODAL ──────────────────────────────────────────────────
+    let modalPlanId = null;
+
+    async function viewPlan(id) {
+        modalPlanId = id;
+        const overlay = document.getElementById('plan-modal-overlay');
+        overlay.style.display = 'flex';
+        document.getElementById('modal-body').innerHTML =
+            '<div style="text-align:center;padding:60px"><i class="fas fa-circle-notch fa-spin" style="font-size:32px;color:#2D4A8A"></i><p style="margin-top:14px;color:#666">Chargement...</p></div>';
+        document.getElementById('modal-title').textContent = 'Chargement...';
+        document.getElementById('modal-subtitle').textContent = '';
+
+        document.getElementById('modal-delete-btn').onclick = () => {
+            closeModal();
+            deletePlan(id, document.getElementById('modal-delete-btn'));
+        };
+
+        try {
+            const res = await fetch(`/api/my-plans/${id}`);
+            const data = await res.json();
+            if (!data.success) { closeModal(); showToast(data.message, 'error'); return; }
+            renderModal(data);
+        } catch(e) { closeModal(); showToast('Erreur serveur', 'error'); }
+    }
+
+    function closeModal() {
+        document.getElementById('plan-modal-overlay').style.display = 'none';
+        modalPlanId = null;
+    }
+
+    // Fermer en cliquant sur l'overlay
+    document.getElementById('plan-modal-overlay').addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+    // Fermer avec Escape
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    function renderModal(data) {
+        const bb = data.budget_breakdown || {};
+        const COLORS = ['#4A6FA8','#2D8A6E','#8A5C2D','#6A4A8A','#8A2D4A','#2D4A6A'];
+
+        document.getElementById('modal-title').textContent =
+            `${data.emoji || '📍'} ${data.destination}`;
+        document.getElementById('modal-subtitle').textContent =
+            `${data.duree} jour${data.duree>1?'s':''} · ${data.voyageurs} voyageur${data.voyageurs>1?'s':''} · Budget: ${(data.budget_utilisateur||0).toLocaleString('fr-FR')} MAD · Sauvegardé le ${new Date(data.created_at).toLocaleDateString('fr-FR')}`;
+
+        let html = '';
+
+        // ── BLOC INFO: Hotel + Budget ──
+        html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">`;
+
+        // Hotel
+        if (data.hotel && data.hotel.nom) {
+            html += `<div style="background:#fff;border-radius:12px;padding:18px;border:1px solid rgba(26,39,68,.1);">
+                <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:10px;">
+                    <i class="fas fa-hotel" style="color:#4A6FA8;margin-right:5px;"></i>Hébergement
+                </div>
+                <div style="font-size:15px;font-weight:700;color:#1A2744;margin-bottom:4px;">${esc(data.hotel.nom)}</div>
+                <div style="color:#D4933A;font-size:16px;margin-bottom:6px;">${'★'.repeat(data.hotel.etoiles||3)}${'☆'.repeat(5-(data.hotel.etoiles||3))}</div>
+                <div style="font-size:12px;color:#888;">
+                    <i class="fas fa-map-marker-alt" style="margin-right:4px;"></i>${esc(data.hotel.quartier||'')}
+                    &nbsp;·&nbsp;<i class="fas fa-moon" style="margin-right:4px;"></i>${data.hotel.prix_nuit||0} MAD/nuit
+                </div>
+                ${data.transport_arrivee ? `<div style="font-size:12px;color:#888;margin-top:6px;"><i class="fas fa-bus" style="margin-right:4px;"></i>${esc(data.transport_arrivee)}</div>` : ''}
+            </div>`;
+        }
+
+        // Budget breakdown
+        if (bb.total_estime !== undefined) {
+            const bMax = Math.max(bb.hebergement||1, bb.repas||1, bb.activites||1, bb.transport||1);
+            const overBudget = bb.total_estime > (data.budget_utilisateur||0);
+            html += `<div style="background:#fff;border-radius:12px;padding:18px;border:1px solid rgba(26,39,68,.1);">
+                <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:10px;">
+                    <i class="fas fa-wallet" style="color:#D4933A;margin-right:5px;"></i>Budget estimé
+                </div>
+                <div style="font-size:22px;font-weight:700;color:#1A2744;">${(bb.total_estime||0).toLocaleString('fr-FR')} MAD</div>
+                <div style="font-size:12px;color:#888;margin-bottom:12px;">${(bb.par_personne||0).toLocaleString('fr-FR')} MAD / personne</div>
+                ${[
+                    {l:'Hébergement',v:bb.hebergement||0,c:'#667eea'},
+                    {l:'Repas',v:bb.repas||0,c:'#f5576c'},
+                    {l:'Activités',v:bb.activites||0,c:'#f093fb'},
+                    {l:'Transport',v:bb.transport||0,c:'#4facfe'},
+                ].map(b=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                    <span style="font-size:11px;color:#888;width:75px;flex-shrink:0;">${b.l}</span>
+                    <div style="flex:1;height:5px;background:#eee;border-radius:3px;">
+                        <div style="height:100%;width:${Math.round(b.v/bMax*100)}%;background:${b.c};border-radius:3px;"></div>
+                    </div>
+                    <span style="font-size:11px;color:#555;width:70px;text-align:right;">${b.v.toLocaleString('fr-FR')}</span>
+                </div>`).join('')}
+                <div style="margin-top:10px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;
+                    background:${overBudget?'rgba(231,76,60,.1)':'rgba(39,174,96,.1)'};
+                    color:${overBudget?'#e74c3c':'#27ae60'};">
+                    <i class="fas fa-${overBudget?'exclamation-triangle':'check-circle'}"></i>
+                    ${overBudget?`Dépassement: +${(bb.total_estime-data.budget_utilisateur).toLocaleString('fr-FR')} MAD`:'Dans votre budget ✓'}
+                </div>
+            </div>`;
+        }
+        html += `</div>`;
+
+        // ── JOURS ──
+        if (data.plan && data.plan.length) {
+            data.plan.forEach((jour, idx) => {
+                const col = COLORS[idx % COLORS.length];
+                html += `<div style="background:#fff;border-radius:12px;margin-bottom:16px;overflow:hidden;border:1px solid rgba(26,39,68,.08);">
+                    <div style="padding:14px 20px;border-left:5px solid ${col};display:flex;align-items:center;gap:12px;">
+                        <span style="background:${col};color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;">Jour ${jour.jour}</span>
+                        <strong style="font-size:14px;color:#1A2744;">${esc(jour.titre)}</strong>
+                    </div>
+                    <div style="padding:8px 20px 16px;">
+                        ${(jour.activites||[]).map(act => {
+                            const tagColor = TAG_COLORS[act.tag] || '#888';
+                            const coutTxt = act.cout===0 ? '<span style="font-size:11px;background:rgba(39,174,96,.12);color:#27ae60;padding:2px 7px;border-radius:20px;">Gratuit</span>'
+                                : `<span style="font-size:11px;background:rgba(26,39,68,.07);color:#555;padding:2px 7px;border-radius:20px;">~${act.cout} MAD</span>`;
+                            return `<div style="display:flex;gap:14px;padding:10px 0;border-bottom:1px solid #f0f0f0;">
+                                <div style="font-size:12px;color:#888;font-weight:600;width:42px;flex-shrink:0;padding-top:2px;">${esc(act.heure)}</div>
+                                <div style="width:28px;height:28px;border-radius:8px;background:${col}18;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <i class="fas ${esc(act.icon)}" style="color:${col};font-size:12px;"></i>
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+                                        <strong style="font-size:13px;color:#1A2744;">${esc(act.titre)}</strong>
+                                        <span style="font-size:10px;background:${tagColor};color:#fff;padding:2px 7px;border-radius:20px;">${esc(act.tag)}</span>
+                                        ${coutTxt}
+                                    </div>
+                                    <p style="font-size:12px;color:#666;line-height:1.5;margin:0;">${esc(act.description)}</p>
+                                </div>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            });
+        }
+
+        // ── CONSEILS ──
+        if (data.conseils && data.conseils.length) {
+            html += `<div style="background:linear-gradient(135deg,rgba(26,39,68,.04),rgba(45,74,138,.06));
+                border-radius:12px;padding:18px;border:1px solid rgba(26,39,68,.1);">
+                <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:12px;">
+                    <i class="fas fa-lightbulb" style="color:#D4933A;margin-right:5px;"></i>Conseils pratiques
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    ${data.conseils.map(c=>`<div style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#444;line-height:1.5;">
+                        <i class="fas fa-check-circle" style="color:#4A6FA8;margin-top:2px;flex-shrink:0;"></i>
+                        <span>${esc(c)}</span>
+                    </div>`).join('')}
+                </div>
+            </div>`;
+        }
+
+        document.getElementById('modal-body').innerHTML = html;
+    }
+    </script>
+</body>
+</html>

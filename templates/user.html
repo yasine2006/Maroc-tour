@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Espace – MarocTour</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+    /* ============================================================
+       MAROCTOUR — User Dashboard "Personal Medina Guide"
+       Theme: Warm Sandy, Dark Walnut, Compass Rose, Zellige Steps
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+        --red:#C1272D; --gold:#D4933A; --gold-l:#F4A800;
+        --dark:#1A0D05; --walnut:#0F0A05; --navy:#1A2744;
+        --green:#006233; --terra:#C4622D; --sand:#F5EFE0;
+        --cream:#FAF7F2; --warm:#E8DCC8; --font-h:'Playfair Display',serif;
+        --font-b:'Plus Jakarta Sans',sans-serif;
+        --zellige:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='rgba(212,147,58,0.1)' stroke-width='0.8'%3E%3Cpolygon points='40,4 46,22 64,16 54,31 72,40 54,49 64,64 46,58 40,76 34,58 16,64 26,49 8,40 26,31 16,16 34,22'/%3E%3Cpolygon points='40,22 52,40 40,58 28,40'/%3E%3Crect x='26' y='26' width='28' height='28' transform='rotate(45 40 40)'/%3E%3C/g%3E%3C/svg%3E");
+        --zellige-warm:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='rgba(196,98,45,0.08)' stroke-width='0.8'%3E%3Cpolygon points='40,4 46,22 64,16 54,31 72,40 54,49 64,64 46,58 40,76 34,58 16,64 26,49 8,40 26,31 16,16 34,22'/%3E%3Crect x='26' y='26' width='28' height='28' transform='rotate(45 40 40)'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    body { font-family:var(--font-b); background:var(--sand); color:var(--dark); }
+
+    /* ── HEADER ── */
+    .uh {
+        background: var(--walnut);
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 32px; height: 68px;
+        position: sticky; top: 0; z-index: 900;
+        box-shadow: 0 2px 20px rgba(0,0,0,.5);
+        border-bottom: 1px solid rgba(212,147,58,.18);
+        position: relative; overflow: hidden;
+    }
+    /* Zellige strip in header */
+    .uh::before {
+        content: '';
+        position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+        background: linear-gradient(90deg, var(--red), var(--gold), var(--green), var(--gold), var(--red));
+    }
+    .uh::after {
+        content: '';
+        position: absolute; inset: 0;
+        background-image: var(--zellige);
+        background-size: 80px 80px;
+        opacity: .25;
+    }
+    .uh-logo, .uh-right { position: relative; z-index: 1; }
+    .uh-logo { display:flex; align-items:center; gap:12px; }
+    .uh-logo-icon { width:38px; height:38px; }
+    .uh-logo-name { font-family:var(--font-h); font-size:1.15rem; font-weight:700; color:#fff; letter-spacing:.3px; }
+    .uh-right { display:flex; align-items:center; gap:12px; }
+    .uh-greeting { font-size:.85rem; color:rgba(255,255,255,.65); }
+    .uh-greeting strong { color:var(--gold); }
+    .uh-btn {
+        display:flex; align-items:center; gap:8px;
+        padding:7px 16px; border-radius:8px;
+        font-size:.82rem; font-weight:600;
+        font-family:var(--font-b); cursor:pointer; border:none;
+        text-decoration:none; transition:all .2s;
+    }
+    .uh-btn.admin { background:rgba(212,147,58,.15); border:1px solid rgba(212,147,58,.3); color:var(--gold); }
+    .uh-btn.admin:hover { background:rgba(212,147,58,.25); color:var(--gold-l); }
+    .uh-btn.ghost { background:rgba(193,39,45,.12); border:1px solid rgba(193,39,45,.25); color:#e8606a; }
+    .uh-btn.ghost:hover { background:rgba(193,39,45,.22); color:#ff7a83; }
+
+    /* ── HERO ── */
+    .hero-user {
+        background:
+            linear-gradient(160deg, rgba(26,13,5,.88) 0%, rgba(139,26,20,.7) 45%, rgba(196,98,45,.5) 80%, rgba(212,147,58,.35) 100%),
+            url('https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=1400&q=80') center/cover no-repeat;
+        padding: 64px 32px 56px;
+        position: relative; overflow: hidden;
+    }
+    /* Zellige pattern overlay */
+    .hero-user::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image: var(--zellige);
+        background-size: 80px 80px;
+        opacity: .45;
+    }
+    /* Arch silhouette */
+    .hero-user::after {
+        content: '';
+        position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+        width: min(600px, 90%); height: 120px;
+        background: radial-gradient(ellipse 80% 100% at 50% 100%, rgba(212,147,58,.15) 0%, transparent 70%);
+    }
+    .hero-user-content {
+        max-width: 1200px; margin: 0 auto;
+        position: relative; z-index: 1;
+        text-align: center;
+    }
+    /* Arabic ornament */
+    .hero-ornament {
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        margin-bottom: 16px;
+    }
+    .hero-ornament-line { width: 50px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold)); }
+    .hero-ornament-line.r { background: linear-gradient(90deg, var(--gold), transparent); }
+    .hero-user-content h1 {
+        font-family: var(--font-h);
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 700; color: #fff; margin-bottom: 10px;
+        text-shadow: 0 2px 16px rgba(0,0,0,.4);
+    }
+    .hero-user-content h1 span { color: var(--gold); }
+    .hero-user-content p { font-size: 1rem; color: rgba(255,255,255,.72); margin-bottom: 36px; }
+    .hero-stats {
+        display: inline-flex; gap: 0;
+        background: rgba(255,255,255,.08);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,.15);
+        border-radius: 20px; overflow: hidden;
+    }
+    .hero-stat {
+        padding: 18px 32px; text-align: center;
+        border-right: 1px solid rgba(255,255,255,.1);
+    }
+    .hero-stat:last-child { border-right: none; }
+    .hero-stat-val {
+        font-family: var(--font-h); font-size: 2rem; font-weight: 700;
+        color: var(--gold); line-height: 1;
+    }
+    .hero-stat-lbl { font-size: .75rem; color: rgba(255,255,255,.55); margin-top: 5px; text-transform: uppercase; letter-spacing: .5px; }
+
+    /* ── MAIN ── */
+    .main { max-width: 1200px; margin: 0 auto; padding: 48px 32px 80px; }
+
+    /* ── SECTION TITLE ── */
+    .section-title {
+        display: flex; align-items: center; gap: 16px;
+        margin-bottom: 36px;
+    }
+    .section-title-icon {
+        width: 48px; height: 48px; border-radius: 14px;
+        background: linear-gradient(135deg, var(--red), var(--gold));
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 1.1rem; flex-shrink: 0;
+        box-shadow: 0 4px 16px rgba(193,39,45,.3);
+    }
+    .section-title h2 {
+        font-family: var(--font-h); font-size: 1.6rem; font-weight: 700; color: var(--dark);
+    }
+    .section-title p { font-size: .9rem; color: #888; margin-top: 3px; }
+
+    /* ── JOURNEY ── */
+    .journey-container { position: relative; }
+    .journey-steps { display: flex; flex-direction: column; gap: 0; }
+
+    .step {
+        display: flex; gap: 0;
+        position: relative;
+    }
+    .step-left {
+        display: flex; flex-direction: column; align-items: center;
+        width: 80px; flex-shrink: 0;
+    }
+
+    /* Zellige tile step numbers */
+    .step-num {
+        width: 56px; height: 56px;
+        background: linear-gradient(135deg, var(--red), var(--gold));
+        display: flex; align-items: center; justify-content: center;
+        font-family: var(--font-h); font-size: 1.15rem; font-weight: 700; color: #fff;
+        transform: rotate(45deg); border-radius: 8px;
+        box-shadow: 0 6px 20px rgba(193,39,45,.35);
+        flex-shrink: 0; position: relative; z-index: 1;
+        transition: transform .3s;
+    }
+    .step-num > * { transform: rotate(-45deg); }
+    .step:hover .step-num { transform: rotate(45deg) scale(1.08); }
+
+    .sg .step-num {
+        background: linear-gradient(135deg, var(--green), #004d28);
+        box-shadow: 0 6px 20px rgba(0,98,51,.35);
+    }
+    .s2 .step-num { background: linear-gradient(135deg, var(--navy), #2d4a8a); box-shadow: 0 6px 20px rgba(26,39,68,.4); }
+    .s3 .step-num { background: linear-gradient(135deg, var(--green), #004d28); box-shadow: 0 6px 20px rgba(0,98,51,.35); }
+
+    .step-connector {
+        flex: 1; width: 2px;
+        background: linear-gradient(180deg, var(--gold), rgba(212,147,58,.2));
+        margin: 4px 0;
+    }
+
+    .step-body { flex: 1; padding: 0 0 36px 20px; }
+
+    /* ── STEP CARD ── */
+    .step-card {
+        background: #fff;
+        border-radius: 20px;
+        padding: 28px 32px;
+        box-shadow: 0 4px 24px rgba(0,0,0,.07);
+        border: 1px solid rgba(0,0,0,.05);
+        position: relative; overflow: hidden;
+        transition: all .3s;
+    }
+    /* Top arch accent */
+    .step-card::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 4px;
+        background: linear-gradient(90deg, var(--red), var(--gold));
+        border-radius: 20px 20px 0 0;
+        transform: scaleX(0); transform-origin: left; transition: transform .35s;
+    }
+    /* Zellige corner accent */
+    .step-card::after {
+        content: '';
+        position: absolute; top: 0; right: 0;
+        width: 100px; height: 100px;
+        background-image: var(--zellige-warm);
+        background-size: 50px 50px;
+        opacity: .5; border-radius: 0 20px 0 0;
+    }
+    .step-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,.12); }
+    .step-card:hover::before { transform: scaleX(1); }
+
+    .sg .step-card::before { background: linear-gradient(90deg, var(--green), #5cb85c); }
+    .s2 .step-card::before { background: linear-gradient(90deg, var(--navy), #4a6fa8); }
+    .s3 .step-card::before { background: linear-gradient(90deg, var(--green), var(--gold)); }
+
+    .step-card-header {
+        display: flex; gap: 20px; justify-content: space-between; align-items: flex-start;
+        margin-bottom: 20px;
+    }
+    .step-tag {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(193,39,45,.08); border: 1px solid rgba(193,39,45,.15);
+        color: var(--red); font-size: .75rem; font-weight: 700;
+        padding: 4px 12px; border-radius: 20px; margin-bottom: 10px;
+        text-transform: uppercase; letter-spacing: .5px;
+    }
+    .sg .step-tag { background:rgba(0,98,51,.08); border-color:rgba(0,98,51,.15); color:var(--green); }
+    .s2 .step-tag { background:rgba(26,39,68,.08); border-color:rgba(26,39,68,.15); color:var(--navy); }
+    .s3 .step-tag { background:rgba(0,98,51,.08); border-color:rgba(0,98,51,.15); color:var(--green); }
+
+    .step-card h3 { font-family:var(--font-h); font-size:1.25rem; font-weight:700; color:var(--dark); margin-bottom:8px; }
+    .step-card p { font-size:.88rem; color:#666; line-height:1.75; }
+
+    .time-badge {
+        display:inline-block; background:var(--sand); border:1px solid rgba(0,0,0,.08);
+        color:#888; font-size:.75rem; font-weight:600;
+        padding:5px 12px; border-radius:20px; white-space:nowrap; flex-shrink:0;
+    }
+    .step-badge-side { flex-shrink: 0; }
+
+    /* Step details grid */
+    .step-details {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+        margin-bottom: 20px; margin-top: 16px;
+    }
+    .step-detail {
+        display: flex; align-items: flex-start; gap: 10px;
+        padding: 12px 14px;
+        background: var(--cream);
+        border-radius: 12px;
+        border: 1px solid rgba(0,0,0,.04);
+        transition: background .2s;
+    }
+    .step-detail:hover { background: var(--sand); }
+    .step-detail > i { color:var(--gold); font-size:.9rem; margin-top:3px; flex-shrink:0; }
+    .step-detail-txt strong { display:block; font-size:.8rem; font-weight:700; color:var(--dark); }
+    .step-detail-txt span { font-size:.75rem; color:#888; }
+
+    .step-cta {
+        display: inline-flex; align-items: center; gap: 10px;
+        background: linear-gradient(135deg, var(--red), #8B1D22);
+        color: #fff; padding: 12px 28px; border-radius: 50px;
+        font-size: .88rem; font-weight: 700; text-decoration: none;
+        transition: all .25s; box-shadow: 0 6px 20px rgba(193,39,45,.3);
+        position: relative; z-index: 1;
+    }
+    .step-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(193,39,45,.45); }
+    .s2 .step-cta { background: linear-gradient(135deg, var(--navy), #2d4a8a); box-shadow: 0 6px 20px rgba(26,39,68,.35); }
+    .s3 .step-cta { background: linear-gradient(135deg, var(--green), #004d28); box-shadow: 0 6px 20px rgba(0,98,51,.35); }
+
+    /* ── SERVICE CARDS ── */
+    .services-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+    .svc {
+        border-radius: 22px; overflow: hidden;
+        background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,.08);
+        display: flex; flex-direction: column;
+        transition: all .3s; border: 1px solid rgba(0,0,0,.04);
+        position: relative;
+    }
+    /* Arch-shaped top on each service card */
+    .svc::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 5px;
+        border-radius: 22px 22px 0 0;
+    }
+    .svc-1::before { background: linear-gradient(90deg, var(--red), var(--terra), var(--gold)); }
+    .svc-2::before { background: linear-gradient(90deg, var(--navy), #4a6fa8, #7bb3e8); }
+    .svc-3::before { background: linear-gradient(90deg, var(--green), #3a9a5c, var(--gold)); }
+
+    .svc:hover { transform: translateY(-6px); box-shadow: 0 16px 48px rgba(0,0,0,.13); }
+
+    .svc-top { padding: 30px 28px 20px; }
+    .svc-icon-wrap {
+        width: 56px; height: 56px; border-radius: 16px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; color: #fff; margin-bottom: 20px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.2);
+    }
+    .svc-1 .svc-icon-wrap { background: linear-gradient(135deg, var(--red), var(--terra)); }
+    .svc-2 .svc-icon-wrap { background: linear-gradient(135deg, var(--navy), #3a5fa8); }
+    .svc-3 .svc-icon-wrap { background: linear-gradient(135deg, var(--green), #3a9a5c); }
+
+    .svc h3 { font-family:var(--font-h); font-size:1.1rem; font-weight:700; color:var(--dark); margin-bottom:10px; }
+    .svc p { font-size:.85rem; color:#777; line-height:1.7; }
+
+    .svc-features {
+        list-style: none; padding: 0 28px; margin-bottom: 20px;
+        display: flex; flex-direction: column; gap: 8px;
+    }
+    .svc-features li {
+        display: flex; align-items: center; gap: 10px;
+        font-size: .82rem; color: #555;
+    }
+    .svc-features li i { color: var(--gold); font-size: .8rem; flex-shrink: 0; }
+
+    .svc-footer { padding: 20px 28px 28px; margin-top: auto; }
+    .svc-btn {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 11px 24px; border-radius: 50px;
+        font-size: .88rem; font-weight: 700; color: #fff;
+        text-decoration: none; transition: all .25s;
+    }
+    .svc-1 .svc-btn { background:linear-gradient(135deg,var(--red),#8B1D22); box-shadow:0 4px 14px rgba(193,39,45,.3); }
+    .svc-2 .svc-btn { background:linear-gradient(135deg,var(--navy),#2d4a8a); box-shadow:0 4px 14px rgba(26,39,68,.3); }
+    .svc-3 .svc-btn { background:linear-gradient(135deg,var(--green),#004d28); box-shadow:0 4px 14px rgba(0,98,51,.3); }
+    .svc-btn:hover { transform:translateY(-2px); filter:brightness(1.1); }
+
+    /* ── FOOTER ── */
+    .uf {
+        background: var(--walnut);
+        text-align: center; padding: 20px;
+        font-size: .82rem; color: rgba(255,255,255,.35);
+        border-top: 1px solid rgba(212,147,58,.15);
+        position: relative;
+    }
+    .uf::before {
+        content: '';
+        position: absolute; top: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, var(--red), var(--gold), var(--green), var(--gold), var(--red));
+    }
+
+    /* ── FAVORITES TABS ── */
+    .fav-tabs-bar {
+        display: flex; gap: 0; border-bottom: 2px solid #e5ddd0;
+        overflow-x: auto; scrollbar-width: none; margin-bottom: 28px;
+    }
+    .fav-tabs-bar::-webkit-scrollbar { display: none; }
+    .fav-tab {
+        padding: 11px 20px; border: none; background: none;
+        font-family: var(--font-b); font-size: 13px; font-weight: 600;
+        cursor: pointer; border-bottom: 3px solid transparent;
+        margin-bottom: -2px; color: #999; white-space: nowrap;
+        display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+        transition: color .2s, border-color .2s;
+    }
+    .fav-tab:hover { color: var(--dark); }
+    .fav-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+    /* Count badge inside tab */
+    .fav-badge {
+        font-size: 10px; padding: 2px 8px; border-radius: 20px;
+        background: #e5ddd0; color: #888;
+        transition: background .3s, color .3s;
+        font-weight: 700;
+    }
+    .fav-badge.filled { background: var(--gold); color: #fff; }
+
+    /* Favorites pane grid */
+    .fav-pane { margin-bottom: 48px; }
+    .fav-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 16px;
+    }
+    .fav-grid-plans {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+    }
+
+    /* Skeleton loader pulse */
+    @keyframes pulse { 0%,100%{opacity:.4} 50%{opacity:1} }
+    .fav-skeleton {
+        background: #fff; border-radius: 14px; padding: 18px;
+        box-shadow: 0 2px 14px rgba(0,0,0,.06);
+        border: 1px solid rgba(212,147,58,.12);
+    }
+    .fav-skeleton .sk { background: var(--warm); border-radius: 6px; animation: pulse 1.5s infinite; }
+    .fav-skeleton .sk-icon { width: 40px; height: 40px; border-radius: 10px; margin-bottom: 14px; }
+    .fav-skeleton .sk-title { width: 70%; height: 14px; margin-bottom: 10px; }
+    .fav-skeleton .sk-line { width: 90%; height: 11px; margin-bottom: 8px; }
+    .fav-skeleton .sk-line.short { width: 50%; }
+
+    /* Comments layout */
+    .comments-layout {
+        display: grid;
+        grid-template-columns: 1fr 1.6fr;
+        gap: 32px;
+        margin-bottom: 60px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+        .step-details { grid-template-columns: repeat(2,1fr); }
+        .services-grid { grid-template-columns: 1fr; }
+        .comments-layout { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+        .step-details { grid-template-columns: 1fr; }
+        .hero-stats { flex-direction: column; gap: 0; }
+        .uh-right .uh-greeting { display: none; }
+        .main { padding: 28px 16px 60px; }
+        .fav-grid, .fav-grid-plans { grid-template-columns: 1fr; }
+    }
+    </style>
+</head>
+<body class="user-v2">
+
+    <!-- HEADER -->
+    <header class="uh">
+        <div class="uh-logo">
+            <div class="uh-logo-icon">
+                <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="uhg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#C1272D"/>
+                            <stop offset="100%" stop-color="#D4933A"/>
+                        </linearGradient>
+                    </defs>
+                    <polygon points="19,4 21.7,12.8 29.5,8.5 25.3,16 33,19 25.3,22 29.5,29.5 21.7,25.2 19,34 16.3,25.2 8.5,29.5 12.7,22 5,19 12.7,16 8.5,8.5 16.3,12.8" fill="url(#uhg)"/>
+                    <polygon points="19,14 24,19 19,24 14,19" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
+                </svg>
+            </div>
+            <span class="uh-logo-name">MarocTour</span>
+        </div>
+        <div class="uh-right">
+            <span class="uh-greeting">Bienvenue, <strong id="user-name">{{ user.name if user else '' }}</strong></span>
+            <a href="/admin" class="uh-btn admin"><i class="fas fa-user-shield"></i> Admin</a>
+            <button class="uh-btn ghost" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+        </div>
+    </header>
+
+    <!-- HERO -->
+    <div class="hero-user">
+        <div class="hero-user-content">
+            <div class="hero-ornament">
+                <div class="hero-ornament-line"></div>
+                <svg width="16" height="16" viewBox="0 0 40 40" fill="none">
+                    <polygon points="20,3 22.5,13.5 32.5,8 27,18 38,20 27,22 32.5,32 22.5,26.5 20,37 17.5,26.5 7.5,32 13,22 2,20 13,18 7.5,8 17.5,13.5" fill="#D4933A"/>
+                </svg>
+                <div class="hero-ornament-line r"></div>
+            </div>
+            <h1>Bonjour, <span id="hero-name">{{ user.name.split(' ')[0] if user else 'voyageur' }}</span> 👋</h1>
+            <p>Prêt à explorer le Maroc ? Votre aventure personnalisée commence ici.</p>
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <div class="hero-stat-val" id="stat-dests">{{ saved_dests|length }}</div>
+                    <div class="hero-stat-lbl">Destinations sauvegardées</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-val" id="stat-trips">{{ saved_plans|length }}</div>
+                    <div class="hero-stat-lbl">Plans de voyage</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-val" id="stat-groups">{{ saved_groups|length }}</div>
+                    <div class="hero-stat-lbl">Groupes sauvegardés</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <main class="main">
+
+        <!-- PARCOURS CLIENT -->
+        <div class="section-title">
+            <div class="section-title-icon"><i class="fas fa-route"></i></div>
+            <div>
+                <h2>Votre Parcours Idéal</h2>
+                <p>Suivez ces étapes pour organiser votre voyage parfait au Maroc</p>
+            </div>
+        </div>
+
+        <div class="journey-container">
+            <div class="journey-steps">
+
+                <!-- ÉTAPE 0 : Inscription -->
+                <div class="step sg">
+                    <div class="step-left">
+                        <div class="step-num"><span>✓</span></div>
+                        <div class="step-connector"></div>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-card">
+                            <div class="step-card-header">
+                                <div>
+                                    <span class="step-tag"><i class="fas fa-check"></i> Complété</span>
+                                    <h3>Vous êtes inscrit !</h3>
+                                    <p>Votre compte est créé et actif. Vous avez maintenant accès à tous les services MarocTour : recommandations IA, planification et groupes de voyage.</p>
+                                </div>
+                                <div class="step-badge-side">
+                                    <span class="time-badge">Compte actif</span>
+                                </div>
+                            </div>
+                            <div class="step-details">
+                                <div class="step-detail">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Compte sécurisé</strong>
+                                        <span>Session active et protégée</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-unlock"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Accès complet</strong>
+                                        <span>3 services disponibles</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-star"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Personnalisation IA</strong>
+                                        <span>Profil voyageur activé</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 1 : Destination Intelligente -->
+                <div class="step s1">
+                    <div class="step-left">
+                        <div class="step-num"><span>1</span></div>
+                        <div class="step-connector"></div>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-card">
+                            <div class="step-card-header">
+                                <div>
+                                    <span class="step-tag"><i class="fas fa-brain"></i> Intelligence Artificielle</span>
+                                    <h3>Découvrez votre destination idéale</h3>
+                                    <p>Renseignez votre âge, budget, situation et région d'origine. Notre algorithme <strong>Decision Tree</strong> analyse votre profil parmi 500 échantillons et vous recommande les meilleures destinations marocaines — villes historiques ou sites naturels.</p>
+                                </div>
+                                <div class="step-badge-side">
+                                    <span class="time-badge">~2 min</span>
+                                </div>
+                            </div>
+                            <div class="step-details">
+                                <div class="step-detail">
+                                    <i class="fas fa-user-circle"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Remplissez votre profil</strong>
+                                        <span>Âge, sexe, budget, situation</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-cogs"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Analyse ML automatique</strong>
+                                        <span>Decision Tree, max_depth=4</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-map-pin"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Destinations filtrées</strong>
+                                        <span>Villes ou nature, selon budget</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-city"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>8 villes disponibles</strong>
+                                        <span>Marrakech, Fès, Casa…</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-tree"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>9 sites naturels</strong>
+                                        <span>Sahara, Atlas, Gorges…</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-info-circle"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Fiche complète</strong>
+                                        <span>Activités, spécialités, saison</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/service1" class="step-cta">
+                                <i class="fas fa-rocket"></i> Découvrir mes destinations
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 2 : Planificateur -->
+                <div class="step s2">
+                    <div class="step-left">
+                        <div class="step-num"><span>2</span></div>
+                        <div class="step-connector"></div>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-card">
+                            <div class="step-card-header">
+                                <div>
+                                    <span class="step-tag"><i class="fas fa-calendar-alt"></i> Planification</span>
+                                    <h3>Créez votre itinéraire sur mesure</h3>
+                                    <p>Une fois votre destination choisie, construisez un plan de voyage jour par jour. Choisissez la durée, le nombre de voyageurs, le budget total, et recevez un planning complet avec activités matinales, déjeuners, après-midis et soirées.</p>
+                                </div>
+                                <div class="step-badge-side">
+                                    <span class="time-badge">~3 min</span>
+                                </div>
+                            </div>
+                            <div class="step-details">
+                                <div class="step-detail">
+                                    <i class="fas fa-map-pin"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>8 destinations</strong>
+                                        <span>Plans spécifiques à chaque ville</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-calendar"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Durée flexible</strong>
+                                        <span>De 1 à 30 jours</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-users"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Multi-voyageurs</strong>
+                                        <span>Solo, couple, famille, groupe</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-sun"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Planning matin</strong>
+                                        <span>Visites et découvertes 9h–12h</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-utensils"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Restaurants suggérés</strong>
+                                        <span>Déjeuner 12h–14h</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-moon"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Soirées planifiées</strong>
+                                        <span>Dîners et expériences 19h+</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/service2" class="step-cta">
+                                <i class="fas fa-route"></i> Planifier mon voyage
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ÉTAPE 3 : Groupes -->
+                <div class="step s3">
+                    <div class="step-left">
+                        <div class="step-num"><span>3</span></div>
+                        <div class="step-connector"></div>
+                    </div>
+                    <div class="step-body">
+                        <div class="step-card">
+                            <div class="step-card-header">
+                                <div>
+                                    <span class="step-tag"><i class="fas fa-users"></i> Communauté</span>
+                                    <h3>Voyagez ensemble</h3>
+                                    <p>Partez à l'aventure en groupe ! Créez votre propre groupe de voyage ou rejoignez des groupes existants. Partagez vos itinéraires, coordonnez les départs et vivez des expériences mémorables avec d'autres voyageurs.</p>
+                                </div>
+                                <div class="step-badge-side">
+                                    <span class="time-badge">Optionnel</span>
+                                </div>
+                            </div>
+                            <div class="step-details">
+                                <div class="step-detail">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Créer un groupe</strong>
+                                        <span>Définissez destination et dates</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-search"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Rejoindre un groupe</strong>
+                                        <span>Parcourez les groupes ouverts</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-heart"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Mes groupes</strong>
+                                        <span>Suivez vos voyages en groupe</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Partage d'itinéraire</strong>
+                                        <span>Coordonnez votre planning</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-wallet"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Budget partagé</strong>
+                                        <span>Réduisez les coûts ensemble</span>
+                                    </div>
+                                </div>
+                                <div class="step-detail">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <div class="step-detail-txt">
+                                        <strong>Limite de places</strong>
+                                        <span>Contrôle du nombre par groupe</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="/service3" class="step-cta">
+                                <i class="fas fa-user-friends"></i> Explorer les groupes
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- QUICK SERVICE CARDS -->
+        <div class="section-title" style="margin-top:64px;">
+            <div class="section-title-icon" style="background:linear-gradient(135deg,#1A2744,#2d4a8a);">
+                <i class="fas fa-th-large"></i>
+            </div>
+            <div>
+                <h2>Accès rapide aux services</h2>
+                <p>Lancez directement le service de votre choix</p>
+            </div>
+        </div>
+
+        <div class="services-grid">
+            <div class="svc svc-1">
+                <div class="svc-top">
+                    <div class="svc-icon-wrap"><i class="fas fa-brain"></i></div>
+                    <h3>Destination Intelligente</h3>
+                    <p>Recommandation IA personnalisée selon votre profil complet.</p>
+                </div>
+                <ul class="svc-features">
+                    <li><i class="fas fa-check-circle"></i> Algorithme Decision Tree</li>
+                    <li><i class="fas fa-check-circle"></i> 500 échantillons d'entraînement</li>
+                    <li><i class="fas fa-check-circle"></i> Villes & sites naturels</li>
+                    <li><i class="fas fa-check-circle"></i> Fiches destination complètes</li>
+                </ul>
+                <div class="svc-footer">
+                    <a href="/service1" class="svc-btn"><i class="fas fa-rocket"></i> Lancer</a>
+                </div>
+            </div>
+            <div class="svc svc-2">
+                <div class="svc-top">
+                    <div class="svc-icon-wrap"><i class="fas fa-map-marked-alt"></i></div>
+                    <h3>Planificateur de Voyage</h3>
+                    <p>Planning jour par jour adapté à vos préférences et budget.</p>
+                </div>
+                <ul class="svc-features">
+                    <li><i class="fas fa-check-circle"></i> Planning journalier détaillé</li>
+                    <li><i class="fas fa-check-circle"></i> 8 destinations couvertes</li>
+                    <li><i class="fas fa-check-circle"></i> Suggestions restaurants</li>
+                    <li><i class="fas fa-check-circle"></i> Activités culturelles & nature</li>
+                </ul>
+                <div class="svc-footer">
+                    <a href="/service2" class="svc-btn"><i class="fas fa-route"></i> Planifier</a>
+                </div>
+            </div>
+            <div class="svc svc-3">
+                <div class="svc-top">
+                    <div class="svc-icon-wrap"><i class="fas fa-users"></i></div>
+                    <h3>Voyages en Groupe</h3>
+                    <p>Créez ou rejoignez des groupes pour voyager ensemble.</p>
+                </div>
+                <ul class="svc-features">
+                    <li><i class="fas fa-check-circle"></i> Créer et gérer des groupes</li>
+                    <li><i class="fas fa-check-circle"></i> Rejoindre des groupes existants</li>
+                    <li><i class="fas fa-check-circle"></i> Suivi des participants</li>
+                    <li><i class="fas fa-check-circle"></i> Groupes & dates flexibles</li>
+                </ul>
+                <div class="svc-footer">
+                    <a href="/service3" class="svc-btn"><i class="fas fa-user-friends"></i> Explorer</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SECTION MES FAVORIS ===== -->
+        <div class="section-title" style="margin-top:60px;">
+            <div class="section-title-icon"><i class="fas fa-bookmark"></i></div>
+            <div>
+                <h2>Mes Favoris</h2>
+                <p>Destinations, groupes et plans que vous avez sauvegardés</p>
+            </div>
+        </div>
+
+        <!-- Onglets favoris -->
+        <div class="fav-tabs-bar">
+            <button class="fav-tab active" id="ftab-dests" onclick="switchFavTab('dests',this)">
+                <i class="fas fa-map-marker-alt"></i> Destinations
+                <span class="fav-badge {% if saved_dests %}filled{% endif %}" id="fav-count-dests">{{ saved_dests|length }}</span>
+            </button>
+            <button class="fav-tab" id="ftab-groups" onclick="switchFavTab('groups',this)">
+                <i class="fas fa-users"></i> Groupes
+                <span class="fav-badge {% if saved_groups %}filled{% endif %}" id="fav-count-groups">{{ saved_groups|length }}</span>
+            </button>
+            <button class="fav-tab" id="ftab-plans" onclick="switchFavTab('plans',this)">
+                <i class="fas fa-route"></i> Plans de voyage
+                <span class="fav-badge {% if saved_plans %}filled{% endif %}" id="fav-count-plans">{{ saved_plans|length }}</span>
+            </button>
+        </div>
+
+        <!-- Pane Destinations -->
+        <div id="fpane-dests" class="fav-pane">
+            <div id="fav-dests-list" class="fav-grid">
+                {% if saved_dests %}
+                    {% for d in saved_dests %}
+                    <div style="background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 14px rgba(0,0,0,.06);border:1px solid rgba(212,147,58,.12);transition:.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+                            <div style="font-size:26px;">{{ d.emoji or '📍' }}</div>
+                            <button onclick="removeFavDest({{ d.id }},this)" style="width:28px;height:28px;border-radius:7px;border:none;background:rgba(193,39,45,.08);color:var(--red);font-size:11px;cursor:pointer;transition:.2s;" onmouseover="this.style.background='rgba(193,39,45,.18)'" onmouseout="this.style.background='rgba(193,39,45,.08)'" title="Retirer"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div style="font-weight:700;font-size:15px;color:var(--dark);margin-bottom:4px;">{{ d.nom }}</div>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                            <span style="font-size:11px;background:{% if d.type=='Ville' %}rgba(26,55,163,.08){% else %}rgba(0,98,51,.08){% endif %};color:{% if d.type=='Ville' %}#1a37a3{% else %}var(--green){% endif %};padding:3px 9px;border-radius:20px;font-weight:600;">
+                                {% if d.type=='Ville' %}🏙️{% else %}🌿{% endif %} {{ d.type }}
+                            </span>
+                            {% if d.budget %}<span style="font-size:11px;background:rgba(212,147,58,.1);color:var(--gold);padding:3px 9px;border-radius:20px;font-weight:600;">💰 {{ '{:,}'.format(d.budget|int).replace(',', ' ') }} MAD</span>{% endif %}
+                        </div>
+                        {% if d.description %}<p style="font-size:12px;color:#888;line-height:1.5;margin:0 0 10px;">{{ d.description[:90] }}{% if d.description|length > 90 %}…{% endif %}</p>{% endif %}
+                        {% if d.tags %}
+                        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;">
+                            {% for t in d.tags[:3] %}<span style="font-size:10px;background:var(--warm);color:var(--dark);padding:2px 8px;border-radius:20px;">{{ t }}</span>{% endfor %}
+                        </div>
+                        {% endif %}
+                        <a href="/service1" style="display:block;text-align:center;padding:8px;border-radius:9px;background:linear-gradient(135deg,var(--gold),#b87a1e);color:#fff;text-decoration:none;font-size:12px;font-weight:600;">
+                            <i class="fas fa-brain"></i> Voir plus
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;background:#fff;border-radius:14px;border:2px dashed #e5ddd0;">
+                    <i class="fas fa-bookmark" style="font-size:40px;display:block;margin-bottom:14px;color:var(--gold);opacity:.5;"></i>
+                    <p style="font-size:14px;margin-bottom:16px;">Vous n'avez pas encore sauvegardé de destinations.</p>
+                    <a href="/service1" style="display:inline-block;padding:10px 22px;background:linear-gradient(135deg,var(--gold),#b87a1e);color:#fff;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;">
+                        <i class="fas fa-brain"></i> Découvrir des destinations
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pane Groupes -->
+        <div id="fpane-groups" class="fav-pane" style="display:none;">
+            <div id="fav-groups-list" class="fav-grid">
+                {% if saved_groups %}
+                    {% for g in saved_groups %}
+                    <div style="background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 14px rgba(0,0,0,.06);border:1px solid rgba(212,147,58,.12);transition:.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--gold),#b87a1e);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-users" style="color:#fff;font-size:14px;"></i>
+                            </div>
+                            <button onclick="removeFavGroup({{ g.id }},this)" style="width:28px;height:28px;border-radius:7px;border:none;background:rgba(193,39,45,.08);color:var(--red);font-size:11px;cursor:pointer;" title="Retirer"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div style="font-weight:700;font-size:14px;color:var(--dark);margin-bottom:6px;">{{ g.group_name }}</div>
+                        <div style="font-size:12px;color:#888;display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
+                            <span><i class="fas fa-map-marker-alt" style="color:var(--gold);margin-right:5px;"></i>{{ g.destination }}</span>
+                        </div>
+                        <a href="/service3" style="display:block;text-align:center;padding:8px;border-radius:9px;background:linear-gradient(135deg,var(--gold),#b87a1e);color:#fff;text-decoration:none;font-size:12px;font-weight:600;">
+                            <i class="fas fa-user-plus"></i> Rejoindre
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;background:#fff;border-radius:14px;border:2px dashed #e5ddd0;">
+                    <i class="fas fa-users" style="font-size:40px;display:block;margin-bottom:14px;color:var(--gold);opacity:.5;"></i>
+                    <p style="font-size:14px;margin-bottom:16px;">Vous n'avez pas encore sauvegardé de groupes.</p>
+                    <a href="/service3" style="display:inline-block;padding:10px 22px;background:linear-gradient(135deg,var(--gold),#b87a1e);color:#fff;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;">
+                        <i class="fas fa-user-friends"></i> Explorer les groupes
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Pane Plans -->
+        <div id="fpane-plans" class="fav-pane" style="display:none;">
+            <div id="fav-plans-list" class="fav-grid-plans">
+                {% if saved_plans %}
+                    {% for p in saved_plans %}
+                    <div style="background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 14px rgba(0,0,0,.06);border:1px solid rgba(212,147,58,.12);transition:.2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='none'">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#1A2744,#2D4A8A);display:flex;align-items:center;justify-content:center;">
+                                <i class="fas fa-route" style="color:#fff;font-size:14px;"></i>
+                            </div>
+                            <button onclick="removeFavPlan({{ p.id }},this)" style="width:28px;height:28px;border-radius:7px;border:none;background:rgba(193,39,45,.08);color:var(--red);font-size:11px;cursor:pointer;" title="Supprimer"><i class="fas fa-times"></i></button>
+                        </div>
+                        <div style="font-weight:700;font-size:14px;color:var(--dark);margin-bottom:6px;">{{ p.destination }}</div>
+                        <div style="font-size:12px;color:#888;display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
+                            <span><i class="fas fa-calendar" style="color:#4A6FA8;margin-right:5px;"></i>{{ p.duree }} jour{{ 's' if p.duree > 1 else '' }} · {{ p.voyageurs }} voyageur{{ 's' if p.voyageurs > 1 else '' }}</span>
+                            <span><i class="fas fa-wallet" style="color:var(--gold);margin-right:5px;"></i>{{ '{:,}'.format(p.budget_utilisateur|int).replace(',', ' ') }} MAD</span>
+                        </div>
+                        <a href="/service2" style="display:block;text-align:center;padding:8px;border-radius:9px;background:linear-gradient(135deg,#1A2744,#2D4A8A);color:#fff;text-decoration:none;font-size:12px;font-weight:600;">
+                            <i class="fas fa-eye"></i> Voir le plan
+                        </a>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div style="grid-column:1/-1;text-align:center;padding:40px;color:#888;background:#fff;border-radius:14px;border:2px dashed #e5ddd0;">
+                    <i class="fas fa-route" style="font-size:40px;display:block;margin-bottom:14px;color:#2D4A8A;opacity:.5;"></i>
+                    <p style="font-size:14px;margin-bottom:16px;">Vous n'avez pas encore sauvegardé de plans.</p>
+                    <a href="/service2" style="display:inline-block;padding:10px 22px;background:linear-gradient(135deg,#1A2744,#2D4A8A);color:#fff;border-radius:10px;text-decoration:none;font-size:13px;font-weight:600;">
+                        <i class="fas fa-map-marked-alt"></i> Planifier un voyage
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- SECTION COMMENTAIRES -->
+        <div class="section-title" style="margin-top:60px;">
+            <div class="section-title-icon"><i class="fas fa-comments"></i></div>
+            <div>
+                <h2>Avis & Commentaires</h2>
+                <p>Partagez votre expérience avec la communauté MarocTour</p>
+            </div>
+        </div>
+
+        <div class="comments-layout">
+            <!-- Formulaire commentaire -->
+            <div style="background:#fff; border-radius:16px; padding:28px; box-shadow:0 2px 20px rgba(0,0,0,.06); border:1px solid rgba(212,147,58,.12); height:fit-content;">
+                <h3 style="font-family:var(--font-h); color:var(--dark); margin-bottom:20px; font-size:18px;">
+                    <i class="fas fa-pen" style="color:var(--gold); margin-right:8px;"></i>Écrire un avis
+                </h3>
+                <div id="comment-alert" style="display:none; padding:10px 14px; border-radius:8px; margin-bottom:16px; font-size:13px;"></div>
+                <form id="comment-form">
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:7px; text-transform:uppercase; letter-spacing:.05em;">Destination</label>
+                        <input type="text" id="comment-dest" placeholder="Ex: Marrakech, Fès, Chefchaouen..." required
+                            style="width:100%; padding:11px 14px; border:1.5px solid #e5ddd0; border-radius:9px; font-size:14px; font-family:var(--font-b); transition:.2s; background:var(--cream);"
+                            onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='#e5ddd0'">
+                    </div>
+                    <div style="margin-bottom:16px;">
+                        <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:7px; text-transform:uppercase; letter-spacing:.05em;">Note</label>
+                        <div id="star-rating" style="display:flex; gap:6px; cursor:pointer; font-size:24px;" onmouseleave="renderStars(selectedRating)"></div>
+                        <input type="hidden" id="comment-rating" value="5">
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <label style="display:block; font-size:12px; font-weight:600; color:var(--dark); margin-bottom:7px; text-transform:uppercase; letter-spacing:.05em;">Votre commentaire</label>
+                        <textarea id="comment-content" rows="4" placeholder="Partagez votre expérience, vos conseils..." required
+                            style="width:100%; padding:11px 14px; border:1.5px solid #e5ddd0; border-radius:9px; font-size:14px; font-family:var(--font-b); resize:vertical; transition:.2s; background:var(--cream);"
+                            onfocus="this.style.borderColor='var(--gold)'" onblur="this.style.borderColor='#e5ddd0'"></textarea>
+                    </div>
+                    <button type="submit" style="width:100%; padding:13px; background:linear-gradient(135deg,var(--gold),#b87a1e); color:#fff; border:none; border-radius:10px; font-family:var(--font-h); font-size:14px; cursor:pointer; letter-spacing:.06em; transition:.25s;"
+                        onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                        <i class="fas fa-paper-plane" style="margin-right:8px;"></i>Publier l'avis
+                    </button>
+                </form>
+            </div>
+
+            <!-- Liste commentaires -->
+            <div>
+                <h3 style="font-family:var(--font-h); color:var(--dark); margin-bottom:20px; font-size:18px; display:flex; align-items:center; gap:10px;">
+                    <i class="fas fa-star" style="color:var(--gold);"></i>Avis récents
+                    {% if comments %}<span style="font-size:12px;font-weight:600;background:rgba(212,147,58,.12);color:var(--gold);padding:3px 10px;border-radius:20px;font-family:var(--font-b);">{{ comments|length }} avis</span>{% endif %}
+                </h3>
+                <div id="comments-list" style="display:flex; flex-direction:column; gap:14px;">
+                    {% if comments %}
+                        {% for c in comments %}
+                        <div style="background:#fff;border-radius:12px;padding:18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.05);border:1px solid rgba(212,147,58,.1);">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#b87a1e);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;font-size:13px;">{{ (c.user_name or 'U')[0]|upper }}</div>
+                                    <div>
+                                        <strong style="font-size:14px;">{{ c.user_name }}</strong>
+                                        <div style="font-size:11px;color:#999;">{{ c.created_at[:10] }}</div>
+                                    </div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <span style="background:rgba(212,147,58,.1);color:var(--gold);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">
+                                        <i class="fas fa-map-marker-alt"></i> {{ c.destination }}
+                                    </span>
+                                    {% if c.user_id == user.id %}
+                                    <button onclick="deleteComment({{ c.id }},this)" style="width:26px;height:26px;border-radius:6px;border:none;background:rgba(193,39,45,.08);color:var(--red);font-size:11px;cursor:pointer;" title="Supprimer mon avis"><i class="fas fa-trash"></i></button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div style="color:var(--gold);font-size:16px;margin-bottom:6px;">{{ '★' * c.rating }}<span style="color:#ddd;">{{ '☆' * (5 - c.rating) }}</span></div>
+                            <p style="font-size:14px;color:#555;line-height:1.6;margin:0;">{{ c.content }}</p>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div style="color:#999;font-size:14px;text-align:center;padding:32px;background:#fff;border-radius:12px;">
+                        <i class="fas fa-comments" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3;color:var(--gold);"></i>
+                        Soyez le premier à laisser un avis !
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="uf">
+        <p>© 2026 MarocTour — Tous droits réservés</p>
+    </footer>
+
+    <script>
+        let selectedRating = 5;
+
+        function renderStars(rating) {
+            const container = document.getElementById('star-rating');
+            container.innerHTML = '';
+            for(let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.textContent = i <= rating ? '★' : '☆';
+                star.style.color = i <= rating ? 'var(--gold)' : '#ccc';
+                star.style.transition = '.15s';
+                star.addEventListener('mouseover', () => renderStars(i));
+                star.addEventListener('click', () => {
+                    selectedRating = i;
+                    document.getElementById('comment-rating').value = i;
+                    renderStars(i);
+                });
+                container.appendChild(star);
+            }
+        }
+        renderStars(5);
+
+        const CURRENT_USER_ID = {{ user.id if user else 'null' }};
+
+        async function deleteComment(id, btn) {
+            if(!confirm('Supprimer cet avis ?')) return;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            try {
+                await fetch('/api/comments/' + id, { method: 'DELETE' });
+                location.reload();
+            } catch(e) { btn.innerHTML = '<i class="fas fa-times"></i>'; }
+        }
+
+        document.getElementById('comment-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const alertEl = document.getElementById('comment-alert');
+            try {
+                const res = await fetch('/api/comments', {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({
+                        destination: document.getElementById('comment-dest').value,
+                        content:     document.getElementById('comment-content').value,
+                        rating:      parseInt(document.getElementById('comment-rating').value)
+                    })
+                });
+                const data = await res.json();
+                alertEl.style.display = 'flex';
+                alertEl.style.alignItems = 'center';
+                alertEl.style.gap = '8px';
+                if(data.success) {
+                    alertEl.style.background = 'rgba(0,98,51,.1)';
+                    alertEl.style.border = '1px solid rgba(0,98,51,.3)';
+                    alertEl.style.color = 'var(--green)';
+                    alertEl.innerHTML = '<i class="fas fa-check-circle"></i> ' + data.message;
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    alertEl.style.background = 'rgba(193,39,45,.1)';
+                    alertEl.style.border = '1px solid rgba(193,39,45,.3)';
+                    alertEl.style.color = 'var(--red)';
+                    alertEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + data.message;
+                }
+                setTimeout(() => alertEl.style.display = 'none', 4000);
+            } catch(e) { alert('Erreur serveur'); }
+        });
+
+        /* ══════════════ FAVORIS TABS ══════════════ */
+        function switchFavTab(tab, el) {
+            document.querySelectorAll('.fav-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('.fav-pane').forEach(p => p.style.display = 'none');
+            document.getElementById('fpane-' + tab).style.display = 'block';
+        }
+
+        /* Supprimer une destination sauvegardée → recharge la page */
+        async function removeFavDest(id, btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            await fetch('/api/saved-destinations/' + id, { method: 'DELETE' });
+            location.reload();
+        }
+
+        /* Supprimer un groupe sauvegardé → recharge la page */
+        async function removeFavGroup(id, btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            await fetch('/api/saved-groups/' + id, { method: 'DELETE' });
+            location.reload();
+        }
+
+        /* Supprimer un plan → recharge la page */
+        async function removeFavPlan(id, btn) {
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            await fetch('/api/my-plans/' + id, { method: 'DELETE' });
+            location.reload();
+        }
+
+        async function logout() {
+            if(confirm('Êtes-vous sûr de vouloir vous déconnecter?')) {
+                await fetch('/api/logout', {method:'POST'});
+                window.location.href = '/';
+            }
+        }
+
+        // Animate steps on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateX(0)';
+                }
+            });
+        }, {threshold: 0.15});
+
+        document.querySelectorAll('.step-card').forEach((el, i) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateX(-20px)';
+            el.style.transition = `opacity .5s ease ${i*0.12}s, transform .5s ease ${i*0.12}s`;
+            observer.observe(el);
+        });
+
+        document.querySelectorAll('.svc').forEach((el, i) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(24px)';
+            el.style.transition = `opacity .5s ease ${i*0.1}s, transform .5s ease ${i*0.1}s`;
+            observer.observe(el);
+        });
+    </script>
+</body>
+</html>

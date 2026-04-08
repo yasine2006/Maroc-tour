@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Destination Intelligente – MarocTour</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+    /* ============================================================
+       SERVICE 1 — "Oracle of Marrakech"
+       Theme: Terracotta / Deep Red / Marrakech walls / Zellige lens
+    ============================================================ */
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #FAF7F2; }
+
+    :root {
+        --s1-red: #C1272D;
+        --s1-terra: #C4622D;
+        --s1-gold: #D4933A;
+        --s1-dark: #1A0A04;
+        --s1-bg: #FAF7F2;
+        --zellige: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='rgba(212,147,58,0.1)' stroke-width='0.8'%3E%3Cpolygon points='40,4 46,22 64,16 54,31 72,40 54,49 64,64 46,58 40,76 34,58 16,64 26,49 8,40 26,31 16,16 34,22'/%3E%3Cpolygon points='40,22 52,40 40,58 28,40'/%3E%3Crect x='26' y='26' width='28' height='28' transform='rotate(45 40 40)'/%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    /* ── UNIFIED SERVICE NAVBAR ── */
+    .svc-nav {
+        position: sticky; top: 0; z-index: 900;
+        background: var(--s1-dark);
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 32px; height: 64px;
+        box-shadow: 0 2px 20px rgba(0,0,0,.5);
+        border-bottom: 1px solid rgba(196,98,45,.25);
+    }
+    .svc-nav::after {
+        content: '';
+        position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, var(--s1-red), var(--s1-terra), var(--s1-gold), var(--s1-terra), var(--s1-red));
+    }
+    .svc-nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .svc-nav-logo svg { width: 32px; height: 32px; }
+    .svc-nav-logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .svc-nav-logo-maroc { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: #fff; }
+    .svc-nav-logo-tour  { font-size: .55rem; letter-spacing: 5px; color: #D4933A; font-weight: 600; text-transform: uppercase; }
+    .svc-nav-left { display: flex; align-items: center; gap: 20px; }
+    .svc-nav-back {
+        display: flex; align-items: center; gap: 8px;
+        color: rgba(255,255,255,.65); text-decoration: none;
+        font-size: .82rem; font-weight: 500;
+        padding: 7px 14px; border-radius: 8px;
+        border: 1px solid rgba(255,255,255,.15);
+        transition: all .2s;
+    }
+    .svc-nav-back:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .svc-nav-back i { font-size: .75rem; }
+    .svc-nav-logout {
+        display: flex; align-items: center; gap: 8px;
+        background: rgba(193,39,45,.15); border: 1px solid rgba(193,39,45,.3);
+        color: #e8606a; padding: 7px 14px; border-radius: 8px;
+        font-size: .82rem; font-weight: 600; cursor: pointer;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        transition: all .2s;
+    }
+    .svc-nav-logout:hover { background: rgba(193,39,45,.28); color: #ff7a83; }
+
+    /* ── SERVICE HERO BANNER — Marrakech walls ── */
+    .svc-hero {
+        padding: 60px 32px 52px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .svc-hero::before {
+        content: '';
+        position: absolute; inset: 0;
+        background-image: var(--zellige);
+        background-size: 80px 80px;
+        opacity: .55;
+    }
+    /* Decorative arch silhouette */
+    .svc-hero::after {
+        content: '';
+        position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+        width: min(500px, 80%); height: 100px;
+        background: radial-gradient(ellipse 80% 100% at 50% 100%, rgba(212,147,58,.15) 0%, transparent 70%);
+    }
+    .svc-hero-s1 {
+        background: linear-gradient(150deg, #6B0D10 0%, #9B1D22 30%, #C4622D 70%, #8B3010 100%);
+    }
+    .svc-hero-inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+    .svc-hero-ornament {
+        display: flex; align-items: center; justify-content: center; gap: 12px;
+        margin-bottom: 18px;
+    }
+    .svc-hero-ornament-line { width: 40px; height: 1px; background: linear-gradient(90deg, transparent, rgba(212,147,58,.7)); }
+    .svc-hero-ornament-line.r { background: linear-gradient(90deg, rgba(212,147,58,.7), transparent); }
+    .svc-hero-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,.1); backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 100px; padding: 6px 18px;
+        font-size: .78rem; color: #ffd88a; font-weight: 600;
+        letter-spacing: .5px; text-transform: uppercase; margin-bottom: 18px;
+    }
+    .svc-hero h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: clamp(1.8rem, 4vw, 2.8rem);
+        font-weight: 700; color: #fff; margin-bottom: 14px; line-height: 1.2;
+        text-shadow: 0 2px 16px rgba(0,0,0,.4);
+    }
+    .svc-hero p {
+        font-size: 1rem; color: rgba(255,255,255,.78); line-height: 1.65; max-width: 480px; margin: 0 auto;
+    }
+    </style>
+</head>
+<body class="service-page service1-page">
+
+    <!-- NAVBAR -->
+    <nav class="svc-nav">
+        <div class="svc-nav-left">
+            <a href="/user" class="svc-nav-back"><i class="fas fa-arrow-left"></i> Retour</a>
+            <a href="/" class="svc-nav-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs><linearGradient id="ng1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#C1272D"/><stop offset="100%" stop-color="#D4933A"/></linearGradient></defs>
+                    <polygon points="16,3 18.3,10.8 25.3,7.1 21.7,14 28.5,16 21.7,18 25.3,24.9 18.3,21.2 16,29 13.7,21.2 6.7,24.9 10.3,18 3.5,16 10.3,14 6.7,7.1 13.7,10.8" fill="url(#ng1)"/>
+                    <polygon points="16,12 20,16 16,20 12,16" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
+                </svg>
+                <div class="svc-nav-logo-text">
+                    <span class="svc-nav-logo-maroc">Maroc</span>
+                    <span class="svc-nav-logo-tour">Tour</span>
+                </div>
+            </a>
+        </div>
+        <button class="svc-nav-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</button>
+    </nav>
+
+    <!-- HERO BANNER -->
+    <div class="svc-hero svc-hero-s1">
+        <div class="svc-hero-inner">
+            <div class="svc-hero-ornament">
+                <div class="svc-hero-ornament-line"></div>
+                <svg width="14" height="14" viewBox="0 0 40 40" fill="none">
+                    <polygon points="20,3 22.5,13.5 32.5,8 27,18 38,20 27,22 32.5,32 22.5,26.5 20,37 17.5,26.5 7.5,32 13,22 2,20 13,18 7.5,8 17.5,13.5" fill="#D4933A"/>
+                </svg>
+                <div class="svc-hero-ornament-line r"></div>
+            </div>
+            <div class="svc-hero-badge"><i class="fas fa-brain"></i> Intelligence Artificielle · Decision Tree</div>
+            <h1>Destination Intelligente</h1>
+            <p>Notre IA analyse votre profil et prédit votre destination idéale au Maroc parmi des centaines de voyageurs</p>
+        </div>
+    </div>
+
+    <main class="service-main">
+        <div class="container">
+
+            <!-- FORM -->
+            <div class="form-section">
+                <h3><i class="fas fa-user-circle"></i> Votre Profil</h3>
+                <form id="destination-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fas fa-birthday-cake"></i> Âge</label>
+                            <input type="number" id="age" required min="18" max="100" placeholder="Ex: 30">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-venus-mars"></i> Sexe</label>
+                            <select id="sexe" required>
+                                <option value="">Sélectionnez...</option>
+                                <option value="Homme">Homme</option>
+                                <option value="Femme">Femme</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-wallet"></i> Budget (MAD)</label>
+                            <input type="number" id="budget" required min="1000" step="100" placeholder="Ex: 5000">
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-ring"></i> Situation matrimoniale</label>
+                            <select id="marie" required>
+                                <option value="">Sélectionnez...</option>
+                                <option value="Oui">Marié(e)</option>
+                                <option value="Non">Célibataire</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label><i class="fas fa-map-marker-alt"></i> Région d'origine</label>
+                            <select id="region" required>
+                                <option value="">— Votre pays d'origine —</option>
+                                <optgroup label="🌍 Afrique du Nord &amp; Maghreb">
+                                    <option value="Maroc">🇲🇦 Maroc</option>
+                                    <option value="Maroc">🇩🇿 Algérie</option>
+                                    <option value="Tunisie">🇹🇳 Tunisie</option>
+                                    <option value="Égypte">🇪🇬 Égypte</option>
+                                    <option value="Égypte">🇱🇾 Libye</option>
+                                    <option value="Maroc">🇲🇷 Mauritanie</option>
+                                    <option value="Maroc">🇸🇩 Soudan</option>
+                                </optgroup>
+                                <optgroup label="🌍 Afrique Sub-saharienne">
+                                    <option value="Égypte">🇳🇬 Nigéria</option>
+                                    <option value="Égypte">🇰🇪 Kenya</option>
+                                    <option value="Égypte">🇪🇹 Éthiopie</option>
+                                    <option value="Égypte">🇹🇿 Tanzanie</option>
+                                    <option value="Égypte">🇺🇬 Ouganda</option>
+                                    <option value="France">🇸🇳 Sénégal</option>
+                                    <option value="France">🇨🇮 Côte d'Ivoire</option>
+                                    <option value="France">🇨🇲 Cameroun</option>
+                                    <option value="France">🇲🇱 Mali</option>
+                                    <option value="France">🇧🇫 Burkina Faso</option>
+                                    <option value="France">🇳🇪 Niger</option>
+                                    <option value="France">🇹🇩 Tchad</option>
+                                    <option value="France">🇬🇦 Gabon</option>
+                                    <option value="France">🇲🇬 Madagascar</option>
+                                    <option value="France">🇲🇺 Maurice</option>
+                                    <option value="Portugal">🇦🇴 Angola</option>
+                                    <option value="Portugal">🇲🇿 Mozambique</option>
+                                    <option value="Égypte">🇬🇭 Ghana</option>
+                                    <option value="Australie">🇿🇦 Afrique du Sud</option>
+                                    <option value="Australie">🇿🇼 Zimbabwe</option>
+                                    <option value="Australie">🇿🇲 Zambie</option>
+                                    <option value="Allemagne">🇳🇦 Namibie</option>
+                                </optgroup>
+                                <optgroup label="🌍 Moyen-Orient">
+                                    <option value="Égypte">🇸🇦 Arabie Saoudite</option>
+                                    <option value="Égypte">🇦🇪 Émirats Arabes Unis</option>
+                                    <option value="Égypte">🇶🇦 Qatar</option>
+                                    <option value="Égypte">🇰🇼 Koweït</option>
+                                    <option value="Égypte">🇧🇭 Bahreïn</option>
+                                    <option value="Égypte">🇴🇲 Oman</option>
+                                    <option value="Égypte">🇯🇴 Jordanie</option>
+                                    <option value="Égypte">🇱🇧 Liban</option>
+                                    <option value="Égypte">🇸🇾 Syrie</option>
+                                    <option value="Égypte">🇮🇶 Irak</option>
+                                    <option value="Inde">🇮🇷 Iran</option>
+                                    <option value="Égypte">🇮🇱 Israël</option>
+                                    <option value="Égypte">🇵🇸 Palestine</option>
+                                    <option value="Égypte">🇾🇪 Yémen</option>
+                                </optgroup>
+                                <optgroup label="🌍 Europe occidentale">
+                                    <option value="France">🇫🇷 France</option>
+                                    <option value="Espagne">🇪🇸 Espagne</option>
+                                    <option value="Portugal">🇵🇹 Portugal</option>
+                                    <option value="Italie">🇮🇹 Italie</option>
+                                    <option value="Allemagne">🇩🇪 Allemagne</option>
+                                    <option value="Royaume-Uni">🇬🇧 Royaume-Uni</option>
+                                    <option value="Belgique">🇧🇪 Belgique</option>
+                                    <option value="Pays-Bas">🇳🇱 Pays-Bas</option>
+                                    <option value="Suisse">🇨🇭 Suisse</option>
+                                    <option value="Allemagne">🇦🇹 Autriche</option>
+                                    <option value="France">🇱🇺 Luxembourg</option>
+                                    <option value="France">🇲🇨 Monaco</option>
+                                    <option value="Royaume-Uni">🇮🇪 Irlande</option>
+                                    <option value="Italie">🇲🇹 Malte</option>
+                                    <option value="Espagne">🇦🇩 Andorre</option>
+                                </optgroup>
+                                <optgroup label="🌍 Europe du Nord">
+                                    <option value="Allemagne">🇸🇪 Suède</option>
+                                    <option value="Allemagne">🇳🇴 Norvège</option>
+                                    <option value="Allemagne">🇩🇰 Danemark</option>
+                                    <option value="Allemagne">🇫🇮 Finlande</option>
+                                    <option value="Royaume-Uni">🇮🇸 Islande</option>
+                                </optgroup>
+                                <optgroup label="🌍 Europe de l'Est">
+                                    <option value="Allemagne">🇵🇱 Pologne</option>
+                                    <option value="Allemagne">🇨🇿 République Tchèque</option>
+                                    <option value="Allemagne">🇸🇰 Slovaquie</option>
+                                    <option value="Allemagne">🇭🇺 Hongrie</option>
+                                    <option value="Italie">🇷🇴 Roumanie</option>
+                                    <option value="Italie">🇧🇬 Bulgarie</option>
+                                    <option value="Italie">🇬🇷 Grèce</option>
+                                    <option value="Italie">🇭🇷 Croatie</option>
+                                    <option value="Italie">🇷🇸 Serbie</option>
+                                    <option value="Italie">🇸🇮 Slovénie</option>
+                                    <option value="Allemagne">🇺🇦 Ukraine</option>
+                                    <option value="Allemagne">🇷🇺 Russie</option>
+                                    <option value="Allemagne">🇧🇾 Biélorussie</option>
+                                    <option value="Allemagne">🇱🇻 Lettonie</option>
+                                    <option value="Allemagne">🇱🇹 Lituanie</option>
+                                    <option value="Allemagne">🇪🇪 Estonie</option>
+                                    <option value="Italie">🇲🇩 Moldavie</option>
+                                    <option value="Italie">🇦🇱 Albanie</option>
+                                </optgroup>
+                                <optgroup label="🌏 Asie du Sud &amp; Centrale">
+                                    <option value="Inde">🇮🇳 Inde</option>
+                                    <option value="Inde">🇵🇰 Pakistan</option>
+                                    <option value="Inde">🇧🇩 Bangladesh</option>
+                                    <option value="Inde">🇱🇰 Sri Lanka</option>
+                                    <option value="Inde">🇳🇵 Népal</option>
+                                    <option value="Inde">🇦🇫 Afghanistan</option>
+                                    <option value="Inde">🇺🇿 Ouzbékistan</option>
+                                    <option value="Inde">🇰🇿 Kazakhstan</option>
+                                    <option value="Inde">🇰🇬 Kirghizstan</option>
+                                    <option value="Inde">🇹🇯 Tadjikistan</option>
+                                    <option value="Inde">🇹🇲 Turkménistan</option>
+                                    <option value="Italie">🇦🇿 Azerbaïdjan</option>
+                                    <option value="Italie">🇬🇪 Géorgie</option>
+                                    <option value="Italie">🇦🇲 Arménie</option>
+                                    <option value="Allemagne">🇹🇷 Turquie</option>
+                                </optgroup>
+                                <optgroup label="🌏 Asie de l'Est">
+                                    <option value="Chine">🇨🇳 Chine</option>
+                                    <option value="Japon">🇯🇵 Japon</option>
+                                    <option value="Japon">🇰🇷 Corée du Sud</option>
+                                    <option value="Chine">🇭🇰 Hong Kong</option>
+                                    <option value="Chine">🇹🇼 Taïwan</option>
+                                    <option value="Chine">🇲🇳 Mongolie</option>
+                                </optgroup>
+                                <optgroup label="🌏 Asie du Sud-Est">
+                                    <option value="Inde">🇮🇩 Indonésie</option>
+                                    <option value="Chine">🇲🇾 Malaisie</option>
+                                    <option value="Chine">🇸🇬 Singapour</option>
+                                    <option value="Chine">🇹🇭 Thaïlande</option>
+                                    <option value="Chine">🇻🇳 Vietnam</option>
+                                    <option value="Chine">🇵🇭 Philippines</option>
+                                    <option value="Chine">🇰🇭 Cambodge</option>
+                                    <option value="Inde">🇲🇲 Myanmar</option>
+                                    <option value="Chine">🇱🇦 Laos</option>
+                                </optgroup>
+                                <optgroup label="🌎 Amérique du Nord">
+                                    <option value="USA">🇺🇸 États-Unis</option>
+                                    <option value="Canada">🇨🇦 Canada</option>
+                                    <option value="Espagne">🇲🇽 Mexique</option>
+                                </optgroup>
+                                <optgroup label="🌎 Amérique Centrale &amp; Caraïbes">
+                                    <option value="Espagne">🇬🇹 Guatemala</option>
+                                    <option value="Espagne">🇭🇳 Honduras</option>
+                                    <option value="Espagne">🇸🇻 Salvador</option>
+                                    <option value="Espagne">🇳🇮 Nicaragua</option>
+                                    <option value="Espagne">🇨🇷 Costa Rica</option>
+                                    <option value="Espagne">🇵🇦 Panama</option>
+                                    <option value="Espagne">🇨🇺 Cuba</option>
+                                    <option value="Espagne">🇩🇴 Rép. Dominicaine</option>
+                                    <option value="USA">🇯🇲 Jamaïque</option>
+                                    <option value="France">🇭🇹 Haïti</option>
+                                    <option value="USA">🇹🇹 Trinité-et-Tobago</option>
+                                </optgroup>
+                                <optgroup label="🌎 Amérique du Sud">
+                                    <option value="Brésil">🇧🇷 Brésil</option>
+                                    <option value="Espagne">🇦🇷 Argentine</option>
+                                    <option value="Espagne">🇨🇱 Chili</option>
+                                    <option value="Espagne">🇨🇴 Colombie</option>
+                                    <option value="Espagne">🇵🇪 Pérou</option>
+                                    <option value="Espagne">🇻🇪 Venezuela</option>
+                                    <option value="Espagne">🇪🇨 Équateur</option>
+                                    <option value="Espagne">🇧🇴 Bolivie</option>
+                                    <option value="Espagne">🇵🇾 Paraguay</option>
+                                    <option value="Espagne">🇺🇾 Uruguay</option>
+                                    <option value="Brésil">🇬🇾 Guyana</option>
+                                </optgroup>
+                                <optgroup label="🌏 Océanie">
+                                    <option value="Australie">🇦🇺 Australie</option>
+                                    <option value="Australie">🇳🇿 Nouvelle-Zélande</option>
+                                    <option value="Australie">🇫🇯 Fidji</option>
+                                    <option value="Australie">🇵🇬 Papouasie</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit" id="submit-btn">
+                        <i class="fas fa-search"></i> Analyser mon Profil
+                    </button>
+                </form>
+            </div>
+
+            <!-- LOADING -->
+            <div class="hidden" id="loading-section" style="text-align:center;padding:40px;">
+                <i class="fas fa-spinner fa-spin" style="font-size:48px;color:#667eea;"></i>
+                <p style="margin-top:15px;color:#666;font-size:15px;">Analyse Decision Tree en cours…</p>
+            </div>
+
+            <!-- RESULTS -->
+            <div class="hidden" id="results-section">
+
+                <!-- Bannière de classification ML -->
+                <div class="ml-banner" id="ml-banner">
+                    <div class="mlb-left">
+                        <div class="mlb-emoji" id="mlb-emoji">🏙️</div>
+                        <div>
+                            <div class="mlb-label">🤖 Decision Tree prédit pour vous</div>
+                            <div class="mlb-type" id="mlb-type">—</div>
+                            <div class="mlb-acc"><i class="fas fa-chart-bar"></i> Précision ML : <strong id="mlb-acc">—</strong>%</div>
+                        </div>
+                    </div>
+                    <div class="mlb-raisons" id="mlb-raisons"></div>
+                </div>
+
+                <!-- Titre section -->
+                <div class="s1-section-header">
+                    <h3 id="result-type">Destinations recommandées</h3>
+                    <span class="count-badge" id="result-count">0 résultat</span>
+                </div>
+
+                <!-- Grid des cartes -->
+                <div class="s1-grid" id="destinations-grid"></div>
+
+            </div><!-- /results -->
+
+        </div><!-- /container -->
+    </main>
+
+    <!-- PANNEAU DÉTAIL (drawer latéral) -->
+    <div class="detail-overlay" id="detailOverlay" onclick="closeDetail()"></div>
+    <div class="detail-panel" id="detailPanel">
+        <button class="detail-close" onclick="closeDetail()"><i class="fas fa-times"></i></button>
+        <div id="detailContent"></div>
+    </div>
+
+    <!-- TOAST -->
+    <div class="toast" id="s1toast">
+        <i class="fas fa-check-circle" id="s1toast-icon"></i>
+        <span id="s1toast-msg"></span>
+    </div>
+
+    <script>
+    /* ── UTILS ────────────────────────────────────────────── */
+    function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    let _tt;
+    function showToast(msg,type='success'){
+        const t=document.getElementById('s1toast');
+        document.getElementById('s1toast-icon').className='fas '+(type==='error'?'fa-times-circle':'fa-check-circle');
+        document.getElementById('s1toast-msg').textContent=msg;
+        t.className='toast '+type+' show';
+        clearTimeout(_tt);
+        _tt=setTimeout(()=>t.classList.remove('show'),3500);
+    }
+
+    /* ── FORM SUBMIT ──────────────────────────────────────── */
+    document.getElementById('destination-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const formData = {
+            age:    parseInt(document.getElementById('age').value),
+            sexe:   document.getElementById('sexe').value,
+            budget: parseInt(document.getElementById('budget').value),
+            marie:  document.getElementById('marie').value,
+            region: document.getElementById('region').value
+        };
+        document.getElementById('results-section').classList.add('hidden');
+        document.getElementById('loading-section').classList.remove('hidden');
+        document.getElementById('submit-btn').disabled = true;
+        try {
+            const res  = await fetch('/api/predict', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify(formData)
+            });
+            const data = await res.json();
+            if(data.success) displayResults(data);
+            else showToast(data.message||'Erreur de prédiction','error');
+        } catch(err) {
+            showToast('Erreur de connexion au serveur','error');
+        } finally {
+            document.getElementById('loading-section').classList.add('hidden');
+            document.getElementById('submit-btn').disabled = false;
+        }
+    });
+
+    /* ── AFFICHER RÉSULTATS ───────────────────────────────── */
+    let allData = null;
+
+    function displayResults(data) {
+        allData = data;
+        const isVille = data.type_destination === 'Ville';
+
+        // Bannière ML
+        document.getElementById('mlb-emoji').textContent = isVille ? '🏙️' : '🌿';
+        document.getElementById('mlb-type').textContent  = data.type_destination;
+        document.getElementById('mlb-acc').textContent   = data.ml_accuracy || '—';
+        const raisonsHtml = (data.raisons_classification||[]).map(r=>
+            `<div class="mlb-raison">${esc(r)}</div>`).join('');
+        document.getElementById('mlb-raisons').innerHTML = raisonsHtml;
+        document.getElementById('ml-banner').className = 'ml-banner ' + (isVille ? 'ville' : 'nature');
+
+        // Header
+        document.getElementById('result-type').textContent  = `Destinations ${data.type_destination} pour vous`;
+        document.getElementById('result-count').textContent = data.count + ' destination' + (data.count>1?'s':'');
+
+        // Grid
+        const grid = document.getElementById('destinations-grid');
+        grid.innerHTML = '';
+
+        if(!data.lieux.length){
+            grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:50px;">
+                <i class="fas fa-search" style="font-size:50px;color:#ccc;"></i>
+                <p style="margin-top:15px;color:#999">Aucune destination pour ce budget. Augmentez votre budget.</p>
+            </div>`;
+        } else {
+            data.lieux.forEach((lieu, idx) => {
+                const img = lieu.images && lieu.images.length ? lieu.images[0]
+                    : 'https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=400';
+                const tags = (lieu.tags || []).slice(0,3).map(t=>
+                    `<span class="s1-tag">${esc(t)}</span>`).join('');
+                const emoji = lieu.emoji || (isVille ? '🏙️' : '🌿');
+
+                const card = document.createElement('div');
+                card.className = 's1-card';
+                card.innerHTML = `
+                    <div class="s1-card-img" style="background-image:url('${img}')">
+                        <div class="s1-card-type ${isVille?'ville':'nature'}">${emoji} ${esc(data.type_destination)}</div>
+                        <div class="s1-card-budget"><i class="fas fa-wallet"></i> ${parseInt(lieu.budget||0).toLocaleString('fr-FR')} MAD</div>
+                    </div>
+                    <div class="s1-card-body">
+                        <h4 class="s1-card-name">${esc(lieu.nom)}</h4>
+                        <p class="s1-card-desc">${esc((lieu.description||'').slice(0,100))}…</p>
+                        <div class="s1-tags">${tags}</div>
+                        <div class="s1-card-meta">
+                            <span><i class="fas fa-clock"></i> ${esc(lieu.duree_visite||'N/A')}</span>
+                            <span><i class="fas fa-sun"></i> ${esc((lieu.meilleure_saison||'N/A').split(';')[0])}</span>
+                            <span><i class="fas fa-shield-alt"></i> ${esc(lieu.niveau_visite||'Modéré')}</span>
+                        </div>
+                        <div style="display:flex; gap:8px; margin-top:14px;">
+                            <button class="s1-btn-detail" onclick="openDetail(${idx})" style="flex:1;">
+                                <i class="fas fa-info-circle"></i> Voir les détails
+                            </button>
+                            <button class="s1-btn-save" id="save-btn-${idx}"
+                                onclick="toggleSaveDest(${idx}, this)"
+                                title="Sauvegarder cette destination"
+                                style="width:42px; height:42px; border-radius:10px; border:2px solid #e0d5c5;
+                                    background:#fff; color:#ccc; font-size:16px; cursor:pointer;
+                                    display:flex; align-items:center; justify-content:center; transition:.2s;
+                                    flex-shrink:0;">
+                                <i class="fas fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>`;
+                grid.appendChild(card);
+            });
+        }
+
+        document.getElementById('results-section').classList.remove('hidden');
+        document.getElementById('results-section').scrollIntoView({behavior:'smooth'});
+
+        // Marquer les destinations déjà sauvegardées
+        data.lieux.forEach((lieu, idx) => {
+            if (savedDestNames[lieu.nom]) {
+                const btn = document.getElementById(`save-btn-${idx}`);
+                if (btn) markSaved(btn, true);
+            }
+        });
+    }
+
+    /* ── PANNEAU DÉTAIL ───────────────────────────────────── */
+    function openDetail(idx) {
+        const lieu    = allData.lieux[idx];
+        const isVille = allData.type_destination === 'Ville';
+        const img     = lieu.images && lieu.images.length ? lieu.images[0]
+            : 'https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=800';
+        const emoji   = lieu.emoji || (isVille ? '🏙️' : '🌿');
+        const tags    = (lieu.tags||[]).map(t=>`<span class="s1-tag">${esc(t)}</span>`).join('');
+
+        const highlights = (lieu.highlights||[]).map(h=>
+            `<li><i class="fas fa-check-circle" style="color:#27ae60"></i> ${esc(h)}</li>`).join('');
+
+        // Bloc infos spécifiques (ville ou nature)
+        let specifique = '';
+        if(isVille){
+            specifique = `
+            ${lieu.attractions ? `<div class="dp-row"><i class="fas fa-landmark"></i><div><strong>Attractions</strong><p>${esc(lieu.attractions)}</p></div></div>` : ''}
+            ${lieu.restaurants ? `<div class="dp-row"><i class="fas fa-utensils"></i><div><strong>Restaurants</strong><p>${esc(lieu.restaurants)}</p></div></div>` : ''}
+            ${lieu.specialites ? `<div class="dp-row"><i class="fas fa-drumstick-bite"></i><div><strong>Spécialités culinaires</strong><p>${esc(lieu.specialites)}</p></div></div>` : ''}
+            ${lieu.artisanat   ? `<div class="dp-row"><i class="fas fa-hands"></i><div><strong>Artisanat local</strong><p>${esc(lieu.artisanat)}</p></div></div>` : ''}
+            ${lieu.musique     ? `<div class="dp-row"><i class="fas fa-music"></i><div><strong>Musique</strong><p>${esc(lieu.musique)}</p></div></div>` : ''}
+            ${lieu.fetes       ? `<div class="dp-row"><i class="fas fa-star"></i><div><strong>Fêtes & Festivals</strong><p>${esc(lieu.fetes)}</p></div></div>` : ''}
+            ${lieu.dialecte    ? `<div class="dp-row"><i class="fas fa-comments"></i><div><strong>Dialecte local</strong><p>${esc(lieu.dialecte)}</p></div></div>` : ''}`;
+        } else {
+            specifique = `
+            ${lieu.activites  ? `<div class="dp-row"><i class="fas fa-hiking"></i><div><strong>Activités</strong><p>${esc(lieu.activites)}</p></div></div>` : ''}
+            ${lieu.equipement ? `<div class="dp-row"><i class="fas fa-backpack"></i><div><strong>Équipement recommandé</strong><p>${esc(lieu.equipement)}</p></div></div>` : ''}
+            ${lieu.securite   ? `<div class="dp-row"><i class="fas fa-shield-alt"></i><div><strong>Sécurité</strong><p>${esc(lieu.securite)}</p></div></div>` : ''}
+            ${lieu.animaux    ? `<div class="dp-row"><i class="fas fa-paw"></i><div><strong>Faune</strong><p>${esc(lieu.animaux)}</p></div></div>` : ''}`;
+        }
+
+        document.getElementById('detailContent').innerHTML = `
+            <div class="dp-hero" style="background-image:url('${img}')">
+                <div class="dp-hero-overlay">
+                    <div class="dp-hero-emoji">${emoji}</div>
+                    <h2>${esc(lieu.nom)}</h2>
+                    <p class="dp-slogan">${esc(lieu.description || '')}</p>
+                    <div class="s1-tags" style="justify-content:center">${tags}</div>
+                </div>
+            </div>
+
+            <div class="dp-body">
+
+                <!-- Classification ML -->
+                <div class="dp-ml-box">
+                    <div class="dp-ml-icon">🤖</div>
+                    <div>
+                        <strong>Pourquoi l'IA t'a recommandé cette destination</strong>
+                        <p>${esc(lieu.classification_raison || allData.type_destination + ' prédit par Decision Tree')}</p>
+                        <div class="dp-ml-reasons">
+                            ${(allData.raisons_classification||[]).map(r=>`<span>${esc(r)}</span>`).join('')}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Infos clés -->
+                <div class="dp-grid-meta">
+                    <div class="dp-meta-item"><i class="fas fa-wallet"></i><span>Budget</span><strong>${parseInt(lieu.budget||0).toLocaleString('fr-FR')} MAD</strong></div>
+                    <div class="dp-meta-item"><i class="fas fa-clock"></i><span>Durée</span><strong>${esc(lieu.duree_visite||'N/A')}</strong></div>
+                    <div class="dp-meta-item"><i class="fas fa-sun"></i><span>Meilleure saison</span><strong>${esc(lieu.meilleure_saison||'N/A')}</strong></div>
+                    <div class="dp-meta-item"><i class="fas fa-route"></i><span>Niveau visite</span><strong>${esc(lieu.niveau_visite||'Modéré')}</strong></div>
+                    <div class="dp-meta-item"><i class="fas fa-shield-alt"></i><span>Sécurité</span><strong>${esc(lieu.securite_generale||lieu.securite||'Bonne')}</strong></div>
+                    <div class="dp-meta-item"><i class="fas fa-language"></i><span>Langue</span><strong>${esc(lieu.langue||'Darija, Français')}</strong></div>
+                    <div class="dp-meta-item"><i class="fas fa-bus"></i><span>Transport</span><strong>${esc(lieu.transport_interne||'Taxi local')}</strong></div>
+                    <div class="dp-meta-item"><i class="fas fa-money-bill"></i><span>Monnaie</span><strong>${esc(lieu.monnaie||'MAD')}</strong></div>
+                </div>
+
+                <!-- À ne pas manquer -->
+                ${lieu.a_ne_pas_manquer ? `
+                <div class="dp-highlight-box">
+                    <i class="fas fa-star"></i>
+                    <div>
+                        <strong>À ne pas manquer</strong>
+                        <p>${esc(lieu.a_ne_pas_manquer)}</p>
+                    </div>
+                </div>` : ''}
+
+                <!-- Highlights -->
+                ${highlights ? `
+                <div class="dp-section">
+                    <h4><i class="fas fa-map-marked-alt"></i> Points forts</h4>
+                    <ul class="dp-highlights">${highlights}</ul>
+                </div>` : ''}
+
+                <!-- Infos spécifiques -->
+                <div class="dp-section">
+                    <h4><i class="fas fa-info-circle"></i> Informations détaillées</h4>
+                    ${specifique}
+                </div>
+
+                <!-- Conseils -->
+                ${lieu.conseils ? `
+                <div class="dp-section">
+                    <h4><i class="fas fa-lightbulb"></i> Conseils pratiques</h4>
+                    <div class="dp-conseils">
+                        ${lieu.conseils.split(',').map(c=>`
+                        <div class="dp-conseil"><i class="fas fa-check"></i><span>${esc(c.trim())}</span></div>`).join('')}
+                    </div>
+                </div>` : ''}
+
+                <!-- Pour qui -->
+                ${lieu.pour_qui ? `
+                <div class="dp-pour-qui">
+                    <i class="fas fa-users"></i>
+                    <div><strong>Idéal pour</strong><p>${esc(lieu.pour_qui)}</p></div>
+                </div>` : ''}
+
+            </div><!-- /dp-body -->
+        `;
+
+        document.getElementById('detailOverlay').classList.add('active');
+        document.getElementById('detailPanel').classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDetail(){
+        document.getElementById('detailOverlay').classList.remove('active');
+        document.getElementById('detailPanel').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDetail(); });
+
+    /* ── SAUVEGARDE DESTINATIONS ─────────────────────────── */
+    let savedDestNames = {};   // { nom: saved_id }
+
+    async function loadSavedDests() {
+        try {
+            const res  = await fetch('/api/saved-destinations');
+            const data = await res.json();
+            if (data.success) {
+                savedDestNames = data.ids || {};
+                // Mettre à jour les boutons déjà affichés
+                if (allData) {
+                    allData.lieux.forEach((lieu, idx) => {
+                        const btn = document.getElementById(`save-btn-${idx}`);
+                        if (btn && savedDestNames[lieu.nom]) {
+                            markSaved(btn, true);
+                        }
+                    });
+                }
+            }
+        } catch(e) {}
+    }
+
+    function markSaved(btn, saved) {
+        if (saved) {
+            btn.style.background    = 'linear-gradient(135deg,#D4933A,#b87a1e)';
+            btn.style.borderColor   = '#D4933A';
+            btn.style.color         = '#fff';
+            btn.title               = 'Retirer des favoris';
+        } else {
+            btn.style.background  = '#fff';
+            btn.style.borderColor = '#e0d5c5';
+            btn.style.color       = '#ccc';
+            btn.title             = 'Sauvegarder cette destination';
+        }
+    }
+
+    async function toggleSaveDest(idx, btn) {
+        try {
+            const lieu = allData.lieux[idx];
+            const nom  = lieu.nom;
+            if (savedDestNames[nom]) {
+                // → Unsave
+                const id = savedDestNames[nom];
+                await fetch('/api/saved-destinations/' + id, { method: 'DELETE' });
+                delete savedDestNames[nom];
+                markSaved(btn, false);
+                showS1Toast(`'${nom}' retirée des favoris`, 'info');
+            } else {
+                // → Save
+                const res  = await fetch('/api/saved-destinations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nom:         nom,
+                        type:        allData.type_destination,
+                        emoji:       lieu.emoji || '',
+                        description: (lieu.description || '').slice(0, 300),
+                        budget:      lieu.budget || 0,
+                        tags:        lieu.tags || []
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    await loadSavedDests();   // recharge les IDs
+                    markSaved(btn, true);
+                    showS1Toast(`'${nom}' sauvegardée! ★`);
+                } else if (res.status === 401) {
+                    showS1Toast('Connexion requise — redirection...', 'error');
+                    setTimeout(() => { window.location.href = '/auth'; }, 1500);
+                } else {
+                    showS1Toast(data.message || 'Erreur lors de la sauvegarde', 'error');
+                }
+            }
+        } catch(e) {
+            showS1Toast('Erreur lors de la sauvegarde', 'error');
+        }
+    }
+
+    let _toastTimer;
+    function showS1Toast(msg, type='success') {
+        let t = document.getElementById('s1-toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 's1-toast';
+            t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;
+                padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;
+                color:#fff;display:flex;align-items:center;gap:8px;
+                box-shadow:0 4px 20px rgba(0,0,0,.2);transition:.3s;transform:translateY(20px);opacity:0;`;
+            document.body.appendChild(t);
+        }
+        t.style.background = type === 'error'
+            ? 'linear-gradient(135deg,#e74c3c,#c0392b)'
+            : type === 'info'
+            ? 'linear-gradient(135deg,#636e72,#2d3436)'
+            : 'linear-gradient(135deg,#D4933A,#b87a1e)';
+        t.innerHTML = `<i class="fas fa-${type==='error'?'times-circle':type==='info'?'info-circle':'bookmark'}"></i> ${msg}`;
+        requestAnimationFrame(() => { t.style.transform='translateY(0)'; t.style.opacity='1'; });
+        clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(20px)'; }, 3000);
+    }
+
+    window.addEventListener('load', async function() {
+        await loadSavedDests();
+        try {
+            const res = await fetch('/api/current-user');
+            const data = await res.json();
+            const btn = document.querySelector('.svc-nav-logout');
+            if (!data.logged_in) {
+                if (btn) {
+                    btn.textContent = 'Se connecter';
+                    btn.onclick = () => window.location.href = '/auth';
+                    btn.style.background = 'rgba(212,147,58,.15)';
+                    btn.style.borderColor = 'rgba(212,147,58,.3)';
+                    btn.style.color = '#D4933A';
+                }
+            } else {
+                if (btn) btn.innerHTML = `<i class="fas fa-sign-out-alt"></i> ${data.user.name.split(' ')[0]}`;
+            }
+        } catch(e) {}
+    });
+
+    /* ── LOGOUT ───────────────────────────────────────────── */
+    async function logout() {
+        if(confirm('Déconnexion?')) {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/';
+        }
+    }
+    </script>
+
+</body>
+</html>
