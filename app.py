@@ -14,9 +14,14 @@ from flask import Flask, render_template, request, jsonify, session, redirect, u
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split   # ✅ AJOUT: évaluation ML
 from sklearn.metrics import accuracy_score             # ✅ AJOUT: précision ML
+from sklearn.model_selection import cross_val_score    # ✅ Cross-validation
+from sklearn.cluster import KMeans                     # ✅ Service 3: clustering profils
+from sklearn.metrics.pairwise import cosine_similarity # ✅ Service 3: similarité IA
+import numpy as np                                     # ✅ Service 3: vecteurs
 from datetime import datetime
 from functools import wraps
 import sqlite3                                         # ✅ AJOUT: base de données
@@ -227,9 +232,9 @@ try:
     X = df.drop("type_destination", axis=1)
     y = df["type_destination"]
 
-    # Train/Test Split (80/20)
+    # Train/Test Split (70/30)
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
+        X, y, test_size=0.3, random_state=42, stratify=y
     )
 
     # Normalisation des features numériques
@@ -237,32 +242,124 @@ try:
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled  = scaler.transform(X_test)
 
-    # Modèle Random Forest optimisé
-    model = RandomForestClassifier(
-        n_estimators=200,
-        max_depth=12,
-        min_samples_split=4,
-        min_samples_leaf=2,
-        max_features='sqrt',
+    # Modèle SVM (rbf) — meilleure généralisation que Random Forest
+    model = SVC(
+        kernel='rbf',
+        C=1.0,
+        gamma='scale',
         class_weight='balanced',
         random_state=42,
-        n_jobs=-1
+        probability=True
     )
     model.fit(X_train_scaled, y_train)
 
-    # Accuracy sur test set
+    # Accuracy sur split interne (30%)
     y_pred = model.predict(X_test_scaled)
     ML_ACCURACY = round(accuracy_score(y_test, y_pred) * 100, 2)
 
-    print(f"[OK] Random Forest entraîné avec {len(X_train)} échantillons")
-    print(f"[OK] Accuracy sur test set ({len(X_test)} échantillons): {ML_ACCURACY}%")
+    # Cross-validation 5 folds — evaluation plus fiable
+    cv_scores = cross_val_score(model, scaler.transform(X), y, cv=5, scoring='accuracy')
+    ML_CV_SCORE = round(cv_scores.mean() * 100, 2)
+    ML_CV_STD   = round(cv_scores.std()  * 100, 2)
+
+    print(f"[OK] SVM (rbf) entraine avec {len(X_train)} echantillons (70%)")
+    print(f"[OK] Accuracy split interne ({len(X_test)} echantillons, 30%): {ML_ACCURACY}%")
+    print(f"[OK] Cross-validation 5-fold: {ML_CV_SCORE}% (+/- {ML_CV_STD}%)")
+
+    # Test sur test_model.csv (data externe jamais vue)
+    ML_ACCURACY_EXT = None
+    if os.path.exists("test_model.csv"):
+        try:
+            df_ext = pd.read_csv("test_model.csv", encoding='utf-8-sig')
+            ext_cols = df_ext.columns.tolist()
+
+            def safe_enc(le, val):
+                return le.transform([val])[0] if val in le.classes_ else 0
+
+            df_ext['sexe_e']   = df_ext[ext_cols[1]].apply(lambda v: safe_enc(le_sexe,   v))
+            df_ext['marie_e']  = df_ext[ext_cols[3]].apply(lambda v: safe_enc(le_marie,  v))
+            df_ext['region_e'] = df_ext[ext_cols[4]].apply(lambda v: safe_enc(le_region, v))
+
+            X_ext = df_ext[[ext_cols[0], 'sexe_e', ext_cols[2], 'marie_e', 'region_e']].values
+            y_ext_true = df_ext[ext_cols[5]].tolist()
+            y_ext_pred = le_destination.inverse_transform(model.predict(scaler.transform(X_ext)))
+
+            correct = sum(1 for t, p in zip(y_ext_true, y_ext_pred) if t == p)
+            ML_ACCURACY_EXT = round(correct / len(y_ext_true) * 100, 2)
+            print(f"[OK] Test externe test_model.csv ({len(y_ext_true)} cas): {ML_ACCURACY_EXT}%")
+
+            erreurs = [(y_ext_true[i], y_ext_pred[i]) for i in range(len(y_ext_true)) if y_ext_true[i] != y_ext_pred[i]]
+            if erreurs:
+                print(f"[!]  {len(erreurs)} erreur(s) sur test externe")
+            else:
+                print("[OK] Aucune erreur sur test externe")
+        except Exception as e_ext:
+            print(f"[!]  test_model.csv erreur: {e_ext}")
+
     ML_READY = True
 
 except Exception as e:
     print(f"[!]  Erreur ML: {e}")
     print("   Le service 1 utilisera la logique simplifiée")
     ML_READY = False
+    ML_ACCURACY_EXT = None
     ML_ACCURACY = 0
+
+# ============================================================
+# ML SERVICE 3 - KMeans + Cosine Similarity (groupes IA)
+# ============================================================
+
+# Vocabulaire fixe pour l'encodage des vecteurs
+_ACTIVITES  = ['Ville', 'Aventure', 'Culture', 'Plage', 'Montagne', 'Mixte']
+_NIVEAUX    = ['Tous niveaux', 'Débutant', 'Intermédiaire', 'Avancé']
+_INTERETS   = ['Randonnée', 'Photo', 'Gastronomie', 'Histoire', 'Surf',
+               'Camping', 'Musique', 'Méditation', 'Escalade', 'Artisanat',
+               'Désert', 'Plongée']
+
+def encode_profile_vector(age, budget, type_activite, niveau, interets):
+    """Convertit un profil (user ou groupe) en vecteur numérique pour cosine similarity."""
+    vec = []
+    vec.append(min(age, 100) / 100.0)          # âge normalisé
+    vec.append(min(budget, 20000) / 20000.0)   # budget normalisé
+    for act in _ACTIVITES:                      # type activité — one-hot
+        vec.append(1.0 if type_activite == act else 0.0)
+    for niv in _NIVEAUX:                        # niveau — one-hot
+        vec.append(1.0 if niveau == niv else 0.0)
+    for interet in _INTERETS:                   # intérêts — multi-hot
+        vec.append(1.0 if interet in interets else 0.0)
+    return np.array(vec, dtype=float)
+
+print("[*] Entraînement KMeans (Service 3)...")
+try:
+    df_km = pd.read_csv("data.csv", encoding='utf-8-sig')
+
+    # Encoder toutes les features (âge, budget, sexe, marié)
+    le_km_sexe  = LabelEncoder()
+    le_km_marie = LabelEncoder()
+    df_km['sexe_enc']  = le_km_sexe.fit_transform(df_km['sexe'])
+    df_km['marie_enc'] = le_km_marie.fit_transform(df_km['marié'])
+
+    X_km = df_km[['âge', 'budget', 'sexe_enc', 'marie_enc']].values
+    scaler_km = StandardScaler()
+    X_km_scaled = scaler_km.fit_transform(X_km)
+
+    kmeans_model = KMeans(n_clusters=4, random_state=42, n_init=10)
+    df_km['cluster'] = kmeans_model.fit_predict(X_km_scaled)
+
+    # Trouver le type_destination dominant par cluster
+    cluster_type_map = (
+        df_km.groupby('cluster')['type_destination']
+        .agg(lambda x: x.value_counts().idxmax())
+        .to_dict()
+    )
+    KMEANS_READY = True
+    for k, v in cluster_type_map.items():
+        print(f"  Cluster {k} = {v}")
+    print(f"[OK] KMeans entraine - 4 clusters avec type dominant")
+except Exception as e:
+    KMEANS_READY = False
+    cluster_type_map = {}
+    print(f"[!]  KMeans erreur: {e}")
 
 # ============================================================
 # ENRICHISSEMENT DES LIEUX (description, tags, highlights…)
@@ -1767,13 +1864,13 @@ def api_create_group():
 
 @app.route('/api/groups/match', methods=['POST'])
 def api_match_groups():
-    """Trouver les groupes compatibles avec le profil du user"""
+    """Trouver les groupes compatibles — KMeans + Cosine Similarity (IA)"""
     import json as _json
     data = request.get_json()
     age           = int(data.get('age', 25) or 25)
-    type_activite = data.get('type_activite', '')
-    niveau        = data.get('niveau', '')
     budget        = int(data.get('budget', 0) or 0)
+    type_activite = data.get('type_activite', 'Mixte') or 'Mixte'
+    niveau        = data.get('niveau', 'Tous niveaux') or 'Tous niveaux'
     interets_user = data.get('interets', [])
 
     conn = get_db()
@@ -1784,58 +1881,88 @@ def api_match_groups():
     finally:
         conn.close()
 
+    # ── Étape 1 : cluster KMeans du user (âge, budget, sexe, marié) ──
+    user_cluster      = None
+    user_pref_type    = None   # type_destination prédit par le cluster
+    sexe_val          = data.get('sexe', 'Homme')
+    marie_val         = data.get('marie', 'Non')
+    if KMEANS_READY and budget > 0:
+        try:
+            sexe_enc  = le_km_sexe.transform([sexe_val])[0]
+        except Exception:
+            sexe_enc  = 0
+        try:
+            marie_enc = le_km_marie.transform([marie_val])[0]
+        except Exception:
+            marie_enc = 0
+        u_scaled     = scaler_km.transform([[age, budget, sexe_enc, marie_enc]])
+        user_cluster = int(kmeans_model.predict(u_scaled)[0])
+        user_pref_type = cluster_type_map.get(user_cluster)  # ex: "Ville" ou "Nature"
+
+    # ── Étape 2 : vecteur user pour cosine similarity ──────────
+    user_vec = encode_profile_vector(age, budget, type_activite, niveau, interets_user)
+
     results = []
     for g in rows:
         g_dict = dict(g)
         try: g_dict['interets'] = _json.loads(g_dict.get('interets') or '[]')
         except: g_dict['interets'] = []
 
-        score = 0
-        reasons = []
+        g_age    = ((g_dict.get('age_min') or 18) + (g_dict.get('age_max') or 99)) / 2
+        g_budget = g_dict.get('budget_par_personne') or 0
+        g_type   = g_dict.get('type_activite') or 'Mixte'
+        g_niveau = g_dict.get('niveau') or 'Tous niveaux'
+        g_ints   = g_dict.get('interets') or []
 
-        # Type d'activité (40 pts max)
-        if type_activite:
-            if g_dict.get('type_activite') == type_activite:
-                score += 40; reasons.append(f"Activité {type_activite} ✓")
-            elif g_dict.get('type_activite') in ('Mixte', ''):
-                score += 15; reasons.append("Groupe polyvalent")
+        # ── Étape 3 : cosine similarity ───────────────────────
+        group_vec = encode_profile_vector(g_age, g_budget, g_type, g_niveau, g_ints)
+        sim = float(cosine_similarity([user_vec], [group_vec])[0][0])
 
-        # Niveau (25 pts)
-        if niveau:
-            if g_dict.get('niveau') == niveau:
-                score += 25; reasons.append(f"Niveau {niveau} ✓")
-            elif g_dict.get('niveau') in ('Tous niveaux', ''):
-                score += 10; reasons.append("Tous niveaux acceptés")
+        # ── Étape 4 : bonus cluster KMeans (type destination prédit) ──
+        cluster_bonus = 0.0
+        cluster_msg   = ""
+        if KMEANS_READY and user_pref_type:
+            # Bonus si le type du groupe correspond au type prédit par le cluster
+            if g_type == user_pref_type:
+                cluster_bonus = 0.20
+                cluster_msg   = f"IA prédit {user_pref_type} pour ton profil ✓"
+            elif g_type == 'Mixte':
+                cluster_bonus = 0.08
+                cluster_msg   = "Groupe polyvalent compatible IA"
 
-        # Âge (20 pts)
+        # ── Étape 5 : pénalités contraintes dures ─────────────
+        penalty = 0
         age_min = g_dict.get('age_min') or 18
         age_max = g_dict.get('age_max') or 99
-        if age_min <= age <= age_max:
-            score += 20; reasons.append(f"Tranche d'âge compatible ✓")
+        if not (age_min <= age <= age_max):
+            penalty += 0.25
 
-        # Budget (15 pts)
-        if budget:
-            budget_grp = g_dict.get('budget_par_personne') or 0
-            if budget_grp == 0 or budget >= budget_grp:
-                score += 15; reasons.append("Budget compatible ✓")
-            elif budget >= int(budget_grp * 0.8):
-                score += 7
+        if g_budget > 0 and budget > 0 and budget < g_budget * 0.7:
+            penalty += 0.20
 
-        # Intérêts communs (bonus)
-        if interets_user and g_dict['interets']:
-            communs = set(interets_user) & set(g_dict['interets'])
-            if communs:
-                bonus = min(len(communs) * 5, 20)
-                score += bonus
-                reasons.append(f"{len(communs)} intérêt(s) commun(s) ✓")
+        # ── Score final (0-100) ───────────────────────────────
+        final_score = max(0, min(100, round((sim + cluster_bonus - penalty) * 100)))
 
-        pct = min(round(score), 100)
-        g_dict['score'] = pct
-        g_dict['match_reasons'] = reasons
+        # ── Explication lisible ───────────────────────────────
+        reasons = []
+        if sim >= 0.85:   reasons.append("Excellente compatibilité IA ✓")
+        elif sim >= 0.65: reasons.append("Bonne compatibilité IA ✓")
+        elif sim >= 0.45: reasons.append("Compatibilité modérée")
+        else:             reasons.append("Profils peu similaires")
+        if cluster_msg:   reasons.append(cluster_msg)
+        if penalty >= 0.25 and not (age_min <= age <= age_max):
+            reasons.append("⚠️ Hors tranche d'âge")
+        if penalty >= 0.20 and g_budget > 0 and budget > 0 and budget < g_budget * 0.7:
+            reasons.append("⚠️ Budget insuffisant")
+
+        g_dict['score']          = final_score
+        g_dict['match_reasons']  = reasons
+        g_dict['ai_similarity']  = round(sim * 100, 1)
+        g_dict['ai_cluster_match'] = cluster_msg != ""
         results.append(g_dict)
 
     results.sort(key=lambda x: x['score'], reverse=True)
-    return jsonify({"success": True, "groups": results})
+    return jsonify({"success": True, "groups": results, "ai_engine": "KMeans+Cosine"})
 
 
 @app.route('/api/groups/<int:group_id>/join', methods=['POST'])

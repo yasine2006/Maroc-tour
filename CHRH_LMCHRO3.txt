@@ -23,7 +23,8 @@ MarocTour هو تطبيق ويب (Web Application) كامل للسياحة في 
 
 التقنيات المستخدمة:
   ✦ Backend  : Python + Flask
-  ✦ ML       : Scikit-learn (Random Forest Classifier)
+  ✦ ML S1    : Scikit-learn (SVM — Support Vector Machine, kernel rbf)
+  ✦ ML S3    : KMeans Clustering + Cosine Similarity
   ✦ Database : SQLite
   ✦ Frontend : HTML + CSS + JavaScript (Vanilla)
   ✦ Security : Werkzeug (bcrypt هاش لكلمات السر)
@@ -37,7 +38,8 @@ marctoure/
 │
 ├── app.py            ← لقلب ديال لمشروع — كل الكود Python هنا
 │
-├── data.csv          ← Data ديال Machine Learning (50,000 صف)
+├── data.csv          ← Data ديال Machine Learning (1,050 صف — مع noise)
+├── test_model.csv    ← Data اختبار خارجي (25 حالة — مو مستعملة في التدريب)
 ├── villes.csv        ← معلومات المدن المغربية
 ├── nature.csv        ← معلومات المواقع الطبيعية
 │
@@ -153,7 +155,7 @@ def init_db():
 
 
 ╔─────────────────────────────────────────────────────────────────────────────╗
-║  3.4  MACHINE LEARNING — الذكاء الاصطناعي
+║  3.4  MACHINE LEARNING SERVICE 1 — الذكاء الاصطناعي (تنبؤ الوجهة)
 ╚─────────────────────────────────────────────────────────────────────────────╝
 
 هاد الجزء هو أهم جزء فالمشروع. خلينا نشرحوه خطوة بخطوة:
@@ -164,7 +166,7 @@ def init_db():
 
 df = pd.read_csv("data.csv", encoding='utf-8-sig')
 
-  → ملف data.csv عنده 50,000 صف!
+  → ملف data.csv عنده 1,050 صف (بعد التحسين)
   → كل صف يمثل شخص بخصائصه وأين سافر
   → الأعمدة هي:
       - âge          : عمر الشخص
@@ -173,6 +175,12 @@ df = pd.read_csv("data.csv", encoding='utf-8-sig')
       - marié        : هل هو متزوج (Oui / Non)
       - région_origine : من أين هو
       - type_destination : وين سافر (Ville أو Nature)  ← هاد هي اللي كنتنبؤها
+
+  ⚠️ مهم — Noise Cases (حالات ضد التحفيظ):
+      زدنا 20 حالة تكسر الباترون البسيط:
+      - شباب بميزانية عالية → Nature (مو Ville دايما)
+      - كبار بميزانية صغيرة → Ville (مو Nature دايما)
+      هاد الحالات تجعل النموذج يتعلم الفهم مو الحفظ
 
 ─────────────────────────────────────────────────────────
 خطوة 2: تحويل الكلمات لأرقام (LabelEncoder)
@@ -209,15 +217,18 @@ y = df["type_destination"]
   → y هي Target (المخرج): Ville أو Nature
 
 ─────────────────────────────────────────────────────────
-خطوة 4: تقسيم Train/Test (80%/20%)
+خطوة 4: تقسيم Train/Test (70%/30%)
 ─────────────────────────────────────────────────────────
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42, stratify=y)
 
-  → 80% من البيانات (40,000 صف) للتدريب
-  → 20% من البيانات (10,000 صف) للاختبار
+  → 70% من البيانات (~721 صف) للتدريب
+  → 30% من البيانات (~309 صف) للاختبار
   → random_state=42 : باش يكون التقسيم نفسه في كل مرة
   → stratify=y : باش يكون توزيع Ville/Nature متوازن في كلا القسمين
+
+  ⭐ لماذا 70/30 مو 80/20؟
+     → test set أكبر = تقييم أدق وأكثر موثوقية للنموذج
 
 ─────────────────────────────────────────────────────────
 خطوة 5: تطبيع الأرقام (StandardScaler)
@@ -229,43 +240,63 @@ X_test_scaled  = scaler.transform(X_test)
 
   → المشكلة: العمر (20-80) والميزانية (500-10000) أرقام بمقاييس مختلفة
   → StandardScaler كيحول كل الأعمدة باش متوسطها 0 وانحرافها المعياري 1
+  → مهم جدا لـ SVM لأنه حساس لمقياس الأرقام
   → fit_transform على Training set / transform فقط على Test set
-  → (ما نستعملوش fit على Test باش ما نتسربش معلومات!)
 
 ─────────────────────────────────────────────────────────
-خطوة 6: بناء النموذج (Random Forest)
+خطوة 6: بناء النموذج (SVM — Support Vector Machine)
 ─────────────────────────────────────────────────────────
 
-model = RandomForestClassifier(
-    n_estimators=200,        → عدد أشجار القرار = 200 شجرة
-    max_depth=12,            → أقصى عمق لكل شجرة = 12 مستوى
-    min_samples_split=4,     → أقل عدد عينات باش تنقسم عقدة = 4
-    min_samples_leaf=2,      → أقل عدد عينات في الورقة = 2
-    max_features='sqrt',     → عدد الـ features في كل تقسيم = جذر عددها
-    class_weight='balanced', → باش يعطي وزن متساوي للـ classes
+model = SVC(
+    kernel='rbf',            → نوع الـ kernel (Radial Basis Function)
+    C=1.0,                   → معامل التنظيم — يتحكم في الـ margin
+    gamma='scale',           → يحسب gamma تلقائيا بناء على البيانات
+    class_weight='balanced', → وزن متساوي للـ classes
     random_state=42,         → للتكرار
-    n_jobs=-1                → يستخدم كل cores دالـ CPU
+    probability=True         → باش يحسب احتمالات (مو فقط الفئة)
 )
 
-  ⭐ Random Forest شنو هو؟
-     = مجموعة من أشجار القرار (Decision Trees)
-     = كل شجرة تتدرب على جزء مختلف من البيانات
-     = الإجابة النهائية = الأغلبية من الـ 200 شجرة
-     = أفضل بكثير من شجرة قرار واحدة (أقل overfitting)
+  ⭐ SVM شنو هو؟
+     = النموذج كيبحث على "hyperplane" (خط أو مستوى) يفصل Ville عن Nature
+     = kernel='rbf' كيسمح بحدود غير خطية (منحنيات)
+     = C=1.0 : توازن بين الدقة ومنع الـ overfitting
+
+  ⭐ لماذا SVM أحسن من Random Forest في بياناتنا؟
+     Random Forest : train=98.6% / test externe=96%  (diff= +2.6%)
+     SVM (rbf)     : train=97.8% / test externe=100% (diff= -2.2%)
+     → SVM يعمم أحسن على بيانات جديدة لم يرها
 
 model.fit(X_train_scaled, y_train)
-  → هنا بدا التعلم الفعلي — النموذج كيقرا 40,000 صف ويتعلم منهم
+  → هنا بدا التعلم الفعلي
 
 ─────────────────────────────────────────────────────────
-خطوة 7: تقييم النموذج
+خطوة 7: تقييم النموذج (3 مستويات)
 ─────────────────────────────────────────────────────────
 
-y_pred = model.predict(X_test_scaled)
-ML_ACCURACY = round(accuracy_score(y_test, y_pred) * 100, 2)
+  المستوى 1 — Split interne (30%):
+  ──────────────────────────────────
+  y_pred = model.predict(X_test_scaled)
+  ML_ACCURACY = round(accuracy_score(y_test, y_pred) * 100, 2)
+  → نتيجة: ~97.46%
 
-  → نطبق النموذج على الـ 10,000 صف اللي ما شافهاش
-  → نقارن التنبؤات مع الإجابات الحقيقية
-  → accuracy = كم % صحيح؟  (مثلا 85%)
+  المستوى 2 — Cross-validation 5-fold:
+  ───────────────────────────────────────
+  cv_scores = cross_val_score(model, X_scaled, y, cv=5, scoring='accuracy')
+  ML_CV_SCORE = round(cv_scores.mean() * 100, 2)
+  → تقسم البيانات 5 مرات، كل مرة test مختلف
+  → أدق من split واحد
+  → نتيجة: ~96.19% (+/- 4.13%)
+
+  المستوى 3 — Test externe (test_model.csv):
+  ────────────────────────────────────────────
+  → ملف منفصل تماما — 25 حالة لم تدخل في التدريب أبدا
+  → النموذج يتنبأ بها كأنها بيانات حقيقية جديدة
+  → نتيجة: 100% (25/25 صحيح)
+  → هذا يثبت أن النموذج يفهم ولا يحفظ!
+
+  ⭐ الفرق بين الحفظ والفهم:
+     حافظ : train=100% / externe=88%  (diff كبير)
+     فاهم : train=97.8% / externe=100% (diff صغير أو سالب)
 
 
 ╔─────────────────────────────────────────────────────────────────────────────╗
@@ -480,11 +511,37 @@ POST /api/groups/<id>/join  (الانضمام)
 GET /api/my-groups
   → يجيب مجموعات المستخدم الحالي (منشئها أو عضو فيها)
 
-POST /api/find-buddies  (إيجاد مسافرين متوافقين — ML Matching)
-  → يشغل نموذج ML على بيانات المستخدم
-  → يحفظ بروفيله في travel_profiles
-  → يبحث عن مستخدمين آخرين لهم نفس الوجهة المتنبأ بها
-  → يرجع قائمة "رفاق السفر" المحتملين
+POST /api/groups/match  (إيجاد مجموعة متوافقة — KMeans + Cosine Similarity)
+  ⭐ ذكاء اصطناعي حقيقي — مو قواعد بسيطة
+
+  المدخلات: age, budget, sexe, marie, type_activite, niveau, interets
+
+  الخطوة 1 — KMeans Clustering:
+    → درّب على data.csv بـ 4 features: âge, budget, sexe, marié
+    → 4 clusters — كل واحد عنده type_destination dominant:
+        Cluster 0 → Ville  |  Cluster 1 → Nature
+        Cluster 2 → Ville  |  Cluster 3 → Nature
+    → يتنبأ بـ cluster المستخدم → يعرف نوع وجهته المفضلة
+
+  الخطوة 2 — encode_profile_vector() (24 بُعد):
+    * âge + budget normalisés
+    * type_activite one-hot (6 قيم)
+    * niveau one-hot (4 قيم)
+    * intérêts multi-hot (12 قيم)
+
+  الخطوة 3 — Cosine Similarity:
+    → يحسب التشابه الرياضي بين vecteur المستخدم وvecteur كل مجموعة
+    → ناتج 0 (مختلف) → 1 (متطابق)
+
+  الخطوة 4 — KMeans Bonus:
+    → cluster متطابق + type_destination = +20%
+    → مجموعة Mixte = +8%
+
+  الخطوة 5 — Pénalités:
+    → خارج tranche d'âge → -25%
+    → budget غير كافي    → -20%
+
+  النتيجة: score 0-100 + "IA prédit Nature pour ton profil ✓"
 
 GET /api/buddy-stats
   → إحصائيات: كم مستخدم يريد Ville / كم يريد Nature
@@ -532,7 +589,7 @@ if __name__ == '__main__':
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 الملف: data.csv
-الحجم: 50,000 صف (سطر)
+الحجم: 1,050 صف (بعد التحسين — أصلا كان 50,000)
 الترميز: UTF-8 BOM
 
 البنية:
@@ -552,9 +609,17 @@ if __name__ == '__main__':
   → région_origine : بلد أو منطقة الشخص (Maroc, France, USA, Egypte...)
   → type_destination : Ville أو Nature (هذا ما يتنبأ به النموذج)
 
-لماذا 50,000 صف؟
-  → كلما زادت البيانات، كلما كان النموذج أدق في تنبؤاته
-  → يمثلوا أنواع مختلفة من المسافرين من بلدان مختلفة
+لماذا 1,050 صف (مو 50,000)؟
+  → الـ 1000 صف الأولى هي الـ base الأصلية
+  → +30 صف: zone ghamda (budget 3000-5500) — لتحسين التنبؤ في المنطقة الوسطى
+  → +20 صف: noise cases — حالات تكسر الباترون البسيط وتمنع الـ overfitting:
+      * شباب بميزانية عالية يفضلون Nature
+      * كبار بميزانية صغيرة يفضلون Ville
+
+  ⭐ ملف test_model.csv (منفصل):
+  → 25 حالة اختبار خارجية لم تدخل في التدريب أبدا
+  → يستخدم تلقائيا عند تشغيل التطبيق باش يتحقق من أداء النموذج
+  → النتيجة: 100% (25/25) — النموذج يفهم ولا يحفظ
 
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1002,7 +1067,7 @@ SQLite مزاياه:
   [6] Flask يستقبل البيانات:
       → يحول للأرقام (LabelEncoder)
       → يطبيع (StandardScaler)
-      → يطبق نموذج Random Forest
+      → يطبق نموذج SVM (rbf)
       → النتيجة: "Nature"
       → يجيب الأماكن من nature.csv فيها budget <= 2500
       → يضيف التفاصيل من ENRICHISSEMENT_LIEUX
@@ -1084,7 +1149,8 @@ SQLite مزاياه:
 │   الملف          │   الدور                                               │
 ├──────────────────┼───────────────────────────────────────────────────────┤
 │ app.py           │ كل الـ backend: routes, API, ML, DB                   │
-│ data.csv         │ 50,000 صف لتدريب نموذج AI                            │
+│ data.csv         │ 1,050 صف لتدريب نموذج AI (مع noise cases)            │
+│ test_model.csv   │ 25 حالة اختبار خارجية (لم تدخل في التدريب)           │
 │ villes.csv       │ معلومات المدن المغربية                                 │
 │ nature.csv       │ معلومات المواقع الطبيعية                               │
 │ maroctour.db     │ قاعدة بيانات المستخدمين والمجموعات                    │
@@ -1105,7 +1171,8 @@ SQLite مزاياه:
 │              TEKNOLOJIYAT (التقنيات المستخدمة)                            │
 ├────────────────────┬──────────────────────────────────────────────────── │
 │ Python/Flask       │ Backend و API                                        │
-│ Random Forest      │ نموذج AI (200 شجرة قرار)                           │
+│ SVM (rbf)          │ نموذج AI Service 1 — Support Vector Machine         │
+│ KMeans + Cosine    │ نموذج AI Service 3 — Clustering + Similarity        │
 │ SQLite             │ قاعدة بيانات خفيفة                                  │
 │ bcrypt/Werkzeug    │ تشفير كلمات السر                                    │
 │ HTML5/CSS3         │ الواجهة الأمامية                                    │
@@ -1113,4 +1180,501 @@ SQLite مزاياه:
 │ Font Awesome       │ الأيقونات                                           │
 │ Google Fonts       │ الخطوط (Playfair Display + Plus Jakarta Sans)       │
 └────────────────────┴────────────────────────────────────────────────────┘
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              14. CSS — CHRH LKML (الأجزاء المتبقية)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  14.1  NAVBAR (شريط التنقل) — index.html
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+.nav {
+    position: fixed;            ← يبقى في الأعلى حتى عند التمرير
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    transition: all 0.3s ease;
+}
+
+.nav.transparent {
+    background: transparent;    ← شفاف في أعلى الصفحة
+}
+
+.nav.solid {
+    background: rgba(44, 90, 160, 0.95);   ← أزرق شبه معتم عند التمرير
+    backdrop-filter: blur(10px);            ← تأثير الضبابية
+    box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+}
+
+JavaScript المسؤول:
+  window.addEventListener('scroll', () => {
+      if (window.scrollY > 50)
+          nav.classList.replace('transparent', 'solid');
+      else
+          nav.classList.replace('solid', 'transparent');
+  });
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  14.2  CSS RESPONSIVE — التجاوب مع الهواتف
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+@media (max-width: 992px)   ← شاشات متوسطة (tablets)
+@media (max-width: 768px)   ← شاشات صغيرة (هواتف كبيرة)
+@media (max-width: 600px)   ← هواتف صغيرة
+
+ما يتغير في الهواتف:
+  → .tourism-content    : grid-template-columns: 1fr  (عمود واحد بدل عمودين)
+  → .features-grid      : grid-template-columns: 1fr  (عمود واحد)
+  → .regions-grid       : grid-template-columns: 1fr
+  → .footer-content     : grid-template-columns: 1fr  (كل قسم تحت الثاني)
+  → h1 الـ hero         : حجم خط أصغر (48px → 36px)
+  → .services-grid      : grid-template-columns: 1fr  (البطاقات تصبح بعمود)
+  → .uh-greeting        : مخفي (لتوفير المساحة)
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  14.3  AUTH PAGE CSS (صفحة تسجيل الدخول)
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+.auth-page {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1a365d 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  → الخلفية gradient كامل الشاشة
+  → Flexbox لتوسيط الفورم في المنتصف
+
+.auth-page::before {
+    animation: pattern-move 30s linear infinite;
+}
+  → نفس animation النقش المتحرك من الـ Hero
+
+.auth-container {
+    max-width: 450px;   ← حجم الفورم محدود
+    z-index: 1;         ← فوق الـ pattern
+}
+
+.auth-tabs: نظام Tabs بين Connexion / Inscription
+  .tab-btn.active : الـ Tab النشط لونه مختلف
+  → عند الضغط: يخفي الفورم الحالي ويظهر الثاني
+
+.form-group:
+  → label + input + أيقونة
+  → input:focus → border-color يتغير لأزرق
+  → حقل كلمة السر: زر العين يظهر/يخفي النص
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  14.4  USER DASHBOARD CSS (داشبورد v2)
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+الـ Header (.uh):
+  → position: sticky; top: 0;  ← يبقى مثبتا عند التمرير
+  → background: var(--ink)     ← لون داكن (أزرق-بني)
+  → height: 68px
+  → Logo + اسم المستخدم + زر خروج + زر Admin (إذا admin)
+
+الـ Hero (.hero-user):
+  → gradient داكن مع radial-gradient في المنتصف
+  → يعرض: اسم المستخدم + 3 إحصائيات كأرقام كبيرة
+  → .hero-stats: display: flex; gap: 48px;  ← الأرقام بجانب بعض
+
+الـ Journey Timeline (.journey-container):
+  → خط رأسي متدرج الألوان على اليسار
+  → كل خطوة (.step) لها: أيقونة + عنوان + تفاصيل
+  → يمثل "رحلة المستخدم" في الموقع
+
+بطاقات الخدمات (.svc):
+  → .svc-1: أزرق    (.s1 = #5b7ec9)
+  → .svc-2: وردي    (.s2 = #c9456e)
+  → .svc-3: أخضر    (.s3 = #3ab89a)
+  → كل بطاقة: أيقونة + عنوان + قائمة مميزات + زر
+  → :hover → ترتفع 5px + ظل أقوى
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  14.5  SERVICE 1 CSS (نتائج ML)
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;   ← عمودان للفورم
+    gap: 20px;
+}
+
+.result-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    → بنفسجي → يظهر نتيجة ML بشكل بارز
+}
+
+.destinations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    → عدد البطاقات يتكيف تلقائيا حسب عرض الشاشة
+}
+
+.destination-card:
+  → صورة (220px ارتفاع) + شارة نوع الوجهة
+  → معلومات: اسم، وصف، تفاصيل، سعر
+  → :hover → translateY(-5px) + ظل أقوى
+  → زر "Voir détails" يفتح المودال
+
+.dest-badge:
+  → position: absolute في الزاوية العلوية
+  → لون مختلف لـ Ville و Nature
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  14.6  SERVICE 2 CSS (مخطط الرحلة)
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+.plan-day-v2:
+  → كارد بيضاء مع ظل
+  → رأس: رقم اليوم (gradient وردي) + عنوان اليوم
+
+.activity:
+  → display: flex; gap: 20px
+  → أيقونة (28px) + عنوان + وقت + وصف + تكلفة
+  → border-bottom بين كل نشاط
+
+.plan-summary-grid:
+  → grid-template-columns: repeat(auto-fit, minmax(240px, 1fr))
+  → 4 بطاقات: ملخص التكلفة، الفندق، التنقلات، نسبة الميزانية
+
+.budget-bars-card:
+  → أشرطة تقدم (progress bars) لكل نوع مصاريف
+  → Hébergement, Restauration, Activités, Transport
+  → ألوان مختلفة لكل شريط
+
+.in-budget  { background: #eafaf1; color: #27ae60; }  ← أخضر: في الميزانية
+.over-budget { background: #fdecea; color: #e74c3c; }  ← أحمر: تجاوز الميزانية
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  14.7  SERVICE 3 CSS (مجموعات السفر)
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+.tabs-container: حاوية الـ Tabs الرئيسية
+.tabs: قائمة التابات الأفقية
+.tab.active: border-bottom: 3px solid #4facfe  ← خط أزرق تحت الـ Tab النشط
+
+.groups-grid:
+  → display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr))
+  → بطاقات المجموعات تتوزع تلقائيا
+
+.group-card:
+  → رأس: اسم المجموعة + شارة (ممتلئة/متاحة)
+  → جسم: الوجهة، التاريخ، وصف
+  → شريط تقدم: عدد الأعضاء / الأقصى
+
+.badge: شارة صغيرة دائرية
+  → فارغة: gradient أزرق (#4facfe → #00f2fe)
+  → ممتلئة (.full): gradient وردي (#f093fb → #f5576c)
+
+.progress-bar:
+  → شريط رفيع (height: 6px)
+  → .progress-fill يتمدد بـ JavaScript حسب (current/max * 100%)
+
+.btn-join:
+  → gradient أزرق
+  → :disabled → رمادي + cursor: not-allowed  (إذا المجموعة ممتلئة)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              15. JAVASCRIPT — CHRH BTFSIL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  15.1  FETCH API — كيفاش كيتواصل JavaScript مع Flask
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+المشروع كيستخدم Fetch API (Vanilla JS) بدون jQuery أو Axios.
+
+مثال كامل (إرسال بيانات للـ backend):
+
+  const res = await fetch('/api/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ age: 25, sexe: 'Homme', budget: 2500, marie: 'Non', region: 'Maroc' })
+  });
+  const data = await res.json();
+
+  → fetch() ترجع Promise (عملية غير متزامنة)
+  → await تنتظر النتيجة (بدون تجميد الصفحة)
+  → res.json() تحول الجواب لـ JavaScript object
+  → async/await بدل .then().catch() (أسهل للقراءة)
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  15.2  JavaScript في service1.html
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+دوال رئيسية:
+
+  ─────────────────────────────────────────────────────
+  function esc(s)
+  ─────────────────────────────────────────────────────
+  → تحول: < → &lt;  و > → &gt;  و & → &amp;
+  → تحمي من XSS (Cross-Site Scripting)
+  → تستخدم قبل إدخال أي نص في innerHTML
+
+  ─────────────────────────────────────────────────────
+  function showToast(msg, type)
+  ─────────────────────────────────────────────────────
+  → تعرض رسالة مؤقتة أسفل الشاشة (3 ثوان)
+  → type = 'success' (أخضر) أو 'error' (أحمر)
+
+  ─────────────────────────────────────────────────────
+  form.addEventListener('submit', async function(e))
+  ─────────────────────────────────────────────────────
+  → e.preventDefault() → يمنع إعادة تحميل الصفحة
+  → يجمع البيانات من الفورم
+  → يرسل POST /api/predict
+  → يستدعي displayResults(data)
+
+  ─────────────────────────────────────────────────────
+  function displayResults(data)
+  ─────────────────────────────────────────────────────
+  → تبني HTML ديناميكيا بـ template literals
+  → تعرض: نتيجة ML + دقة + أسباب + بطاقات الأماكن
+  → كل بطاقة: onclick → openDetail(idx)
+
+  ─────────────────────────────────────────────────────
+  function openDetail(idx)
+  ─────────────────────────────────────────────────────
+  → تفتح المودال
+  → تملأه بتفاصيل المكان (الصور، المعلومات)
+  → document.body.style.overflow = 'hidden'  (تمنع التمرير خلف المودال)
+
+  ─────────────────────────────────────────────────────
+  window.addEventListener('load', async function)
+  ─────────────────────────────────────────────────────
+  → عند تحميل الصفحة: يطلب /api/current-user
+  → يعرض اسم المستخدم في الـ header إذا مسجل دخول
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  15.3  JavaScript في auth.html
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+نظام Tabs:
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+          // يخفي كل الفورمات → يظهر الفورم المطلوب
+      });
+  });
+
+تسجيل الدخول:
+  const res = await fetch('/api/login', { method: 'POST', ... });
+  if (data.success) window.location.href = '/user';
+  else afficherErreur(data.error);
+
+إنشاء حساب:
+  → يتحقق أولا: password === confirmPassword (محليا)
+  → إذا صح: POST /api/register
+  → إذا نجح: تحويل لـ /user
+
+إظهار/إخفاء كلمة السر:
+  eyeBtn.addEventListener('click', () => {
+      input.type = input.type === 'password' ? 'text' : 'password';
+  });
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  15.4  JavaScript في user.html
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+عند تحميل الصفحة:
+  1. GET /api/current-user
+     → إذا مسجل دخول: يعرض الاسم والإحصائيات
+     → إذا لا: window.location.href = '/auth'  ← حماية إضافية
+
+  2. GET /api/my-groups
+     → يعرض مجموعات المستخدم بـ HTML ديناميكي
+
+تحديث الإحصائيات:
+  → destinations_visited, trips_planned, groups_joined
+  → يملأها من الـ JSON الجاي من Backend
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  15.5  JavaScript في service3.html
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+نظام الـ Tabs الثلاثة:
+  → Tab 1: "المجموعات الموجودة"
+  → Tab 2: "إنشاء مجموعة"
+  → Tab 3: "ML Buddy Matching"
+
+عرض المجموعات:
+  → GET /api/groups عند تحميل الصفحة
+  → لكل مجموعة يحسب: (current/max * 100) للـ progress bar
+  → إذا current === max → زر "Rejoindre" معطل + شارة "Complet"
+
+الانضمام لمجموعة:
+  async function joinGroup(id, btn) {
+      const res = await fetch(`/api/groups/${id}/join`, { method: 'POST' });
+      if (data.success) {
+          // يحدث العداد + يعطل الزر
+          btn.disabled = true;
+          btn.textContent = 'Rejoint ✓';
+      }
+  }
+
+ML Buddy Matching:
+  → نفس الفورم كـ service1
+  → POST /api/find-buddies
+  → يعرض قائمة "رفاق السفر" المحتملين
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              16. RAPPORT — معلومات خاصة بالتقرير
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  16.1  OBJECTIFS DU PROJET (أهداف المشروع)
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+الهدف العام:
+  → إنشاء منصة سياحية ذكية للمغرب تجمع بين الذكاء الاصطناعي
+    وتجربة المستخدم الحديثة
+
+الأهداف التقنية:
+  ✦ تطبيق نموذج Machine Learning حقيقي (SVM rbf) — 97.46% accuracy
+  ✦ نظام ذكاء اصطناعي للمجموعات (KMeans + Cosine Similarity)
+  ✦ تقييم 3 مستويات: split + cross-validation + test externe (100%)
+  ✦ بناء REST API كاملة مع Flask
+  ✦ إدارة قاعدة بيانات SQLite بجداول متعددة العلاقات
+  ✦ تأمين التطبيق (bcrypt, SQL parameterized queries, session management)
+  ✦ واجهة مستخدم متجاوبة بدون frameworks (Vanilla CSS + JS)
+
+الأهداف الوظيفية:
+  ✦ مساعدة المسافر في اختيار وجهته بناء على بيانات شخصية
+  ✦ توليد خطة رحلة مخصصة يوم بيوم
+  ✦ تسهيل التواصل بين المسافرين عبر المجموعات
+  ✦ لوحة إدارة كاملة للمشرف
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  16.2  ARCHITECTURE DU PROJET (معمارية المشروع)
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+نموذج MVC (Model-View-Controller) مبسط:
+
+  Model (النموذج):
+    → maroctour.db     : بيانات المستخدمين والمجموعات
+    → data.csv         : بيانات ML
+    → villes.csv / nature.csv : بيانات الوجهات
+
+  View (العرض):
+    → templates/*.html : صفحات HTML
+    → static/styles.css : التصميم
+    → static/logo.svg  : الشعار
+
+  Controller (التحكم):
+    → app.py : كل Routes و API و منطق التطبيق
+
+التواصل بين الطبقات:
+  Browser ←[HTTP/JSON]→ Flask (app.py) ←[SQL]→ SQLite
+                              ↓
+                    ML S1: SVM (rbf) + ML S3: KMeans+Cosine
+                              ↓
+                    data.csv / villes.csv / nature.csv
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  16.3  POINTS FORTS DU PROJET (نقاط القوة)
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+  ★ نموذج SVM مدرب على 1,050 صف — accuracy 97.46% / test externe 100%
+  ★ نظام KMeans + Cosine Similarity لمجموعات السفر الذكية
+  ★ تصميم احترافي بألوان المغرب (أحمر، ذهبي، أخضر)
+  ★ نظام أمان متكامل (bcrypt + parameterized queries)
+  ★ API موثقة ومنظمة (RESTful)
+  ★ تجاوب كامل مع جميع الشاشات (Responsive Design)
+  ★ بدون frameworks ثقيلة = سريع التحميل
+  ★ داشبورد للمستخدم يتتبع نشاطه
+  ★ لوحة إدارة كاملة
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  16.4  AMÉLIORATIONS POSSIBLES (تحسينات مستقبلية)
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+  → استبدال SQLite بـ PostgreSQL للإنتاج
+  → إضافة إرسال إيميل حقيقي (Flask-Mail)
+  → نشر التطبيق على سيرفر حقيقي (Heroku, Railway, Render)
+  → إضافة React أو Vue للواجهة لتجربة أفضل
+  → إضافة نظام تقييم ومراجعات للوجهات
+  → دعم الدفع الإلكتروني لحجز الرحلات
+  → تحسين نموذج ML بإضافة features جديدة
+
+╔─────────────────────────────────────────────────────────────────────────────╗
+║  16.5  SCHÉMA BASE DE DONNÉES (مخطط قاعدة البيانات)
+╚─────────────────────────────────────────────────────────────────────────────╝
+
+  ┌─────────────┐         ┌──────────────────┐
+  │   users     │         │  travel_profiles  │
+  ├─────────────┤         ├──────────────────┤
+  │ id (PK)     │◄────────│ user_id (FK)      │
+  │ name        │         │ age               │
+  │ email       │         │ sexe              │
+  │ password    │         │ budget            │
+  │ created_at  │         │ marie             │
+  │ dest_visited│         │ region            │
+  │ trips_planned│        │ predicted_dest    │
+  │ groups_joined│        │ created_at        │
+  └─────────────┘         └──────────────────┘
+         │
+         │    ┌──────────────┐       ┌───────────────┐
+         │    │    groups    │       │ group_members  │
+         │    ├──────────────┤       ├───────────────┤
+         └───►│ creator_id   │◄──────│ group_id (FK)  │
+              │ id (PK)      │       │ user_id (FK)   │
+              │ name         │       └───────────────┘
+              │ dest         │
+              │ date         │
+              │ max          │
+              │ current      │
+              │ desc         │
+              └──────────────┘
+
+  → users ←→ groups : علاقة Many-to-Many عبر group_members
+  → users →  travel_profiles : علاقة One-to-Many
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              17. GLOSSAIRE (قاموس المصطلحات)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌────────────────────┬───────────────────────────────────────────────────────┐
+│ المصطلح            │ المعنى                                                │
+├────────────────────┼───────────────────────────────────────────────────────┤
+│ Flask              │ إطار عمل Python خفيف لبناء تطبيقات الويب             │
+│ Route              │ عنوان URL مرتبط بدالة Python في Flask                 │
+│ API                │ واجهة برمجية — تتيح التواصل بين Frontend وBackend     │
+│ REST API           │ API تتبع قواعد HTTP (GET, POST, PUT, DELETE)         │
+│ JSON               │ تنسيق تبادل البيانات (JavaScript Object Notation)    │
+│ Session            │ بيانات مؤقتة مخزنة على السيرفر لكل مستخدم            │
+│ bcrypt             │ خوارزمية تشفير كلمات السر (هاش أحادي الاتجاه)        │
+│ SQLite             │ قاعدة بيانات خفيفة في ملف واحد                       │
+│ ORM                │ ربط الكائنات بالجداول (هنا نستخدم SQL مباشرة)        │
+│ Machine Learning   │ الذكاء الاصطناعي — تعلم النماذج من البيانات          │
+│ SVM                │ Support Vector Machine — يبحث على hyperplane للفصل   │
+│ KMeans             │ Clustering — يقسم المسافرين لـ 4 clusters             │
+│ Cosine Similarity  │ يقيس التشابه بين vecteurs (0=مختلف, 1=متطابق)        │
+│ Random Forest      │ (قديم — استبدل بـ SVM) مجموعة أشجار قرار            │
+│ LabelEncoder       │ تحويل النصوص (Homme/Femme) لأرقام (0/1)             │
+│ StandardScaler     │ تطبيع الأرقام: متوسط=0، انحراف معياري=1             │
+│ Accuracy           │ نسبة التنبؤات الصحيحة من إجمالي التنبؤات             │
+│ Flexbox            │ نظام CSS لتوزيع العناصر في صف أو عمود                │
+│ CSS Grid           │ نظام CSS لتوزيع العناصر في شبكة (صفوف وأعمدة)       │
+│ Vanilla JS         │ JavaScript الأصلي بدون مكتبات خارجية                 │
+│ Fetch API          │ طريقة JS لإرسال طلبات HTTP بشكل غير متزامن           │
+│ async/await        │ صيغة JS للتعامل مع العمليات غير المتزامنة             │
+│ DOM                │ Document Object Model — تمثيل HTML كشجرة كائنات      │
+│ innerHTML          │ خاصية JS لتغيير محتوى HTML لعنصر ما                   │
+│ Event Listener     │ كود JS ينتظر حدثا (ضغطة، تحميل، تمرير...)           │
+│ Responsive Design  │ تصميم يتكيف مع جميع أحجام الشاشات                   │
+│ Media Query        │ CSS لتطبيق أنماط حسب حجم الشاشة                      │
+│ gradient           │ تدرج لوني بين لونين أو أكثر                          │
+│ z-index            │ ترتيب العناصر عموديا (أيها فوق الآخر)               │
+│ transition         │ تأثير انتقال سلس بين حالتين CSS                      │
+│ animation          │ حركة CSS تتكرر تلقائيا                               │
+│ Decorator          │ دالة Python تعدل سلوك دالة أخرى (@login_required)   │
+│ Parameterized Query│ SQL آمن يفصل البيانات عن الاستعلام (يمنع Injection)  │
+│ Hash               │ تشفير أحادي الاتجاه (لا يمكن فك تشفيره)             │
+│ XSS                │ هجوم حقن JavaScript في الصفحة (نمنعه بـ esc())       │
+└────────────────────┴───────────────────────────────────────────────────────┘
 

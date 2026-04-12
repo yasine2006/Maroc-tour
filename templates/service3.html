@@ -372,7 +372,12 @@
                     <div id="match-results" style="display:none; margin-top:28px;">
                         <div class="match-result-header">
                             <h3>🎯 Groupes Compatibles</h3>
-                            <span class="match-count" id="match-count">0 groupe</span>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span id="ai-engine-label" style="display:none;align-items:center;gap:5px;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:3px 11px;border-radius:20px;font-size:11px;font-weight:700;">
+                                    🤖 KMeans + Cosine IA
+                                </span>
+                                <span class="match-count" id="match-count">0 groupe</span>
+                            </div>
                         </div>
                         <div class="groups-grid" id="match-groups-list"></div>
                     </div>
@@ -859,6 +864,9 @@
 
         const avail = groups.filter(g => g.current < g.max);
         countEl.textContent = avail.length + ' groupe' + (avail.length > 1 ? 's' : '');
+        // Badge IA dans le header
+        const aiLabel = document.getElementById('ai-engine-label');
+        if (aiLabel) aiLabel.style.display = 'inline-flex';
 
         if (!avail.length) {
             list.innerHTML = '<div class="empty-state"><div class="es-icon">🔭</div><p>Aucun groupe disponible pour ce profil pour l\'instant.</p></div>';
@@ -900,7 +908,10 @@
         const budget   = g.budget_par_personne ? `<span class="card-meta-item"><i class="fas fa-coins"></i> ~${parseInt(g.budget_par_personne).toLocaleString('fr-FR')} MAD/pers</span>` : '';
         const ageRange = `${g.age_min||18}–${g.age_max||99} ans`;
         const lang     = g.langue || 'Arabe/Français';
-        const reasons  = (g.match_reasons||[]).map(r => `<span class="match-reason">✓ ${esc(r)}</span>`).join('');
+        const reasons  = (g.match_reasons||[]).map(r => `<span class="match-reason">${esc(r)}</span>`).join('');
+        const aiSim    = g.ai_similarity !== undefined
+            ? `<span class="match-reason" style="background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe;">🤖 Similarité IA : ${g.ai_similarity}%</span>`
+            : '';
         const tagsHtml = interets.slice(0,5).map(t => `<span class="card-tag">${esc(t)}</span>`).join('');
 
         return `<div class="group-card-rich">
@@ -919,7 +930,7 @@
                     <i class="fas fa-bookmark"></i>
                 </button>
             </div>
-            ${showScore && reasons ? `<div class="match-reasons">${reasons}</div>` : ''}
+            ${showScore && (reasons || aiSim) ? `<div class="match-reasons">${aiSim}${reasons}</div>` : ''}
             <div class="card-rich-meta">
                 <span class="card-meta-item"><i class="fas fa-map-marker-alt"></i> ${esc(g.dest)}</span>
                 <span class="card-meta-item"><i class="fas fa-calendar"></i> ${esc(g.date)}</span>
