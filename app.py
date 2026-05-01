@@ -1,15 +1,3 @@
-"""
-MarocTour - Application Flask Complète
-=======================================
-Backend complet avec:
-- Servir toutes les pages HTML
-- API Machine Learning (prédiction destination)
-- API Authentification (inscription, connexion, déconnexion)
-- API Admin (gestion utilisateurs, destinations, contenu)
-- API Planificateur de voyage
-- API Groupes de voyage
-"""
-
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
