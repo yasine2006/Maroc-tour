@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
     /* ============================================================
        SERVICE 1 — "Oracle of Marrakech"
@@ -111,6 +113,145 @@
     .svc-hero p {
         font-size: 1rem; color: rgba(255,255,255,.78); line-height: 1.65; max-width: 480px; margin: 0 auto;
     }
+
+    /* ══ LIVE DATA SECTIONS ══ */
+    .dp-live-badge {
+        display:inline-flex;align-items:center;gap:6px;
+        background:rgba(39,174,96,.12);border:1px solid rgba(39,174,96,.3);
+        border-radius:20px;padding:3px 10px;font-size:11px;
+        color:#27ae60;font-weight:600;margin-bottom:14px;
+    }
+    .dp-live-badge::before {
+        content:'';width:7px;height:7px;background:#27ae60;
+        border-radius:50%;animation:pulse-g 1.5s infinite;
+    }
+    @keyframes pulse-g{0%,100%{opacity:1}50%{opacity:.4}}
+    .dp-weather-card {
+        display:flex;align-items:center;gap:16px;
+        background:linear-gradient(135deg,#0f1e2e,#1a2a3a);
+        border:1px solid rgba(100,160,220,.2);border-radius:14px;
+        padding:16px 20px;margin-bottom:10px;
+    }
+    .dp-weather-temp{font-size:44px;font-weight:300;color:#7ec8f0;line-height:1;}
+    .dp-weather-info{flex:1;}
+    .dp-weather-desc{font-size:14px;color:#e8e4da;font-weight:500;}
+    .dp-weather-sub{font-size:11px;color:#7a8a9a;margin-top:4px;}
+    .dp-weather-conseil{background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.2);
+        border-radius:10px;padding:10px 14px;font-size:12px;color:#a0d8b0;line-height:1.6;margin-bottom:14px;}
+    .dp-route-row{display:flex;gap:10px;margin-bottom:14px;}
+    .dp-route-stat{flex:1;background:#1a1a2e;border:1px solid rgba(212,147,58,.2);
+        border-radius:12px;padding:14px 12px;text-align:center;}
+    .dp-route-val{font-size:20px;font-weight:600;color:#D4933A;}
+    .dp-route-lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.8px;margin-top:4px;}
+    #dp-map{width:100%;height:280px;border-radius:12px;overflow:hidden;
+        border:1px solid rgba(255,255,255,.08);margin-bottom:14px;}
+    .leaflet-popup-content-wrapper{
+        background:#1a1a2e!important;color:#e8e4da!important;
+        border:1px solid rgba(212,147,58,.3)!important;border-radius:10px!important;}
+    .leaflet-popup-tip{background:#1a1a2e!important;}
+    .dp-act-grid{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+    .dp-act-item{display:flex;align-items:center;gap:10px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+        border-radius:9px;padding:9px 12px;font-size:12px;cursor:pointer;transition:border-color .15s;}
+    .dp-act-item:hover{border-color:rgba(212,147,58,.3);}
+    .dp-act-name{flex:1;color:#e8e4da;font-weight:500;}
+    .dp-act-cat{font-size:10px;color:#888;}
+    .dp-act-hours{font-size:10px;color:#888;text-align:right;}
+    .dp-spin-row{display:flex;align-items:center;gap:8px;color:#D4933A;font-size:12px;padding:8px 0;}
+    .dp-spinner{width:14px;height:14px;border:2px solid rgba(212,147,58,.2);
+        border-top-color:#D4933A;border-radius:50%;animation:spin .8s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .dp-live-err{font-size:12px;color:#e74c3c;padding:6px 0;}
+    .dp-depart-row{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+    .dp-depart-row label{font-size:11px;color:#888;white-space:nowrap;}
+    .dp-depart-input{
+        background:#1a1a2e;border:1px solid rgba(212,147,58,.25);
+        border-radius:8px 0 0 8px;padding:8px 12px;color:#e8e4da;font-size:13px;
+        outline:none;flex:1;min-width:0;font-family:inherit;
+    }
+    .dp-depart-input:focus{border-color:rgba(212,147,58,.6);}
+    .dp-depart-input::placeholder{color:#555;}
+    .dp-depart-btn{
+        background:rgba(212,147,58,.2);border:1px solid rgba(212,147,58,.3);border-left:none;
+        border-radius:0 8px 8px 0;padding:8px 12px;color:#D4933A;font-size:13px;
+        cursor:pointer;transition:background .2s;white-space:nowrap;
+    }
+    .dp-depart-btn:hover{background:rgba(212,147,58,.35);}
+    .dp-depart-suggestions{
+        position:absolute;top:100%;left:0;right:0;z-index:999;
+        background:#1a1a2e;border:1px solid rgba(212,147,58,.25);border-top:none;
+        border-radius:0 0 8px 8px;max-height:180px;overflow-y:auto;
+        scrollbar-width:thin;scrollbar-color:rgba(212,147,58,.3) transparent;
+    }
+    .dp-depart-suggestion{
+        padding:9px 12px;font-size:12px;color:#e8e4da;cursor:pointer;
+        border-bottom:1px solid rgba(255,255,255,.04);
+        display:flex;align-items:center;gap:8px;
+    }
+    .dp-depart-suggestion:hover{background:rgba(212,147,58,.1);}
+    .dp-depart-suggestion:last-child{border-bottom:none;}
+    .dp-depart-wrap{position:relative;flex:1;display:flex;}
+    .dp-live-ttl{font-size:13px;font-weight:600;margin:14px 0 10px;color:#e8e4da;}
+    .dp-live-ttl i{color:#D4933A;margin-right:6px;}
+
+    /* ══ RESTAURANTS & HOTELS LIVE ══ */
+    .dp-section-hdr{
+        font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;
+        color:#888;margin:18px 0 10px;display:flex;align-items:center;gap:8px;
+    }
+    .dp-section-hdr i{color:#D4933A;}
+    .dp-resto-card{
+        background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+        border-radius:10px;padding:11px 14px;margin-bottom:7px;
+        display:flex;align-items:flex-start;gap:10px;cursor:pointer;
+        transition:border-color .15s,background .15s;
+    }
+    .dp-resto-card:hover{border-color:rgba(212,147,58,.3);background:rgba(212,147,58,.04);}
+    .dp-resto-ico{font-size:20px;flex-shrink:0;margin-top:2px;}
+    .dp-resto-body{flex:1;min-width:0;}
+    .dp-resto-nom{font-size:13px;font-weight:600;color:#e8e4da;margin-bottom:2px;}
+    .dp-resto-sub{font-size:11px;color:#888;line-height:1.4;}
+    .dp-resto-prix{
+        font-size:10px;background:rgba(212,147,58,.12);color:#D4933A;
+        border:1px solid rgba(212,147,58,.2);border-radius:20px;
+        padding:2px 8px;white-space:nowrap;align-self:flex-start;flex-shrink:0;
+    }
+    .dp-hotel-card{
+        background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+        border-radius:10px;padding:12px 14px;margin-bottom:7px;
+        display:flex;align-items:flex-start;gap:10px;cursor:pointer;
+        transition:border-color .15s;
+    }
+    .dp-hotel-card:hover{border-color:rgba(100,180,255,.3);}
+    .dp-hotel-ico{font-size:20px;flex-shrink:0;}
+    .dp-hotel-body{flex:1;min-width:0;}
+    .dp-hotel-nom{font-size:13px;font-weight:600;color:#e8e4da;margin-bottom:3px;}
+    .dp-hotel-stars{color:#D4933A;font-size:12px;letter-spacing:1px;}
+    .dp-hotel-type{font-size:11px;color:#888;margin-top:2px;}
+    .dp-hotel-prix{
+        font-size:10px;background:rgba(100,180,255,.1);color:#64b4ff;
+        border:1px solid rgba(100,180,255,.2);border-radius:20px;
+        padding:2px 8px;white-space:nowrap;align-self:flex-start;flex-shrink:0;
+    }
+    .dp-dest-image{
+        width:100%;height:180px;object-fit:cover;
+        border-radius:12px;margin-bottom:14px;
+        border:1px solid rgba(255,255,255,.06);
+        background:#1a1a2e;
+    }
+    .dp-dest-desc{
+        font-size:12px;color:#9a9688;line-height:1.6;
+        margin-bottom:14px;font-style:italic;
+    }
+    .dp-budget-row{
+        display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;
+    }
+    .dp-budget-chip{
+        background:rgba(212,147,58,.08);border:1px solid rgba(212,147,58,.2);
+        border-radius:8px;padding:7px 12px;font-size:11px;color:#D4933A;
+        display:flex;align-items:center;gap:6px;flex:1;min-width:120px;
+    }
+    .dp-budget-chip b{color:#e8e4da;font-size:13px;display:block;margin-top:2px;}
     </style>
 </head>
 <body class="service-page service1-page">
@@ -144,7 +285,7 @@
                 </svg>
                 <div class="svc-hero-ornament-line r"></div>
             </div>
-            <div class="svc-hero-badge"><i class="fas fa-brain"></i> Intelligence Artificielle · Decision Tree</div>
+            <div class="svc-hero-badge"><i class="fas fa-brain"></i> Intelligence Artificielle · Modèle SVM</div>
             <h1>Destination Intelligente</h1>
             <p>Notre IA analyse votre profil et prédit votre destination idéale au Maroc parmi des centaines de voyageurs</p>
         </div>
@@ -364,7 +505,7 @@
             <!-- LOADING -->
             <div class="hidden" id="loading-section" style="text-align:center;padding:40px;">
                 <i class="fas fa-spinner fa-spin" style="font-size:48px;color:#667eea;"></i>
-                <p style="margin-top:15px;color:#666;font-size:15px;">Analyse Decision Tree en cours…</p>
+                <p style="margin-top:15px;color:#666;font-size:15px;">Analyse IA en cours…</p>
             </div>
 
             <!-- RESULTS -->
@@ -375,7 +516,7 @@
                     <div class="mlb-left">
                         <div class="mlb-emoji" id="mlb-emoji">🏙️</div>
                         <div>
-                            <div class="mlb-label">🤖 Decision Tree prédit pour vous</div>
+                            <div class="mlb-label">🤖 SVM prédit pour vous</div>
                             <div class="mlb-type" id="mlb-type">—</div>
                             <div class="mlb-acc"><i class="fas fa-chart-bar"></i> Précision ML : <strong id="mlb-acc">—</strong>%</div>
                         </div>
@@ -412,6 +553,33 @@
 
     <script>
     /* ── UTILS ────────────────────────────────────────────── */
+
+    /* ══ IMAGES WIKIMEDIA PAR DESTINATION (stables, HD) ══ */
+    const DEST_IMAGES = {
+        "Rabat":       "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Rabat_Hassan_Tower.jpg/800px-Rabat_Hassan_Tower.jpg",
+        "Marrakech":   "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Jamaa_el_Fna_at_dusk.jpg/800px-Jamaa_el_Fna_at_dusk.jpg",
+        "Fès":         "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Fes_el_Bali_2.jpg/800px-Fes_el_Bali_2.jpg",
+        "Chefchaouen": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Chefchaouen%2C_Morocco.jpg/800px-Chefchaouen%2C_Morocco.jpg",
+        "Agadir":      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Agadir-panoramic.jpg/800px-Agadir-panoramic.jpg",
+        "Essaouira":   "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Essaouira_1.jpg/800px-Essaouira_1.jpg",
+        "Ouarzazate":  "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Kasbah_Ait_Benhaddou.jpg/800px-Kasbah_Ait_Benhaddou.jpg",
+        "Tanger":      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Tangier-bay.jpg/800px-Tangier-bay.jpg",
+        "Meknès":      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Bab_Mansour_gate_-_Meknes_-_Morocco.jpg/800px-Bab_Mansour_gate_-_Meknes_-_Morocco.jpg",
+        "Oukaïmeden":          "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Oukaimeden.jpg/800px-Oukaimeden.jpg",
+        "Vallée d'Imlil":      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Imlil_Morocco.jpg/800px-Imlil_Morocco.jpg",
+        "Parc national de Toubkal": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Jebel_Toubkal.jpg/800px-Jebel_Toubkal.jpg",
+        "Gorges du Todra":     "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Todra_Gorge.jpg/800px-Todra_Gorge.jpg",
+        "Gorges du Dadès":     "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Dades_Valley.jpg/800px-Dades_Valley.jpg",
+        "Merzouga":            "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Erg_Chebbi_Sahara_Morocco.jpg/800px-Erg_Chebbi_Sahara_Morocco.jpg",
+        "Cascades d'Ouzoud":   "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Ouzoud_Waterfalls.jpg/800px-Ouzoud_Waterfalls.jpg",
+    };
+    const FALLBACK_VILLE   = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Morocco_map.jpg/800px-Morocco_map.jpg";
+    const FALLBACK_NATURE  = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Atlas_mountains_morocco.jpg/800px-Atlas_mountains_morocco.jpg";
+
+    function getDestImage(nom, type) {
+        return DEST_IMAGES[nom] || (type === 'Ville' ? FALLBACK_VILLE : FALLBACK_NATURE);
+    }
+
     function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     let _tt;
     function showToast(msg,type='success'){
@@ -483,8 +651,7 @@
             </div>`;
         } else {
             data.lieux.forEach((lieu, idx) => {
-                const img = lieu.images && lieu.images.length ? lieu.images[0]
-                    : 'https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=400';
+                const img = getDestImage(lieu.nom, data.type_destination);
                 const tags = (lieu.tags || []).slice(0,3).map(t=>
                     `<span class="s1-tag">${esc(t)}</span>`).join('');
                 const emoji = lieu.emoji || (isVille ? '🏙️' : '🌿');
@@ -540,8 +707,7 @@
     function openDetail(idx) {
         const lieu    = allData.lieux[idx];
         const isVille = allData.type_destination === 'Ville';
-        const img     = lieu.images && lieu.images.length ? lieu.images[0]
-            : 'https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=800';
+        const img = getDestImage(lieu.nom, allData.type_destination);
         const emoji   = lieu.emoji || (isVille ? '🏙️' : '🌿');
         const tags    = (lieu.tags||[]).map(t=>`<span class="s1-tag">${esc(t)}</span>`).join('');
 
@@ -584,7 +750,7 @@
                     <div class="dp-ml-icon">🤖</div>
                     <div>
                         <strong>Pourquoi l'IA t'a recommandé cette destination</strong>
-                        <p>${esc(lieu.classification_raison || allData.type_destination + ' prédit par Decision Tree')}</p>
+                        <p>${esc(lieu.classification_raison || allData.type_destination + ' prédit par SVM rbf')}</p>
                         <div class="dp-ml-reasons">
                             ${(allData.raisons_classification||[]).map(r=>`<span>${esc(r)}</span>`).join('')}
                         </div>
@@ -646,9 +812,16 @@
             </div><!-- /dp-body -->
         `;
 
+        // Injecter sections Live
+        document.getElementById('detailContent').innerHTML += liveDataHtml(lieu.nom);
+
         document.getElementById('detailOverlay').classList.add('active');
         document.getElementById('detailPanel').classList.add('active');
         document.body.style.overflow = 'hidden';
+
+        setTimeout(() => {
+            chargerToutLive(lieu.nom);
+        }, 180);
     }
 
     function closeDetail(){
@@ -786,6 +959,408 @@
             window.location.href = '/';
         }
     }
+
+    /* ══ LIVE DATA JS ══ */
+    const DEST_GPS_JS = {
+        "Marrakech":[31.6295,-7.9811],"Fès":[34.0181,-5.0078],
+        "Chefchaouen":[35.1688,-5.2636],"Rabat":[34.0209,-6.8416],
+        "Agadir":[30.4278,-9.5981],"Essaouira":[31.5085,-9.7595],
+        "Ouarzazate":[30.9335,-6.9370],"Tanger":[35.7595,-5.8340],
+        "Oukaïmeden":[31.2032,-7.8571],"Vallée d'Imlil":[31.1372,-7.9197],
+        "Gorges du Todra":[31.5897,-5.5879],"Merzouga":[31.0800,-3.9730],
+        "Gorges du Dadès":[31.3667,-6.0000],"Cascades d'Ouzoud":[32.0167,-6.7167]
+    };
+    let _leafletMap=null, _actMarkersDetail=[];
+
+    function liveDataHtml(nom){
+        const e = nom.replace(/'/g,"\\'");
+        return `<div class="dp-section" style="border-top:1px solid rgba(255,255,255,.08);padding-top:20px;margin-top:10px;">
+            <span class="dp-live-badge">● Données en temps réel — OpenStreetMap · Wikipedia</span>
+
+            <img id="dp-dest-image" class="dp-dest-image" src="" alt="${nom}" style="display:none"/>
+            <p id="dp-dest-desc" class="dp-dest-desc"></p>
+
+            <div class="dp-section-hdr"><i class="fas fa-wallet"></i>Budget estimé</div>
+            <div class="dp-budget-row" id="dp-budget-row">
+                <div class="dp-spin-row"><div class="dp-spinner"></div>Chargement…</div>
+            </div>
+
+            <div class="dp-section-hdr"><i class="fas fa-cloud-sun"></i>Météo actuelle</div>
+            <div id="dp-weather-zone"><div class="dp-spin-row"><div class="dp-spinner"></div>Récupération météo…</div></div>
+
+            <div class="dp-section-hdr" style="gap:6px"><i class="fas fa-route"></i>Itinéraire depuis
+                <div class="dp-depart-wrap" id="dp-depart-wrap" style="flex:1;max-width:200px;display:flex">
+                    <input type="text" id="dp-depart-input" class="dp-depart-input"
+                        placeholder="Ma ville…" autocomplete="off"
+                        oninput="onDepartInput('${e}')" onkeydown="onDepartKey(event,'${e}')"/>
+                    <button class="dp-depart-btn" onclick="lancerItineraireManuel('${e}')">→</button>
+                    <div class="dp-depart-suggestions" id="dp-depart-suggestions" style="display:none"></div>
+                </div>
+            </div>
+            <div id="dp-route-zone"><div class="dp-spin-row"><div class="dp-spinner"></div>Calcul OSRM…</div></div>
+
+            <div class="dp-section-hdr"><i class="fas fa-map"></i>Carte interactive</div>
+            <div id="dp-map"></div>
+
+            <div class="dp-section-hdr"><i class="fas fa-utensils"></i>Top Restaurants</div>
+            <div id="dp-restaurants-zone"><div class="dp-spin-row"><div class="dp-spinner"></div>Chargement…</div></div>
+
+            <div class="dp-section-hdr"><i class="fas fa-hotel"></i>Hôtels & Riads</div>
+            <div id="dp-hotels-zone"><div class="dp-spin-row"><div class="dp-spinner"></div>Chargement…</div></div>
+
+            <div class="dp-section-hdr"><i class="fas fa-hiking"></i>Activités & Attractions</div>
+            <div id="dp-act-zone"><div class="dp-spin-row"><div class="dp-spinner"></div>Chargement OpenStreetMap…</div></div>
+        </div>`;
+    }
+
+    async function chargerMeteoReel(nom){
+        const z=document.getElementById('dp-weather-zone'); if(!z) return;
+        try{
+            const d=await fetch('/api/meteo?nom='+encodeURIComponent(nom)).then(r=>r.json());
+            if(!d.success){z.innerHTML='<div class="dp-live-err">Météo indisponible</div>';return;}
+            z.innerHTML=`<div class="dp-weather-card">
+                <img src="${d.icon_url}" width="52" height="52" style="border-radius:10px;flex-shrink:0"/>
+                <div class="dp-weather-info">
+                    <div class="dp-weather-temp">${d.temperature}°</div>
+                    <div class="dp-weather-desc">${d.description}</div>
+                    <div class="dp-weather-sub">Ressenti ${d.ressenti}° · Humidité ${d.humidite}% · Vent ${d.vent_kmh} km/h</div>
+                </div></div>
+                <div class="dp-weather-conseil">${d.conseil}</div>`;
+        }catch(e){if(z)z.innerHTML='<div class="dp-live-err">Météo indisponible</div>';}
+    }
+
+    async function chargerItineraireReel(dest){
+        const z=document.getElementById('dp-route-zone'); if(!z) return;
+        const inp=document.getElementById('dp-depart-input');
+        const dep=(inp&&inp.value.trim())||'Casablanca';
+        if(!dep){return;}
+        z.innerHTML='<div class="dp-spin-row"><div class="dp-spinner"></div>Calcul itinéraire…</div>';
+        try{
+            const d=await fetch('/api/itineraire?depart='+encodeURIComponent(dep)+'&destination='+encodeURIComponent(dest)).then(r=>r.json());
+            if(!d.success){z.innerHTML='<div class="dp-live-err">Itinéraire indisponible</div>';return;}
+            z.innerHTML=`<div class="dp-route-row">
+                <div class="dp-route-stat"><div class="dp-route-val">${d.distance_km} km</div><div class="dp-route-lbl">Distance</div></div>
+                <div class="dp-route-stat"><div class="dp-route-val">${d.duree}</div><div class="dp-route-lbl">Durée</div></div>
+                <div class="dp-route-stat"><div class="dp-route-val">🚗</div><div class="dp-route-lbl">Route</div></div>
+            </div>`;
+            if(_leafletMap && d.geojson)
+                L.geoJSON(d.geojson,{style:{color:'#D4933A',weight:3,opacity:.7,dashArray:'10 5'}}).addTo(_leafletMap);
+        }catch(e){if(z)z.innerHTML='<div class="dp-live-err">Erreur itinéraire</div>';}
+    }
+
+    async function chargerActivitesReelAvecCoords(nom, coordsHint) {
+        const z = document.getElementById('dp-act-zone');
+        if (!z) return;
+        try {
+            const d = await fetch('/api/activites?nom=' + encodeURIComponent(nom) + '&rayon=6000').then(r=>r.json());
+            if (!d.success || !d.activites.length) {
+                z.innerHTML = '<div style="font-size:12px;color:#888;padding:8px 0">Aucune activité trouvée dans un rayon de 6 km.</div>';
+                return;
+            }
+            let html = '<div class="dp-act-grid">';
+            d.activites.forEach(act => {
+                html += `<div class="dp-act-item" onclick="centrerMapSurActivite(${act.lat},${act.lon})">
+                    <span style="font-size:16px;flex-shrink:0">${act.icon}</span>
+                    <div style="flex:1;min-width:0">
+                        <div class="dp-act-name">${act.nom}</div>
+                        <div class="dp-act-cat">${act.categorie}</div>
+                    </div>
+                    ${act.opening_hours ? '<div class="dp-act-hours">⏰ ' + act.opening_hours.substring(0,14) + '</div>' : ''}
+                </div>`;
+                // Ajouter marqueur sur carte (map peut être encore en chargement → vérifier)
+                if (act.lat && act.lon) {
+                    const tryAddMarker = () => {
+                        if (_leafletMap) {
+                            const m = L.circleMarker([act.lat, act.lon], {
+                                radius:6, fillColor:'#27ae60', color:'#fff', weight:1.5, fillOpacity:.9
+                            }).addTo(_leafletMap)
+                             .bindPopup('<b>' + act.icon + ' ' + act.nom + '</b><br><small>' + act.categorie + '</small>');
+                            _actMarkersDetail.push(m);
+                        } else {
+                            setTimeout(tryAddMarker, 300); // Retry si carte pas encore prête
+                        }
+                    };
+                    tryAddMarker();
+                }
+            });
+            html += '</div>';
+            z.innerHTML = html;
+        } catch(e) {
+            if (z) z.innerHTML = '<div class="dp-live-err">Erreur OpenStreetMap — Réessayez.</div>';
+        }
+    }
+
+    /* Alias pour compatibilité */
+    async function chargerActivitesReel(nom) {
+        return chargerActivitesReelAvecCoords(nom, null);
+    }
+
+    /* Coordonnées résolues (DEST_GPS_JS ou Nominatim via backend) */
+    async function resolveCoords(nom) {
+        // 1. Dictionnaire local — instantané
+        if (DEST_GPS_JS[nom]) return DEST_GPS_JS[nom];
+        // 2. Backend Nominatim — pour toute ville marocaine
+        try {
+            const d = await fetch('/api/coords?nom=' + encodeURIComponent(nom)).then(r=>r.json());
+            if (d.success) return [d.lat, d.lon];
+        } catch(e) {}
+        return null;
+    }
+
+    async function initMapDetail(nom) {
+        const coords = await resolveCoords(nom);
+        if (!coords) {
+            const z = document.getElementById('dp-map');
+            if (z) z.innerHTML = '<div style="color:#e74c3c;padding:16px;font-size:12px">Carte indisponible pour cette destination.</div>';
+            return;
+        }
+        if (_leafletMap) { _leafletMap.remove(); _leafletMap = null; }
+        _actMarkersDetail.forEach(m => { try{m.remove();}catch(e){} });
+        _actMarkersDetail = [];
+        const el = document.getElementById('dp-map');
+        if (!el) return;
+        _leafletMap = L.map('dp-map', {zoomControl:true}).setView(coords, 12);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+            {attribution:'© OpenStreetMap · © CARTO', maxZoom:19}).addTo(_leafletMap);
+        L.marker(coords, {icon: L.divIcon({className:'',
+            html:'<div style="width:34px;height:34px;background:rgba(212,147,58,.9);border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.5)">📍</div>',
+            iconSize:[34,34], iconAnchor:[17,17], popupAnchor:[0,-20]
+        })}).addTo(_leafletMap).bindPopup('<b>' + nom + '</b>').openPopup();
+        return coords;
+    }
+
+    /* Point d'entrée unique — appel /api/destination-full + météo + itinéraire */
+    async function chargerToutLive(nom) {
+        await Promise.all([
+            chargerDestinationFull(nom),
+            chargerMeteoReel(nom),
+            chargerItineraireReel(nom),
+        ]);
+    }
+
+    async function chargerDestinationFull(nom) {
+        try {
+            const d = await fetch('/api/destination-full?nom=' + encodeURIComponent(nom) + '&rayon=10000').then(r=>r.json());
+            if (!d.success) return;
+
+            // Image: DEST_IMAGES en premier (instantané), Wikipedia en fallback enrichissement
+            const imgEl = document.getElementById('dp-dest-image');
+            if (imgEl) {
+                const localImg = getDestImage(nom, '');
+                imgEl.src = localImg;
+                imgEl.style.display = 'block';
+                // Si Wikipedia a une meilleure image, la remplacer discrètement
+                if (d.image_url && d.image_url !== localImg) {
+                    const tmp = new Image();
+                    tmp.onload = () => { imgEl.src = d.image_url; };
+                    tmp.src = d.image_url;
+                }
+                imgEl.onerror = () => {
+                    // Fallback Unsplash si tout échoue
+                    imgEl.src = 'https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=800&q=80';
+                };
+            }
+
+            // Description
+            const descEl = document.getElementById('dp-dest-desc');
+            if (descEl && d.description) descEl.textContent = d.description + '…';
+
+            // Budget chips
+            const budgetEl = document.getElementById('dp-budget-row');
+            if (budgetEl) {
+                budgetEl.innerHTML = `
+                    <div class="dp-budget-chip">🏨 Hébergement<b>${d.budget_nuit}</b></div>
+                    <div class="dp-budget-chip">🍽️ Repas<b>${d.budget_repas}</b></div>
+                `;
+            }
+
+            // Carte
+            if (d.coordonnees) {
+                const coords = [d.coordonnees.lat, d.coordonnees.lon];
+                await initMapDetailWithCoords(nom, coords, d.restaurants, d.hotels, d.activites);
+            }
+
+            // Restaurants
+            afficherRestaurants(d.restaurants);
+
+            // Hôtels
+            afficherHotels(d.hotels);
+
+            // Activités
+            afficherActivitesData(d.activites);
+
+        } catch(e) {
+            console.error('destination-full error:', e);
+        }
+    }
+
+    function afficherRestaurants(liste) {
+        const z = document.getElementById('dp-restaurants-zone');
+        if (!z) return;
+        if (!liste || !liste.length) {
+            z.innerHTML = '<div style="font-size:12px;color:#888;padding:8px 0">Aucun restaurant dans la base de données pour cette destination.</div>';
+            return;
+        }
+        z.innerHTML = liste.map(r => `
+            <div class="dp-resto-card" onclick="centrerMapSurActivite(${r.lat},${r.lon})">
+                <span class="dp-resto-ico">${r.icon}</span>
+                <div class="dp-resto-body">
+                    <div class="dp-resto-nom">${r.nom}</div>
+                    <div class="dp-resto-sub">${r.cuisine}${r.quartier ? ' · 📍 '+r.quartier : ''}${r.hours ? ' · ⏰ '+r.hours.substring(0,20) : ''}</div>
+                </div>
+                <span class="dp-resto-prix">${r.prix_estime}</span>
+            </div>`).join('');
+    }
+
+    function afficherHotels(liste) {
+        const z = document.getElementById('dp-hotels-zone');
+        if (!z) return;
+        if (!liste || !liste.length) {
+            z.innerHTML = '<div style="font-size:12px;color:#888;padding:8px 0">Aucun hôtel dans la base de données pour cette destination.</div>';
+            return;
+        }
+        z.innerHTML = liste.map(h => `
+            <div class="dp-hotel-card" onclick="centrerMapSurActivite(${h.lat},${h.lon})">
+                <span class="dp-hotel-ico">🏨</span>
+                <div class="dp-hotel-body">
+                    <div class="dp-hotel-nom">${h.nom}</div>
+                    <div class="dp-hotel-stars">${'⭐'.repeat(Math.min(h.etoiles,5))}</div>
+                    <div class="dp-hotel-type">${h.type}${h.quartier ? ' · 📍 '+h.quartier : ''}</div>
+                </div>
+                <span class="dp-hotel-prix">${h.prix_nuit} / nuit</span>
+            </div>`).join('');
+    }
+
+    function afficherActivitesData(liste) {
+        const z = document.getElementById('dp-act-zone');
+        if (!z) return;
+        if (!liste || !liste.length) {
+            z.innerHTML = '<div style="font-size:12px;color:#888;padding:6px 0">Aucune activité trouvée.</div>';
+            return;
+        }
+        let html = '<div class="dp-act-grid">';
+        liste.forEach(act => {
+            html += `<div class="dp-act-item" onclick="centrerMapSurActivite(${act.lat},${act.lon})">
+                <span style="font-size:16px;flex-shrink:0">${act.icon}</span>
+                <div style="flex:1;min-width:0">
+                    <div class="dp-act-name">${act.nom}</div>
+                    <div class="dp-act-cat">${act.categorie}</div>
+                </div>
+                ${act.hours ? '<div class="dp-act-hours">⏰ '+act.hours.substring(0,14)+'</div>' : ''}
+            </div>`;
+        });
+        html += '</div>';
+        z.innerHTML = html;
+        // Add markers on map
+        liste.forEach(act => {
+            if (_leafletMap && act.lat && act.lon) {
+                const m = L.circleMarker([act.lat, act.lon], {
+                    radius:5, fillColor:'#27ae60', color:'#fff', weight:1.5, fillOpacity:.9
+                }).addTo(_leafletMap)
+                 .bindPopup('<b>' + act.icon + ' ' + act.nom + '</b><br><small>' + act.categorie + '</small>');
+                _actMarkersDetail.push(m);
+            }
+        });
+    }
+
+    async function initMapDetailWithCoords(nom, coords, restaurants, hotels, activites) {
+        if (_leafletMap) { _leafletMap.remove(); _leafletMap = null; }
+        _actMarkersDetail.forEach(m => { try{m.remove();}catch(e){} });
+        _actMarkersDetail = [];
+        const el = document.getElementById('dp-map');
+        if (!el) return;
+        _leafletMap = L.map('dp-map', {zoomControl:true}).setView(coords, 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+            {attribution:'© OpenStreetMap · © CARTO', maxZoom:19}).addTo(_leafletMap);
+        // Marqueur destination
+        L.marker(coords, {icon: L.divIcon({className:'',
+            html:'<div style="width:34px;height:34px;background:rgba(212,147,58,.9);border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,.5)">📍</div>',
+            iconSize:[34,34], iconAnchor:[17,17], popupAnchor:[0,-20]
+        })}).addTo(_leafletMap).bindPopup('<b>' + nom + '</b>').openPopup();
+        // Marqueurs restaurants
+        (restaurants||[]).forEach(r => {
+            if (r.lat && r.lon) {
+                L.circleMarker([r.lat, r.lon], {radius:6, fillColor:'#e74c3c', color:'#fff', weight:1.5, fillOpacity:.9})
+                 .addTo(_leafletMap).bindPopup('<b>' + r.icon + ' ' + r.nom + '</b><br><small>' + r.cuisine + '</small>');
+            }
+        });
+        // Marqueurs hotels
+        (hotels||[]).forEach(h => {
+            if (h.lat && h.lon) {
+                L.circleMarker([h.lat, h.lon], {radius:7, fillColor:'#3a7aff', color:'#fff', weight:2, fillOpacity:.9})
+                 .addTo(_leafletMap).bindPopup('<b>🏨 ' + h.nom + '</b><br><small>' + h.type + ' · ' + h.prix_nuit + ' / nuit</small>');
+            }
+        });
+    }
+
+    function centrerMapSurActivite(lat,lon){
+        if(_leafletMap&&lat&&lon)_leafletMap.setView([lat,lon],15);
+    }
+
+    /* ══ AUTOCOMPLETE VILLE DÉPART ══ */
+    const VILLES_MR = [
+        "Casablanca","Rabat","Marrakech","Fès","Tanger","Agadir","Meknès","Oujda","Kénitra",
+        "Tétouan","Safi","Mohammedia","Khouribga","El Jadida","Beni Mellal","Khenifra",
+        "Nador","Settat","Berrechid","Khemisset","Inezgane","Larache","Guelmim","Berkane",
+        "Errachidia","Taourirt","Taroudant","Tiznit","Oulad Teima","Ifrane","Ouarzazate",
+        "Essaouira","Chefchaouen","Azrou","Midelt","Tan-Tan","Dakhla","Laâyoune","Smara",
+        "Zagora","Tinghir","Risani","Al Hoceima","Taza","Boulemane","Sefrou"
+    ];
+    let _suggestTimer = null;
+
+    function onDepartInput(dest) {
+        const val = (document.getElementById('dp-depart-input')||{}).value || '';
+        clearTimeout(_suggestTimer);
+        if (val.length < 2) { hideSuggestions(); return; }
+        _suggestTimer = setTimeout(() => showSuggestions(val, dest), 200);
+    }
+
+    function showSuggestions(val, dest) {
+        const box = document.getElementById('dp-depart-suggestions');
+        if (!box) return;
+        const lower = val.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        const matches = VILLES_MR.filter(v =>
+            v.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').startsWith(lower)
+        ).slice(0, 6);
+        if (!matches.length) { hideSuggestions(); return; }
+        box.innerHTML = matches.map(v =>
+            `<div class="dp-depart-suggestion" onclick="choisirVille('${v}','${dest}')">
+                <span>📍</span><span>${v}</span>
+            </div>`
+        ).join('');
+        box.style.display = 'block';
+    }
+
+    function hideSuggestions() {
+        const box = document.getElementById('dp-depart-suggestions');
+        if (box) box.style.display = 'none';
+    }
+
+    function choisirVille(ville, dest) {
+        const inp = document.getElementById('dp-depart-input');
+        if (inp) inp.value = ville;
+        hideSuggestions();
+        chargerItineraireReel(dest);
+    }
+
+    function onDepartKey(e, dest) {
+        if (e.key === 'Enter') {
+            hideSuggestions();
+            chargerItineraireReel(dest);
+        }
+    }
+
+    function lancerItineraireManuel(dest) {
+        hideSuggestions();
+        chargerItineraireReel(dest);
+    }
+
+    // Fermer suggestions si clic dehors
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('dp-depart-wrap');
+        if (wrap && !wrap.contains(e.target)) hideSuggestions();
+    });
+
     </script>
 
 </body>

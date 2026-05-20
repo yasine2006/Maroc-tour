@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
     /* ============================================================
        SERVICE 3 — "Desert Caravan"
@@ -242,6 +244,34 @@
         .pref-grid { grid-template-columns: repeat(3, 1fr); }
         .match-inputs { grid-template-columns: 1fr; }
     }
+    
+    /* ══ SERVICE 3 DESTINATION PREVIEW ══ */
+    .s3-dest-preview {
+        width: 100%; height: 140px; object-fit: cover;
+        border-radius: 10px 10px 0 0; display: block;
+    }
+    .s3-dest-preview-placeholder {
+        width: 100%; height: 80px;
+        background: linear-gradient(135deg, #1a1a2e, #2a2a4e);
+        border-radius: 10px 10px 0 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 32px;
+    }
+    .s3-live-acts {
+        background: rgba(255,255,255,.03); border-radius: 0 0 10px 10px;
+        padding: 10px 12px; border: 1px solid rgba(255,255,255,.06); border-top: none;
+    }
+    .s3-live-acts-title {
+        font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+        color: #888; margin-bottom: 6px;
+    }
+    .s3-act-chip {
+        display: inline-flex; align-items: center; gap: 4px;
+        background: rgba(212,147,58,.1); border: 1px solid rgba(212,147,58,.2);
+        border-radius: 20px; padding: 2px 8px;
+        font-size: 10px; color: #D4933A; margin: 2px;
+    }
+
     </style>
 </head>
 <body class="service-page service3-page">
@@ -1344,6 +1374,42 @@
             window.location.href = '/';
         }
     }
+
+    /* ══ SERVICE 3 DESTINATION ENRICHMENT ══ */
+    const _s3DestCache = {};
+
+    async function getDestInfo(nom) {
+        if (_s3DestCache[nom]) return _s3DestCache[nom];
+        try {
+            const d = await fetch('/api/destination-full?nom=' + encodeURIComponent(nom) + '&rayon=3000').then(r=>r.json());
+            if (d.success) { _s3DestCache[nom] = d; return d; }
+        } catch(e) {}
+        return null;
+    }
+
+    async function enrichGroupCard(cardEl, destination) {
+        const info = await getDestInfo(destination);
+        if (!info) return;
+
+        // Image
+        const imgContainer = cardEl.querySelector('.s3-dest-img-container');
+        if (imgContainer) {
+            if (info.image_url) {
+                imgContainer.innerHTML = `<img class="s3-dest-preview" src="${info.image_url}" alt="${destination}" onerror="this.style.display='none'"/>`;
+            }
+        }
+
+        // Top activités chips
+        const actsContainer = cardEl.querySelector('.s3-live-acts');
+        if (actsContainer && info.activites && info.activites.length) {
+            const top3 = info.activites.slice(0,4);
+            actsContainer.innerHTML = `
+                <div class="s3-live-acts-title">Activités phares</div>
+                ${top3.map(a => `<span class="s3-act-chip">${a.icon} ${a.nom.substring(0,22)}</span>`).join('')}
+            `;
+        }
+    }
+
     </script>
 </body>
 </html>

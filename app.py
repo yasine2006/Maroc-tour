@@ -14,6 +14,8 @@ from datetime import datetime
 from functools import wraps
 import sqlite3                                         # ✅ AJOUT: base de données
 import os
+import requests   # pip install requests
+import time
 from werkzeug.security import generate_password_hash, check_password_hash  # ✅ AJOUT: bcrypt
 
 # ============================================================
@@ -1194,7 +1196,7 @@ def api_predict():
         if region in ("Maroc", "Tunisie", "Égypte"):
             raisons.append("🌍 Voyageur régional → destinations nature du Maghreb bien connues")
     if not raisons:
-        raisons.append(f"🤖 Modèle Decision Tree ({ML_ACCURACY}% précision) → profil global analysé")
+        raisons.append(f"🤖 Modèle SVM rbf ({ML_ACCURACY}% précision) → profil global analysé")
 
     # Incrémenter stats utilisateur
     if 'user_id' in session:
@@ -2555,8 +2557,468 @@ def api_admin_delete_comment(comment_id):
 
 
 # ============================================================
+# APIs TEMPS RÉEL — Météo, Itinéraire, Activités
+# ============================================================
+
+DEST_GPS = {
+    "Marrakech":         {"lat": 31.6295, "lon": -7.9811},
+    "Fès":               {"lat": 34.0181, "lon": -5.0078},
+    "Chefchaouen":       {"lat": 35.1688, "lon": -5.2636},
+    "Rabat":             {"lat": 34.0209, "lon": -6.8416},
+    "Agadir":            {"lat": 30.4278, "lon": -9.5981},
+    "Essaouira":         {"lat": 31.5085, "lon": -9.7595},
+    "Ouarzazate":        {"lat": 30.9335, "lon": -6.9370},
+    "Tanger":            {"lat": 35.7595, "lon": -5.8340},
+    "Oukaïmeden":        {"lat": 31.2032, "lon": -7.8571},
+    "Vallée d'Imlil":    {"lat": 31.1372, "lon": -7.9197},
+    "Gorges du Todra":   {"lat": 31.5897, "lon": -5.5879},
+    "Merzouga":          {"lat": 31.0800, "lon": -3.9730},
+    "Gorges du Dadès":   {"lat": 31.3667, "lon": -6.0000},
+    "Cascades d'Ouzoud": {"lat": 32.0167, "lon": -6.7167},
+    "Parc national de Toubkal": {"lat": 31.0600, "lon": -7.9170},
+    "Casablanca":        {"lat": 33.5731, "lon": -7.5898},
+    "Meknès":            {"lat": 33.8937, "lon": -5.5473},
+}
+
+OWM_KEY = "0cdffbd7e26b42d318fb0c994f725dbc"
+
+OTM_KEY = "YOUR_OPENTRIPMAP_KEY_HERE"  # opentripmap.io → Register gratuit
+
+CURATED_RESTAURANTS = {
+    "Marrakech": [
+        {"nom": "Le Jardin", "icon": "🍽️", "cuisine": "Cuisine marocaine & internationale", "prix_estime": "200-400 MAD", "quartier": "Médina"},
+        {"nom": "Nomad", "icon": "🍽️", "cuisine": "Cuisine marocaine contemporaine", "prix_estime": "180-350 MAD", "quartier": "Derb Dabbachi"},
+        {"nom": "Café des Épices", "icon": "☕", "cuisine": "Snacks, salades, thé", "prix_estime": "50-120 MAD", "quartier": "Place Rahba"},
+        {"nom": "Al Fassia", "icon": "🍽️", "cuisine": "Gastronomie marocaine", "prix_estime": "250-500 MAD", "quartier": "Guéliz"},
+        {"nom": "Chez Chegrouni", "icon": "🥘", "cuisine": "Tajines & couscous", "prix_estime": "60-120 MAD", "quartier": "Jemaa el-Fna"},
+    ],
+    "Fès": [
+        {"nom": "Nur", "icon": "🍽️", "cuisine": "Cuisine fassia raffinée", "prix_estime": "200-400 MAD", "quartier": "Médina"},
+        {"nom": "Café Clock", "icon": "☕", "cuisine": "Fusion maroco-internationale", "prix_estime": "80-200 MAD", "quartier": "Derb El Magana"},
+        {"nom": "Ruine de Bou Jeloud", "icon": "🥘", "cuisine": "Tajines traditionnels", "prix_estime": "70-150 MAD", "quartier": "Bab Bou Jeloud"},
+        {"nom": "Restaurant Dar Roumana", "icon": "🍽️", "cuisine": "Gastronomie marocaine", "prix_estime": "300-600 MAD", "quartier": "Médina"},
+    ],
+    "Chefchaouen": [
+        {"nom": "Bab Ssour", "icon": "🍽️", "cuisine": "Cuisine marocaine & rifaine", "prix_estime": "80-180 MAD", "quartier": "Médina bleue"},
+        {"nom": "Sofia Restaurant", "icon": "🥘", "cuisine": "Tajines & couscous", "prix_estime": "60-130 MAD", "quartier": "Place Outa el Hammam"},
+        {"nom": "Lala Mesouda", "icon": "🍽️", "cuisine": "Cuisine traditionnelle", "prix_estime": "70-150 MAD", "quartier": "Médina"},
+    ],
+    "Essaouira": [
+        {"nom": "Chez Sam", "icon": "🐟", "cuisine": "Poissons & fruits de mer", "prix_estime": "100-250 MAD", "quartier": "Port"},
+        {"nom": "Restaurant Les Alizes", "icon": "🍽️", "cuisine": "Cuisine marocaine & poissons", "prix_estime": "120-280 MAD", "quartier": "Médina"},
+        {"nom": "Café Taros", "icon": "☕", "cuisine": "Snacks & cocktails", "prix_estime": "60-150 MAD", "quartier": "Rue de la Skala"},
+    ],
+    "Agadir": [
+        {"nom": "Pure Passion", "icon": "🍽️", "cuisine": "Cuisine internationale", "prix_estime": "150-350 MAD", "quartier": "Marina"},
+        {"nom": "Le Jardin d'Agadir", "icon": "🥘", "cuisine": "Tajines & grillades", "prix_estime": "100-250 MAD", "quartier": "Centre"},
+        {"nom": "Fish & Chips Agadir", "icon": "🐟", "cuisine": "Poissons frais", "prix_estime": "80-200 MAD", "quartier": "Front de mer"},
+    ],
+    "Rabat": [
+        {"nom": "Le Dhow", "icon": "🍽️", "cuisine": "Cuisine franco-marocaine", "prix_estime": "200-450 MAD", "quartier": "Bouregreg"},
+        {"nom": "Dar Zitoun", "icon": "🥘", "cuisine": "Cuisine marocaine", "prix_estime": "150-350 MAD", "quartier": "Médina"},
+        {"nom": "Café Maure", "icon": "☕", "cuisine": "Thé à la menthe & pâtisseries", "prix_estime": "30-80 MAD", "quartier": "Kasbah des Oudayas"},
+    ],
+    "Tanger": [
+        {"nom": "El Morocco Club", "icon": "🍽️", "cuisine": "Cuisine marocaine & internationale", "prix_estime": "200-500 MAD", "quartier": "Médina"},
+        {"nom": "Restaurant Hamadi", "icon": "🥘", "cuisine": "Cuisine traditionnelle tangéroise", "prix_estime": "100-250 MAD", "quartier": "Médina"},
+        {"nom": "Salon Bleu", "icon": "☕", "cuisine": "Café & vue panoramique", "prix_estime": "50-120 MAD", "quartier": "Médina"},
+    ],
+    "Ouarzazate": [
+        {"nom": "Chez Dimitri", "icon": "🍽️", "cuisine": "Cuisine marocaine", "prix_estime": "100-220 MAD", "quartier": "Centre"},
+        {"nom": "Restaurant 3 Thés", "icon": "🥘", "cuisine": "Tajines & couscous", "prix_estime": "70-160 MAD", "quartier": "Centre"},
+    ],
+    "Merzouga": [
+        {"nom": "Restaurant Kasbah Mohayut", "icon": "🥘", "cuisine": "Cuisine berbère", "prix_estime": "80-180 MAD", "quartier": "Erg Chebbi"},
+        {"nom": "Auberge du Sud", "icon": "🍽️", "cuisine": "Cuisine marocaine du désert", "prix_estime": "60-150 MAD", "quartier": "Village"},
+    ],
+}
+
+CURATED_HOTELS = {
+    "Marrakech": [
+        {"nom": "La Mamounia", "type": "🏨 Hôtel ⭐⭐⭐⭐⭐", "etoiles": 5, "prix_nuit": "2500-8000 MAD", "quartier": "Médina"},
+        {"nom": "Riad Yasmine", "type": "🏡 Riad ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "600-1200 MAD", "quartier": "Médina"},
+        {"nom": "Les Jardins de la Koutoubia", "type": "🏨 Hôtel ⭐⭐⭐⭐⭐", "etoiles": 5, "prix_nuit": "1500-4000 MAD", "quartier": "Médina"},
+        {"nom": "Riad BE Marrakech", "type": "🏡 Riad ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "500-900 MAD", "quartier": "Derb Dabachi"},
+        {"nom": "Hotel Farouk", "type": "🏨 Hôtel ⭐⭐⭐", "etoiles": 3, "prix_nuit": "200-400 MAD", "quartier": "Guéliz"},
+    ],
+    "Fès": [
+        {"nom": "Riad Fès", "type": "🏡 Riad ⭐⭐⭐⭐⭐", "etoiles": 5, "prix_nuit": "1200-3000 MAD", "quartier": "Médina"},
+        {"nom": "Dar Roumana", "type": "🏡 Riad ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "700-1500 MAD", "quartier": "Médina"},
+        {"nom": "Hotel Batha", "type": "🏨 Hôtel ⭐⭐⭐", "etoiles": 3, "prix_nuit": "300-600 MAD", "quartier": "Batha"},
+        {"nom": "Riad Laaroussa", "type": "🏡 Riad ⭐⭐⭐⭐⭐", "etoiles": 5, "prix_nuit": "1000-2500 MAD", "quartier": "Médina"},
+    ],
+    "Chefchaouen": [
+        {"nom": "Lina Ryad & Spa", "type": "🏡 Riad ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "500-1000 MAD", "quartier": "Médina bleue"},
+        {"nom": "Hotel Chaouen", "type": "🏨 Hôtel ⭐⭐⭐", "etoiles": 3, "prix_nuit": "250-500 MAD", "quartier": "Centre"},
+        {"nom": "Dar Echchaouen", "type": "🏠 Maison d'hôtes ⭐⭐⭐", "etoiles": 3, "prix_nuit": "300-600 MAD", "quartier": "Médina"},
+    ],
+    "Essaouira": [
+        {"nom": "Hotel Sofitel Essaouira", "type": "🏨 Hôtel ⭐⭐⭐⭐⭐", "etoiles": 5, "prix_nuit": "1500-4000 MAD", "quartier": "Bord de mer"},
+        {"nom": "Riad Le Médina", "type": "🏡 Riad ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "600-1200 MAD", "quartier": "Médina"},
+        {"nom": "Hotel Beau Rivage", "type": "🏨 Hôtel ⭐⭐⭐", "etoiles": 3, "prix_nuit": "300-600 MAD", "quartier": "Centre"},
+    ],
+    "Agadir": [
+        {"nom": "Sofitel Agadir Royal Bay", "type": "🏨 Hôtel ⭐⭐⭐⭐⭐", "etoiles": 5, "prix_nuit": "1200-3500 MAD", "quartier": "Front de mer"},
+        {"nom": "Atlantic Palace", "type": "🏨 Hôtel ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "600-1500 MAD", "quartier": "Balnéaire"},
+        {"nom": "Riad Villa Blanche", "type": "🏡 Riad ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "700-1400 MAD", "quartier": "Centre"},
+    ],
+    "Rabat": [
+        {"nom": "Sofitel Rabat Jardin des Roses", "type": "🏨 Hôtel ⭐⭐⭐⭐⭐", "etoiles": 5, "prix_nuit": "1500-4000 MAD", "quartier": "Souissi"},
+        {"nom": "Hotel Belere", "type": "🏨 Hôtel ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "600-1200 MAD", "quartier": "Agdal"},
+        {"nom": "Riad Dar Ennakhil", "type": "🏡 Riad ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "500-1000 MAD", "quartier": "Médina"},
+    ],
+    "Tanger": [
+        {"nom": "El Minzah Hotel", "type": "🏨 Hôtel ⭐⭐⭐⭐⭐", "etoiles": 5, "prix_nuit": "1200-3000 MAD", "quartier": "Centre"},
+        {"nom": "Dar Nour", "type": "🏡 Riad ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "600-1200 MAD", "quartier": "Médina"},
+        {"nom": "Hotel Continental", "type": "🏨 Hôtel ⭐⭐⭐", "etoiles": 3, "prix_nuit": "300-600 MAD", "quartier": "Médina"},
+    ],
+    "Ouarzazate": [
+        {"nom": "Berbere Palace", "type": "🏨 Hôtel ⭐⭐⭐⭐⭐", "etoiles": 5, "prix_nuit": "800-2000 MAD", "quartier": "Centre"},
+        {"nom": "Kasbah Hotel Tombouctou", "type": "🏡 Kasbah ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "500-900 MAD", "quartier": "Kasbah"},
+    ],
+    "Merzouga": [
+        {"nom": "Kasbah Mohayut", "type": "🏡 Kasbah ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "600-1400 MAD", "quartier": "Erg Chebbi"},
+        {"nom": "Riad Madu", "type": "🏡 Riad ⭐⭐⭐", "etoiles": 3, "prix_nuit": "350-700 MAD", "quartier": "Village"},
+        {"nom": "Desert Luxury Camp", "type": "🏕️ Camp de luxe ⭐⭐⭐⭐", "etoiles": 4, "prix_nuit": "1200-2500 MAD", "quartier": "Erg Chebbi"},
+    ],
+}
+
+
+def _get_opentripmap_activities(lat, lon, rayon=10000):
+    if not OTM_KEY or OTM_KEY == "5ae2e3f221c38a28845f05b6fcefcd0c1b4f9bc5f8c0325de9953dd8":
+        return []
+    try:
+        r = requests.get(
+            "https://api.opentripmap.com/0.1/fr/places/radius",
+            params={
+                "radius": rayon, "lon": lon, "lat": lat,
+                "kinds": "interesting_places,historic,museums,architecture,natural,religion,cultural",
+                "rate": "2,3", "format": "json", "limit": 20, "apikey": OTM_KEY,
+            },
+            timeout=10
+        )
+        if r.status_code != 200:
+            return []
+        activites = []
+        for place in r.json():
+            nom = place.get("name", "").strip()
+            if not nom:
+                continue
+            kinds = place.get("kinds", "")
+            icon, cat = "📍", "Attraction"
+            if "museums" in kinds:        icon, cat = "🏛️", "Musée"
+            elif "religion" in kinds:     icon, cat = "🕌", "Monument religieux"
+            elif "historic" in kinds:     icon, cat = "🏰", "Site historique"
+            elif "natural" in kinds:      icon, cat = "🌿", "Site naturel"
+            elif "cultural" in kinds:     icon, cat = "🎭", "Site culturel"
+            elif "architecture" in kinds: icon, cat = "🏛️", "Architecture"
+            activites.append({
+                "nom": nom, "categorie": cat, "icon": icon,
+                "xid": place.get("xid", ""),
+                "lat": place.get("point", {}).get("lat"),
+                "lon": place.get("point", {}).get("lon"),
+                "hours": "", "website": "",
+                "rate": place.get("rate", 0),
+            })
+        activites.sort(key=lambda x: x.get("rate", 0), reverse=True)
+        return activites[:12]
+    except Exception as e:
+        print(f"OpenTripMap error: {e}")
+        return []
+
+
+
+def _geocode_fallback(nom):
+    if nom in DEST_GPS:
+        return DEST_GPS[nom]
+    try:
+        time.sleep(1)
+        r = requests.get(
+            "https://nominatim.openstreetmap.org/search",
+            params={"q": f"{nom}, Maroc", "format": "json", "limit": 1},
+            headers={"User-Agent": "MarocTour/1.0"},
+            timeout=6,
+        )
+        data = r.json()
+        if data:
+            return {"lat": float(data[0]["lat"]), "lon": float(data[0]["lon"])}
+    except Exception:
+        pass
+    return None
+
+
+@app.route('/api/coords', methods=['GET'])
+def api_coords():
+    """
+    Retourne lat/lon d'une ville marocaine (Nominatim fallback).
+    GET /api/coords?nom=Khenifra
+    """
+    nom = request.args.get('nom', '')
+    if not nom:
+        return jsonify({"success": False, "message": "Paramètre 'nom' requis"}), 400
+    coords = _geocode_fallback(nom)
+    if not coords:
+        return jsonify({"success": False, "message": f"'{nom}' introuvable"}), 404
+    return jsonify({"success": True, "nom": nom,
+                    "lat": coords["lat"], "lon": coords["lon"]})
+
+
+@app.route('/api/meteo', methods=['GET'])
+def api_meteo():
+    nom = request.args.get('nom', 'Marrakech')
+    coords = _geocode_fallback(nom)
+    if not coords:
+        return jsonify({"success": False, "message": "Destination introuvable"}), 404
+    try:
+        r = requests.get(
+            "https://api.openweathermap.org/data/2.5/weather",
+            params={"lat": coords["lat"], "lon": coords["lon"],
+                    "appid": OWM_KEY, "units": "metric", "lang": "fr"},
+            timeout=6,
+        )
+        d = r.json()
+        temp   = round(d["main"]["temp"], 1)
+        feels  = round(d["main"]["feels_like"], 1)
+        desc   = d["weather"][0]["description"].capitalize()
+        icon   = d["weather"][0]["icon"]
+        humid  = d["main"]["humidity"]
+        vent   = round(d["wind"]["speed"] * 3.6, 1)
+
+        if temp < 5:      conseil, saison = "❄️ Froid — Vêtements chauds obligatoires.", "Hiver"
+        elif temp < 18:   conseil, saison = "🌤️ Temps frais — Idéal pour randonner et visiter les médinas.", "Printemps/Automne"
+        elif temp < 28:   conseil, saison = "☀️ Temps idéal — La meilleure période pour explorer !", "Printemps/Automne"
+        elif temp < 35:   conseil, saison = "🌡️ Chaud — Sortir tôt le matin, eau et chapeau indispensables.", "Été"
+        else:             conseil, saison = "🔥 Très chaud — Éviter 12h–16h, privilégier les zones côtières.", "Canicule"
+
+        return jsonify({"success": True, "destination": nom,
+                        "temperature": temp, "ressenti": feels,
+                        "description": desc, "humidite": humid, "vent_kmh": vent,
+                        "icon_url": f"https://openweathermap.org/img/wn/{icon}@2x.png",
+                        "conseil": conseil, "saison": saison})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@app.route('/api/itineraire', methods=['GET'])
+def api_itineraire():
+    depart = request.args.get('depart', 'Casablanca')
+    dest   = request.args.get('destination', 'Marrakech')
+    c_dep  = _geocode_fallback(depart)
+    c_dest = _geocode_fallback(dest)
+    if not c_dep or not c_dest:
+        return jsonify({"success": False, "message": "Ville introuvable"}), 404
+    try:
+        url = (f"http://router.project-osrm.org/route/v1/driving/"
+               f"{c_dep['lon']},{c_dep['lat']};{c_dest['lon']},{c_dest['lat']}")
+        r = requests.get(url, params={"overview": "full", "geometries": "geojson"}, timeout=10)
+        d = r.json()
+        if d.get("code") != "Ok":
+            return jsonify({"success": False, "message": "Itinéraire introuvable"}), 404
+        route   = d["routes"][0]
+        dist_km = round(route["distance"] / 1000, 1)
+        dur_min = round(route["duration"] / 60)
+        dur_str = (f"{dur_min // 60}h{dur_min % 60:02d}" if dur_min >= 60 else f"{dur_min} min")
+        return jsonify({"success": True, "depart": depart, "destination": dest,
+                        "distance_km": dist_km, "duree": dur_str, "duree_minutes": dur_min,
+                        "coords_depart": c_dep, "coords_destination": c_dest,
+                        "geojson": route["geometry"]})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+@app.route('/api/activites', methods=['GET'])
+def api_activites():
+    nom    = request.args.get('nom', 'Marrakech')
+    rayon  = int(request.args.get('rayon', 6000))
+    coords = _geocode_fallback(nom)
+    if not coords:
+        return jsonify({"success": False, "message": "Destination introuvable"}), 404
+    lat, lon = coords["lat"], coords["lon"]
+    query = f"""[out:json][timeout:25];
+    (
+      node["tourism"~"attraction|museum|viewpoint|artwork|gallery|zoo"](around:{rayon},{lat},{lon});
+      node["historic"~"monument|castle|ruins|mosque|archaeological_site|fort|palace"](around:{rayon},{lat},{lon});
+      node["leisure"~"park|nature_reserve|garden"](around:{rayon},{lat},{lon});
+      node["natural"~"peak|waterfall|cave_entrance|beach|gorge"](around:{rayon},{lat},{lon});
+    );out body 20;"""
+    try:
+        r = requests.post("https://overpass-api.de/api/interpreter",
+                          data={"data": query}, timeout=30)
+        elements  = r.json().get("elements", [])
+        activites = []
+        vus = set()
+        for el in elements:
+            tags    = el.get("tags", {})
+            nom_act = tags.get("name") or tags.get("name:fr") or tags.get("name:ar") or ""
+            if not nom_act or nom_act in vus:
+                continue
+            vus.add(nom_act)
+            icon, cat = "📍", "Attraction"
+            if tags.get("tourism") == "museum":        icon, cat = "🏛️", "Musée"
+            elif tags.get("tourism") == "viewpoint":   icon, cat = "🌅", "Point de vue"
+            elif tags.get("historic") == "mosque":     icon, cat = "🕌", "Mosquée"
+            elif tags.get("historic"):                 icon, cat = "🏰", "Site historique"
+            elif tags.get("leisure") in ("park","nature_reserve"): icon, cat = "🌳", "Parc"
+            elif tags.get("natural") == "peak":        icon, cat = "⛰️", "Sommet"
+            elif tags.get("natural") == "waterfall":   icon, cat = "💧", "Cascade"
+            elif tags.get("natural") == "beach":       icon, cat = "🏖️", "Plage"
+            elif tags.get("natural") == "gorge":       icon, cat = "🪨", "Gorges"
+            activites.append({"nom": nom_act, "categorie": cat, "icon": icon,
+                               "lat": el.get("lat"), "lon": el.get("lon"),
+                               "opening_hours": tags.get("opening_hours", ""),
+                               "website": tags.get("website", "")})
+            if len(activites) >= 15:
+                break
+        return jsonify({"success": True, "destination": nom,
+                        "coordonnees": coords, "activites": activites, "total": len(activites)})
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
+
+
+# ============================================================
 # DÉMARRAGE
 # ============================================================
+@app.route('/api/destination-full', methods=['GET'])
+def api_destination_full():
+    nom   = request.args.get('nom', 'Marrakech')
+    rayon = int(request.args.get('rayon', 10000))
+    coords = _geocode_fallback(nom)
+    if not coords:
+        return jsonify({"success": False, "message": "Destination introuvable"}), 404
+    lat, lon = coords["lat"], coords["lon"]
+
+    # Wikipedia
+    image_url, description_wiki = "", ""
+    try:
+        r_wiki = requests.get(
+            f"https://fr.wikipedia.org/api/rest_v1/page/summary/{nom.replace(' ', '_')}",
+            headers={"User-Agent": "MarocTour/1.0"}, timeout=6)
+        if r_wiki.status_code == 200:
+            wdata = r_wiki.json()
+            thumb = wdata.get("thumbnail", {}).get("source", "")
+            if thumb:
+                image_url = re.sub(r'/\d+px-', '/800px-', thumb)
+            description_wiki = wdata.get("extract", "")[:400]
+        if not image_url:
+            r_en = requests.get(
+                f"https://en.wikipedia.org/api/rest_v1/page/summary/{nom.replace(' ', '_')}",
+                headers={"User-Agent": "MarocTour/1.0"}, timeout=5)
+            if r_en.status_code == 200:
+                thumb = r_en.json().get("thumbnail", {}).get("source", "")
+                if thumb:
+                    image_url = re.sub(r'/\d+px-', '/800px-', thumb)
+    except Exception:
+        pass
+
+    # Restaurants — curated first
+    curated_r = CURATED_RESTAURANTS.get(nom, [])
+    restaurants = []
+    if curated_r:
+        for idx, r in enumerate(curated_r):
+            restaurants.append({
+                "nom": r["nom"], "icon": r["icon"],
+                "cuisine": r["cuisine"], "prix_estime": r["prix_estime"],
+                "quartier": r.get("quartier", ""),
+                "website": "", "phone": "", "hours": "",
+                "lat": lat + 0.0008 * (idx - len(curated_r)/2),
+                "lon": lon + 0.0008 * (idx - len(curated_r)/2),
+            })
+    else:
+        try:
+            q = '[out:json][timeout:20];(node["amenity"~"restaurant|cafe"]["name"](around:' + str(rayon) + ',' + str(lat) + ',' + str(lon) + '););out center body 10;'
+            r_ov = requests.post("https://overpass-api.de/api/interpreter", data={"data": q}, timeout=25)
+            if r_ov.status_code == 200:
+                for el in r_ov.json().get("elements", [])[:8]:
+                    tags = el.get("tags", {})
+                    n = tags.get("name", "")
+                    if n:
+                        el_lat = el.get("lat") or (el.get("center") or {}).get("lat")
+                        el_lon = el.get("lon") or (el.get("center") or {}).get("lon")
+                        restaurants.append({"nom": n, "icon": "🍽️",
+                            "cuisine": tags.get("cuisine", "Cuisine locale").replace("_"," ").title(),
+                            "prix_estime": "100-300 MAD", "quartier": "",
+                            "website": "", "phone": "", "hours": tags.get("opening_hours",""),
+                            "lat": el_lat, "lon": el_lon})
+        except Exception:
+            pass
+
+    # Hôtels — curated first
+    curated_h = CURATED_HOTELS.get(nom, [])
+    hotels = []
+    if curated_h:
+        for idx, h in enumerate(curated_h):
+            hotels.append({
+                "nom": h["nom"], "type": h["type"], "etoiles": h["etoiles"],
+                "prix_nuit": h["prix_nuit"], "quartier": h.get("quartier", ""),
+                "website": "", "phone": "",
+                "lat": lat + 0.001 * (idx - len(curated_h)/2),
+                "lon": lon - 0.001 * (idx - len(curated_h)/2),
+            })
+    else:
+        try:
+            q = '[out:json][timeout:20];(node["tourism"~"hotel|riad"]["name"](around:' + str(rayon) + ',' + str(lat) + ',' + str(lon) + '););out center body 8;'
+            r_ov = requests.post("https://overpass-api.de/api/interpreter", data={"data": q}, timeout=25)
+            if r_ov.status_code == 200:
+                for el in r_ov.json().get("elements", [])[:6]:
+                    tags = el.get("tags", {})
+                    n = tags.get("name", "")
+                    if n:
+                        stars = int(tags.get("stars","3")) if str(tags.get("stars","3")).isdigit() else 3
+                        el_lat = el.get("lat") or (el.get("center") or {}).get("lat")
+                        el_lon = el.get("lon") or (el.get("center") or {}).get("lon")
+                        t_lbl = {"riad": "🏡 Riad", "guest_house": "🏠 Maison d'hôtes"}.get(tags.get("tourism","hotel"), f"🏨 Hôtel {'⭐'*min(stars,5)}")
+                        hotels.append({"nom": n, "type": t_lbl, "etoiles": stars,
+                            "prix_nuit": f"{300+stars*100}-{500+stars*150} MAD",
+                            "quartier": "", "website": "", "phone": "",
+                            "lat": el_lat, "lon": el_lon})
+        except Exception:
+            pass
+
+    # Activités — OpenTripMap first
+    activites = _get_opentripmap_activities(lat, lon, rayon)
+    if not activites:
+        try:
+            q = '[out:json][timeout:25];(node["tourism"~"attraction|museum|viewpoint"]["name"](around:' + str(rayon) + ',' + str(lat) + ',' + str(lon) + ');node["historic"]["name"](around:' + str(rayon) + ',' + str(lat) + ',' + str(lon) + ');node["natural"~"peak|waterfall|beach"]["name"](around:' + str(rayon) + ',' + str(lat) + ',' + str(lon) + '););out body 20;'
+            r_ov = requests.post("https://overpass-api.de/api/interpreter", data={"data": q}, timeout=30)
+            if r_ov.status_code == 200:
+                vus = set()
+                for el in r_ov.json().get("elements", []):
+                    tags = el.get("tags", {})
+                    n = tags.get("name", tags.get("name:fr",""))
+                    if not n or n in vus: continue
+                    vus.add(n)
+                    icon, cat = "📍", "Attraction"
+                    if tags.get("tourism") == "museum": icon, cat = "🏛️", "Musée"
+                    elif tags.get("historic") == "mosque": icon, cat = "🕌", "Mosquée"
+                    elif tags.get("historic"): icon, cat = "🏰", "Site historique"
+                    elif tags.get("natural") == "peak": icon, cat = "⛰️", "Sommet"
+                    elif tags.get("natural") == "waterfall": icon, cat = "💧", "Cascade"
+                    activites.append({"nom": n, "categorie": cat, "icon": icon,
+                        "hours": tags.get("opening_hours",""), "website": tags.get("website",""),
+                        "lat": el.get("lat"), "lon": el.get("lon")})
+                    if len(activites) >= 12: break
+        except Exception:
+            pass
+
+    budget_nuit  = hotels[0]["prix_nuit"] if hotels else "300-800 MAD / nuit"
+    budget_repas = "80-300 MAD / repas"
+
+    return jsonify({
+        "success": True, "destination": nom, "coordonnees": coords,
+        "image_url": image_url, "description": description_wiki,
+        "restaurants": restaurants, "hotels": hotels, "activites": activites,
+        "budget_nuit": budget_nuit, "budget_repas": budget_repas,
+        "nb_restaurants": len(restaurants), "nb_hotels": len(hotels),
+        "nb_activites": len(activites),
+        "sources": {
+            "restaurants": "Base curatée" if curated_r else "OpenStreetMap",
+            "hotels": "Base curatée" if curated_h else "OpenStreetMap",
+            "activites": "OpenTripMap" if (OTM_KEY and OTM_KEY != "YOUR_OPENTRIPMAP_KEY_HERE") else "OpenStreetMap",
+        }
+    })
+
+
+
 if __name__ == '__main__':
     print("\n" + "=" * 50)
     print("  MAROCTOUR - Serveur Flask")

@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
     /* ============================================================
        SERVICE 2 — "Blue City Routes"
@@ -105,6 +107,72 @@
         text-shadow: 0 2px 16px rgba(0,0,0,.4);
     }
     .svc-hero p { font-size: 1rem; color: rgba(255,255,255,.78); line-height: 1.65; max-width: 480px; margin: 0 auto; }
+    
+    /* ══ SERVICE 2 LIVE ENRICHMENT ══ */
+    #s2-live-section { margin-top: 28px; }
+    .s2-live-title {
+        font-size: 13px; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 1.2px; color: #888; margin: 20px 0 10px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .s2-live-title i { color: var(--s2-gold, #D4933A); }
+    #s2-plan-map {
+        width: 100%; height: 320px; border-radius: 14px;
+        border: 1px solid rgba(255,255,255,.08); margin-bottom: 20px;
+        background: #1a1a2e; overflow: hidden;
+    }
+    .s2-resto-grid { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+    .s2-resto-item {
+        display: flex; align-items: center; gap: 10px;
+        background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
+        border-radius: 10px; padding: 10px 14px;
+        transition: border-color .15s; cursor: pointer;
+    }
+    .s2-resto-item:hover { border-color: rgba(212,147,58,.35); }
+    .s2-resto-nom { flex: 1; font-size: 13px; font-weight: 600; color: #e8e4da; }
+    .s2-resto-sub { font-size: 11px; color: #888; margin-top: 2px; }
+    .s2-resto-prix {
+        font-size: 10px; background: rgba(212,147,58,.1); color: #D4933A;
+        border: 1px solid rgba(212,147,58,.2); border-radius: 20px; padding: 2px 8px;
+    }
+    .s2-hotel-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .s2-hotel-item {
+        flex: 1; min-width: 220px;
+        background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.07);
+        border-radius: 10px; padding: 12px 14px; cursor: pointer;
+        transition: border-color .15s;
+    }
+    .s2-hotel-item:hover { border-color: rgba(100,180,255,.3); }
+    .s2-hotel-nom { font-size: 13px; font-weight: 600; color: #e8e4da; margin-bottom: 4px; }
+    .s2-hotel-stars { color: #D4933A; font-size: 12px; }
+    .s2-hotel-prix {
+        font-size: 11px; color: #64b4ff;
+        background: rgba(100,180,255,.08); border: 1px solid rgba(100,180,255,.15);
+        border-radius: 6px; padding: 3px 8px; display: inline-block; margin-top: 6px;
+    }
+    .s2-dest-img {
+        width: 100%; height: 200px; object-fit: cover;
+        border-radius: 14px; margin-bottom: 16px;
+        border: 1px solid rgba(255,255,255,.06);
+    }
+    .s2-wiki-desc {
+        font-size: 12px; color: #9a9688; line-height: 1.6;
+        font-style: italic; margin-bottom: 16px;
+    }
+    .s2-spin { display: flex; align-items: center; gap: 8px; color: #D4933A; font-size: 12px; padding: 8px 0; }
+    .s2-spinner { width: 14px; height: 14px; border: 2px solid rgba(212,147,58,.2);
+        border-top-color: #D4933A; border-radius: 50%; animation: spin .8s linear infinite; }
+    .s2-live-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(39,174,96,.1); border: 1px solid rgba(39,174,96,.25);
+        border-radius: 20px; padding: 4px 12px; font-size: 11px;
+        color: #27ae60; font-weight: 600; margin-bottom: 16px;
+    }
+    .s2-live-badge::before {
+        content: ''; width: 7px; height: 7px; background: #27ae60;
+        border-radius: 50%; animation: pulse-g 1.5s infinite;
+    }
+
     </style>
 </head>
 <body class="service-page service2-page">
@@ -538,6 +606,8 @@
             saveBtn.innerHTML = '<i class="fas fa-bookmark"></i> Sauvegarder ce plan';
             saveBtn.style.background = 'linear-gradient(135deg,#D4933A,#b87a1e)';
             document.getElementById('plan-result').scrollIntoView({behavior:'smooth'});
+            // Load real data
+            setTimeout(() => enrichirPlanLive(data.destination), 300);
         }
 
         async function logout() {
@@ -763,6 +833,102 @@
 
         document.getElementById('modal-body').innerHTML = html;
     }
+
+        /* ══ SERVICE 2 LIVE ENRICHMENT ══════════════════════════ */
+        let _s2Map = null;
+
+        async function enrichirPlanLive(nom) {
+            // Inject live section after plan-content if not exists
+            if (!document.getElementById('s2-live-section')) {
+                const liveDiv = document.createElement('div');
+                liveDiv.id = 's2-live-section';
+                liveDiv.innerHTML = `
+                    <span class="s2-live-badge">● Données en temps réel</span>
+                    <img id="s2-dest-img" class="s2-dest-img" src="" style="display:none"/>
+                    <p id="s2-wiki-desc" class="s2-wiki-desc"></p>
+                    <div class="s2-live-title"><i class="fas fa-map"></i>Carte de la destination</div>
+                    <div id="s2-plan-map"></div>
+                    <div class="s2-live-title"><i class="fas fa-utensils"></i>Top Restaurants</div>
+                    <div id="s2-restos-zone"><div class="s2-spin"><div class="s2-spinner"></div>Chargement…</div></div>
+                    <div class="s2-live-title"><i class="fas fa-hotel"></i>Hôtels & Riads recommandés</div>
+                    <div id="s2-hotels-zone"><div class="s2-spin"><div class="s2-spinner"></div>Chargement…</div></div>
+                `;
+                document.getElementById('plan-content').appendChild(liveDiv);
+            }
+            try {
+                const d = await fetch('/api/destination-full?nom=' + encodeURIComponent(nom) + '&rayon=10000').then(r=>r.json());
+                if (!d.success) return;
+
+                // Image
+                const img = document.getElementById('s2-dest-img');
+                if (img && d.image_url) {
+                    img.src = d.image_url;
+                    img.style.display = 'block';
+                    img.onerror = () => img.style.display = 'none';
+                }
+                // Description Wikipedia
+                const desc = document.getElementById('s2-wiki-desc');
+                if (desc && d.description) desc.textContent = d.description + '…';
+
+                // Carte
+                if (d.coordonnees && !_s2Map) {
+                    const coords = [d.coordonnees.lat, d.coordonnees.lon];
+                    _s2Map = L.map('s2-plan-map').setView(coords, 13);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+                        {attribution:'© OpenStreetMap · © CARTO', maxZoom:19}).addTo(_s2Map);
+                    L.marker(coords, {icon: L.divIcon({className:'',
+                        html:'<div style="width:32px;height:32px;background:rgba(212,147,58,.9);border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 2px 8px rgba(0,0,0,.5)">📍</div>',
+                        iconSize:[32,32], iconAnchor:[16,16]
+                    })}).addTo(_s2Map).bindPopup('<b>' + esc(nom) + '</b>').openPopup();
+                    // Add restaurants + hotels markers
+                    (d.restaurants||[]).forEach(r => {
+                        if (r.lat && r.lon)
+                            L.circleMarker([r.lat,r.lon],{radius:6,fillColor:'#e74c3c',color:'#fff',weight:1.5,fillOpacity:.9})
+                             .addTo(_s2Map).bindPopup('<b>' + r.icon + ' ' + esc(r.nom) + '</b>');
+                    });
+                    (d.hotels||[]).forEach(h => {
+                        if (h.lat && h.lon)
+                            L.circleMarker([h.lat,h.lon],{radius:7,fillColor:'#3a7aff',color:'#fff',weight:2,fillOpacity:.9})
+                             .addTo(_s2Map).bindPopup('<b>🏨 ' + esc(h.nom) + '</b>');
+                    });
+                }
+
+                // Restaurants
+                const rzone = document.getElementById('s2-restos-zone');
+                if (rzone) {
+                    if (!d.restaurants.length) {
+                        rzone.innerHTML = '<div style="font-size:12px;color:#888;padding:6px 0">Aucun restaurant trouvé à proximité.</div>';
+                    } else {
+                        rzone.innerHTML = '<div class="s2-resto-grid">' + d.restaurants.map(r => `
+                            <div class="s2-resto-item">
+                                <span style="font-size:18px">${r.icon}</span>
+                                <div style="flex:1;min-width:0">
+                                    <div class="s2-resto-nom">${esc(r.nom)}</div>
+                                    <div class="s2-resto-sub">${esc(r.cuisine)}${r.hours?' · ⏰ '+r.hours.substring(0,20):''}</div>
+                                </div>
+                                <span class="s2-resto-prix">${r.prix_estime}</span>
+                            </div>`).join('') + '</div>';
+                    }
+                }
+
+                // Hôtels
+                const hzone = document.getElementById('s2-hotels-zone');
+                if (hzone) {
+                    if (!d.hotels.length) {
+                        hzone.innerHTML = '<div style="font-size:12px;color:#888;padding:6px 0">Aucun hôtel trouvé à proximité.</div>';
+                    } else {
+                        hzone.innerHTML = '<div class="s2-hotel-grid">' + d.hotels.map(h => `
+                            <div class="s2-hotel-item">
+                                <div class="s2-hotel-nom">🏨 ${esc(h.nom)}</div>
+                                <div class="s2-hotel-stars">${'⭐'.repeat(Math.min(h.etoiles,5))}</div>
+                                <div style="font-size:11px;color:#888;margin-top:3px">${esc(h.type)}</div>
+                                <span class="s2-hotel-prix">${h.prix_nuit} / nuit</span>
+                            </div>`).join('') + '</div>';
+                    }
+                }
+            } catch(e) { console.error('enrichirPlanLive error:', e); }
+        }
+
     </script>
 </body>
 </html>
