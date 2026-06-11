@@ -1,0 +1,119 @@
+================================================================
+       RAPPORT DES AJOUTS — Commit 0425ef3 (20/05/2026)
+================================================================
+
+FICHIERS MODIFIÉS :
+  - app.py
+  - templates/service1.html
+  - templates/service2.html
+  - templates/service3.html
+
+================================================================
+1. app.py
+================================================================
+
+a) Nouveaux imports :
+   - import requests   (pip install requests)
+   - import time
+
+b) Modification du modèle ML :
+   - Ancien  : "Modèle Decision Tree"
+   - Nouveau : "Modèle SVM rbf"
+   (dans le message de raison affiché après prédiction)
+
+c) Section APIs Temps Réel (nouvelle section ajoutée) :
+
+   → DEST_GPS :
+     Dictionnaire contenant les coordonnées GPS (latitude/longitude)
+     de 17 destinations marocaines :
+       Marrakech, Fès, Chefchaouen, Rabat, Agadir, Essaouira,
+       Ouarzazate, Tanger, Oukaïmeden, Vallée d'Imlil,
+       Gorges du Todra, Merzouga, Gorges du Dadès,
+       Cascades d'Ouzoud, Parc national de Toubkal,
+       Casablanca, Meknès.
+
+   → OWM_KEY :
+     Clé API OpenWeatherMap pour les données météo en temps réel.
+
+   → OTM_KEY :
+     Clé API OpenTripMap (placeholder — à remplacer par une vraie clé).
+     Utilisée pour récupérer les activités touristiques.
+
+   → CURATED_RESTAURANTS :
+     Base de données de restaurants sélectionnés pour chaque ville,
+     avec les informations suivantes par restaurant :
+       - Nom du restaurant
+       - Icône (emoji)
+       - Type de cuisine
+       - Prix estimé (en MAD)
+       - Quartier
+     Villes couvertes :
+       Marrakech (5 restaurants), Fès (4), Chefchaouen (3),
+       Essaouira (3), Agadir (3), Rabat (3), Tanger (3),
+       Ouarzazate (2), Merzouga (2)
+
+================================================================
+2. templates/service2.html
+================================================================
+
+a) Ajout de la librairie Leaflet.js (cartes interactives) :
+   - <link> CSS : unpkg.com/leaflet@1.9.4/dist/leaflet.css
+   - <script>  : unpkg.com/leaflet@1.9.4/dist/leaflet.js
+
+b) Nouvelle section "Live Enrichment" (#s2-live-section) :
+
+   → Carte interactive (#s2-plan-map) :
+     - Hauteur : 320px
+     - Coins arrondis, fond sombre
+     - Affiche le parcours/itinéraire sur la carte
+
+   → Grille de restaurants (.s2-resto-grid) :
+     - Cartes avec nom, sous-titre (cuisine + quartier), prix (badge)
+     - Hover effect avec bordure dorée
+
+   → Grille d'hôtels (.s2-hotel-grid) :
+     - Cartes flex, min-width 220px
+     - Style cohérent avec le reste du service
+
+================================================================
+3. templates/service3.html
+================================================================
+
+a) Ajout de la librairie Leaflet.js (même que service2) :
+   - CSS + JS Leaflet 1.9.4
+
+b) Nouvelles cartes de prévisualisation des destinations :
+
+   → Image de destination (.s3-dest-preview) :
+     - Hauteur 140px, object-fit cover
+     - Coins arrondis en haut
+
+   → Placeholder (.s3-dest-preview-placeholder) :
+     - Hauteur 80px, dégradé sombre
+     - Emoji centré si pas d'image disponible
+
+   → Section activités (.s3-live-acts) :
+     - Titre en majuscules, style discret
+     - Chips d'activités (.s3-act-chip) :
+       Badges dorés affichant les activités disponibles
+       pour chaque destination
+
+================================================================
+RÉSUMÉ GLOBAL
+================================================================
+
+L'objectif de ce commit est d'enrichir l'application avec des
+données en temps réel et une présentation visuelle améliorée :
+
+  ✅ Intégration de cartes interactives (Leaflet.js) dans les
+     services 2 et 3.
+
+  ✅ Ajout d'une base de restaurants curatés pour les principales
+     villes marocaines (affichage prix, cuisine, quartier).
+
+  ✅ Préparation des APIs météo (OpenWeatherMap) et activités
+     (OpenTripMap) avec les coordonnées GPS de 17 destinations.
+
+  ✅ Mise à jour du modèle ML affiché : Decision Tree → SVM rbf.
+
+================================================================
