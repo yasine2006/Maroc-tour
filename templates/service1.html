@@ -554,27 +554,53 @@
     <script>
     /* ── UTILS ────────────────────────────────────────────── */
 
-    /* ══ IMAGES WIKIMEDIA PAR DESTINATION (stables, HD) ══ */
+    /* ══ IMAGES WIKIMEDIA PAR DESTINATION (Special:FilePath — stables, HD) ══ */
     const DEST_IMAGES = {
-        "Rabat":       "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Rabat_Hassan_Tower.jpg/800px-Rabat_Hassan_Tower.jpg",
-        "Marrakech":   "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Jamaa_el_Fna_at_dusk.jpg/800px-Jamaa_el_Fna_at_dusk.jpg",
-        "Fès":         "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Fes_el_Bali_2.jpg/800px-Fes_el_Bali_2.jpg",
-        "Chefchaouen": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Chefchaouen%2C_Morocco.jpg/800px-Chefchaouen%2C_Morocco.jpg",
-        "Agadir":      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Agadir-panoramic.jpg/800px-Agadir-panoramic.jpg",
-        "Essaouira":   "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Essaouira_1.jpg/800px-Essaouira_1.jpg",
-        "Ouarzazate":  "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Kasbah_Ait_Benhaddou.jpg/800px-Kasbah_Ait_Benhaddou.jpg",
-        "Tanger":      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Tangier-bay.jpg/800px-Tangier-bay.jpg",
-        "Meknès":      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Bab_Mansour_gate_-_Meknes_-_Morocco.jpg/800px-Bab_Mansour_gate_-_Meknes_-_Morocco.jpg",
-        "Oukaïmeden":          "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Oukaimeden.jpg/800px-Oukaimeden.jpg",
-        "Vallée d'Imlil":      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Imlil_Morocco.jpg/800px-Imlil_Morocco.jpg",
-        "Parc national de Toubkal": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Jebel_Toubkal.jpg/800px-Jebel_Toubkal.jpg",
-        "Gorges du Todra":     "https://upload.wikimedia.org/wikipedia/commons/thumb/8/88/Todra_Gorge.jpg/800px-Todra_Gorge.jpg",
-        "Gorges du Dadès":     "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Dades_Valley.jpg/800px-Dades_Valley.jpg",
-        "Merzouga":            "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Erg_Chebbi_Sahara_Morocco.jpg/800px-Erg_Chebbi_Sahara_Morocco.jpg",
-        "Cascades d'Ouzoud":   "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Ouzoud_Waterfalls.jpg/800px-Ouzoud_Waterfalls.jpg",
+        // ── VILLES ──
+        "Rabat":         "https://commons.wikimedia.org/wiki/Special:FilePath/Hassan_Tower_and_columns_(Rabat,_Morocco)_(15126547404).jpg?width=800",
+        "Marrakech":     "https://upload.wikimedia.org/wikipedia/commons/7/7f/Maroc_Marrakech_Jemaa-el-Fna_Luc_Viatour.JPG",
+        "Fès":           "https://commons.wikimedia.org/wiki/Special:FilePath/Chouwara_Tannery.jpg?width=800",
+        "Chefchaouen":   "https://commons.wikimedia.org/wiki/Special:FilePath/Chefchaouen%2C_the_Blue_Pearl_of_Morocco.jpg?width=800",
+        "Casablanca":    "https://upload.wikimedia.org/wikipedia/en/c/ce/Hassan_II_mosque%2C_Casablanca_2.jpg",
+        "Agadir":        "https://commons.wikimedia.org/wiki/Special:FilePath/Corniche_from_Agadir_Kasbah.jpg?width=800",
+        "Tanger":        "https://commons.wikimedia.org/wiki/Special:FilePath/Tangier_Medina_(25952777257).jpg?width=800",
+        "Essaouira":     "https://upload.wikimedia.org/wikipedia/commons/3/3b/Ramparts_of_Essaouira.JPG",
+        "Meknès":        "https://commons.wikimedia.org/wiki/Special:FilePath/Bab_Mansour%2C_Mekn%C3%A8s%2C_Maroc.jpg?width=800",
+        "Tétouan":       "https://commons.wikimedia.org/wiki/Special:FilePath/Medina_de_Tetouan_Nov2020_057.jpg?width=800",
+        "El Jadida":     "https://commons.wikimedia.org/wiki/Special:FilePath/Cistern_Portuguese_El_Jadida.jpg?width=800",
+        "Safi":          "https://commons.wikimedia.org/wiki/Special:FilePath/Safi_city%2C_Morocco.jpg?width=800",
+        "Oujda":         "https://commons.wikimedia.org/wiki/Special:FilePath/Oujda_La_Grande_Mosqu%C3%A9e.JPG?width=800",
+        "Nador":         "https://commons.wikimedia.org/wiki/Special:FilePath/Airplane_view_of_marchica_nador_2020.jpg?width=800",
+        "Laâyoune":      "https://commons.wikimedia.org/wiki/Special:FilePath/Entrada_a_Laayoune.JPG?width=800",
+        "Dakhla":        "https://commons.wikimedia.org/wiki/Special:FilePath/Kitesurf-Dakhla-Morocco_%285%29.JPG?width=800",
+        "Ifrane":        "https://commons.wikimedia.org/wiki/Special:FilePath/Ifrane_city_Morocco.jpg?width=800",
+        "Béni Mellal":   "https://commons.wikimedia.org/wiki/Special:FilePath/The_Beni_Mellal_castle.jpg?width=800",
+        "Moulay Idriss": "https://commons.wikimedia.org/wiki/Special:FilePath/Moulay_Idriss_Zerhoun.jpg?width=800",
+        // ── NATURE ──
+        "Oukaïmeden":               "https://commons.wikimedia.org/wiki/Special:FilePath/Sunset_Oukaimeden.jpg?width=800",
+        "Vallée d'Imlil":           "https://commons.wikimedia.org/wiki/Special:FilePath/A_view_on_the_Atlas_Mountains_from_Imlil%2C_Morocco.jpg?width=800",
+        "Parc national de Toubkal": "https://commons.wikimedia.org/wiki/Special:FilePath/A_view_on_the_Atlas_Mountains_from_Imlil%2C_Morocco.jpg?width=800",
+        "Gorges du Todra":          "https://commons.wikimedia.org/wiki/Special:FilePath/Togra_Gorge.JPG?width=800",
+        "Todra":                    "https://commons.wikimedia.org/wiki/Special:FilePath/Togra_Gorge.JPG?width=800",
+        "Dunes de Merzouga (Sahara)": "https://commons.wikimedia.org/wiki/Special:FilePath/Dunes-Merzouga-Erg_Chebi.JPG?width=800",
+        "Merzouga":                 "https://commons.wikimedia.org/wiki/Special:FilePath/Dunes-Merzouga-Erg_Chebi.JPG?width=800",
+        "Parc national de Souss-Massa": "https://commons.wikimedia.org/wiki/Special:FilePath/Northern_bald_ibis_(Geronticus_eremita).jpg?width=800",
+        "Vallée du Draa":           "https://commons.wikimedia.org/wiki/Special:FilePath/Vall%C3%A9e_du_Draa_et_ses_oasis.jpg?width=800",
+        "Gorges du Dadès":          "https://commons.wikimedia.org/wiki/Special:FilePath/Gorges_de_Dad%C3%A8s.jpg?width=800",
+        "Cascades dOuzoud":         "https://commons.wikimedia.org/wiki/Special:FilePath/Cascades_d%27Ouzoud.jpg?width=800",
+        "Cascades d'Ouzoud":        "https://commons.wikimedia.org/wiki/Special:FilePath/Cascades_d%27Ouzoud.jpg?width=800",
+        "Plage de Legzira":         "https://commons.wikimedia.org/wiki/Special:FilePath/Beauty_of_Moroccan_Legzira.jpg?width=800",
+        "Cap Spartel":              "https://commons.wikimedia.org/wiki/Special:FilePath/Cap_Spartel_Lighthouse.jpg?width=800",
+        "Grottes dHercule":         "https://commons.wikimedia.org/wiki/Special:FilePath/Caves_of_Hercules.jpg?width=800",
+        "Grottes d'Hercule":        "https://commons.wikimedia.org/wiki/Special:FilePath/Caves_of_Hercules.jpg?width=800",
+        "Vallée du Ziz":            "https://commons.wikimedia.org/wiki/Special:FilePath/Ziz_Valley_in_the_desert_of_Morocco.jpg?width=800",
+        "Forêt de Cèdres dAzrou":  "https://commons.wikimedia.org/wiki/Special:FilePath/Azrou_cedar_forest_%2854242536382%29.jpg?width=800",
+        "Forêt de Cèdres d'Azrou": "https://commons.wikimedia.org/wiki/Special:FilePath/Azrou_cedar_forest_%2854242536382%29.jpg?width=800",
+        "Cirque de Jaffar":         "https://commons.wikimedia.org/wiki/Special:FilePath/Ascension_Jbel_El_Ayachi_3757_m.jpg?width=800",
+        "Iles Purpuraires":         "https://commons.wikimedia.org/wiki/Special:FilePath/Mogador_Iles_purpuraires_0001.jpg?width=800",
     };
-    const FALLBACK_VILLE   = "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Morocco_map.jpg/800px-Morocco_map.jpg";
-    const FALLBACK_NATURE  = "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Atlas_mountains_morocco.jpg/800px-Atlas_mountains_morocco.jpg";
+    const FALLBACK_VILLE   = "https://upload.wikimedia.org/wikipedia/commons/7/7f/Maroc_Marrakech_Jemaa-el-Fna_Luc_Viatour.JPG";
+    const FALLBACK_NATURE  = "https://commons.wikimedia.org/wiki/Special:FilePath/A_view_on_the_Atlas_Mountains_from_Imlil%2C_Morocco.jpg?width=800";
 
     function getDestImage(nom, type) {
         return DEST_IMAGES[nom] || (type === 'Ville' ? FALLBACK_VILLE : FALLBACK_NATURE);
